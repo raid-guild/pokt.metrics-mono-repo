@@ -1,0 +1,16 @@
+{
+  "name": "pokt.metrics-mono-repo",
+  "private": true,
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+    "dev": "mprocs",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "mprocs": "^0.7.3"
+  }
+}
