@@ -1,0 +1,57 @@
+@startuml
+!theme cerulean
+
+skinparam componentStyle rectangle
+
+package "API Layer" {
+  [Express REST API] as Express
+  [Apollo GraphQL API] as Apollo
+  [Swagger Docs] as Swagger
+  [Node.js API Server] as APIServer
+  Swagger --> APIServer
+  Express --> APIServer
+  Apollo --> APIServer
+}
+
+package "Ongoing Indexing Layer" {
+  [Node.js Worker (Live Indexer)] as LiveWorker
+  [BullMQ Scheduler] as BullMQ
+  [Redis Cache] as Redis
+  [PostgreSQL + TimescaleDB] as Postgres
+  [Moralis API] as Moralis
+
+  LiveWorker --> BullMQ
+  LiveWorker --> Moralis : fetches live data
+  LiveWorker --> Postgres : writes time-series
+  BullMQ --> Redis : queue state
+}
+
+package "Historical Indexing Layer" {
+  [Node.js Worker (Backfill)] as HistoryWorker
+  [Subgraph API] as Subgraph
+
+  HistoryWorker --> Subgraph : fetches historical data
+  HistoryWorker --> Postgres : writes time-series
+}
+
+Postgres --> APIServer : read aggregated data
+Redis --> APIServer : cached data
+
+package "Frontend Layer" {
+  [Frontend Client] as FrontendClient
+  FrontendClient --> Apollo : GraphQL queries
+  FrontendClient --> Express : REST calls
+}
+
+package "CI/CD + Hosting" {
+  [GitHub Actions] as GitHub
+  [Docker Containers] as Docker
+  [Render.com] as Render
+  [Logtail (optional)] as Logtail
+
+  GitHub --> Docker : builds image
+  Docker --> Render : deploys container
+  Render --> Logtail : external logs
+}
+
+@enduml
