@@ -5,12 +5,22 @@
   "description": "",
   "scripts": {
     "dev": "mprocs",
+    "lint": "eslint \"packages/**/*.{ts,tsx}\"",
+    "lint:fix": "eslint \"packages/**/*.{ts,tsx}\" --fix",
+    "format": "prettier --write \"packages/**/*.{ts,tsx,js,jsx,json,md}\"",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "mprocs": "^0.7.3"
+    "@typescript-eslint/eslint-plugin": "^8.34.0",
+    "@typescript-eslint/parser": "^8.34.0",
+    "eslint": "^8.57.1",
+    "eslint-config-prettier": "^10.1.5",
+    "eslint-plugin-import": "^2.31.0",
+    "eslint-plugin-prettier": "^5.4.1",
+    "mprocs": "^0.7.3",
+    "prettier": "^3.5.3"
   }
 }
