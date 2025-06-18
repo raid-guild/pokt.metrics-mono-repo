@@ -1,2 +1,2 @@
-export * from './fetchPoolSnapshot';
-export * from './fetchTokenPrice';
+export * from './fetchPoolSnapshots';
+export * from './fetchTokenPrices';

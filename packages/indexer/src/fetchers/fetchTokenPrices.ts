@@ -2,7 +2,7 @@ import { ADDRESSES_BY_CHAIN, MachineType } from '../utils/chains';
 import { moralisClient } from '../utils/moralisClient';
 import { retry } from '../utils/retry';
 
-export const fetchTokenPrice = async () => {
+export const fetchTokenPrices = async () => {
   try {
     const prices = await Promise.all(
       Object.entries(ADDRESSES_BY_CHAIN).map(
