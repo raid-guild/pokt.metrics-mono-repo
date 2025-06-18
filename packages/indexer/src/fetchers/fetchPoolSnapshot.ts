@@ -2,34 +2,38 @@ import { ADDRESSES_BY_CHAIN, MachineType } from '../utils/chains';
 import { moralisClient } from '../utils/moralisClient';
 import { retry } from '../utils/retry';
 
-export const fetchTokenPrice = async () => {
+export const fetchPoolSnapshot = async () => {
   try {
     const prices = await Promise.all(
       Object.entries(ADDRESSES_BY_CHAIN).map(
-        async ([chain, { chainId, exchange, machineType, wpokt }]) => {
+        async ([chain, { chainId, exchange, machineType, poolAddress, wpokt }]) => {
           return retry(
             async () => {
               if (machineType === MachineType.SOLANA) {
-                return moralisClient.solana
-                  .getTokenPrice({ tokenAddress: wpokt })
-                  .then((response) => ({
-                    chain_id: chainId,
-                    exchange,
-                    machine_type: machineType,
-                    price: response.usdPrice,
-                    timestamp: Date.now(),
-                    token_address: wpokt,
-                  }));
+                return moralisClient.solana.getTokenPairStats({ poolAddress }).then((response) => ({
+                  chain_id: chainId,
+                  exchange,
+                  machine_type: machineType,
+                  pool_address: poolAddress,
+                  price: response.currentUsdPrice,
+                  timestamp: Date.now(),
+                  token_address: wpokt,
+                  tvl_usd: Number(response.totalLiquidityUsd),
+                  volume_usd: response.totalVolume['24h'],
+                }));
               } else {
                 return moralisClient.evm
-                  .getTokenPrice({ tokenAddress: wpokt, chainId })
+                  .getTokenPairStats({ chainId, poolAddress })
                   .then((response) => ({
                     chain_id: chainId,
                     exchange,
                     machine_type: machineType,
-                    price: response.usdPrice,
+                    pool_address: poolAddress,
+                    price: response.currentUsdPrice,
                     timestamp: Date.now(),
                     token_address: wpokt,
+                    tvl_usd: Number(response.totalLiquidityUsd),
+                    volume_usd: response.totalVolume['24h'],
                   }));
               }
             },
