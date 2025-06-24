@@ -15,10 +15,10 @@ export const fetchPoolSnapshots = async () => {
                   exchange,
                   machine_type: machineType,
                   pool_address: poolAddress,
-                  price: response.currentUsdPrice,
+                  price: parseFloat(response.currentUsdPrice),
                   timestamp: Date.now(),
                   token_address: wpokt,
-                  tvl_usd: Number(response.totalLiquidityUsd),
+                  tvl_usd: parseFloat(response.totalLiquidityUsd),
                   volume_usd: response.totalVolume['24h'],
                 }));
               } else {
@@ -29,10 +29,10 @@ export const fetchPoolSnapshots = async () => {
                     exchange,
                     machine_type: machineType,
                     pool_address: poolAddress,
-                    price: response.currentUsdPrice,
+                    price: parseFloat(response.currentUsdPrice),
                     timestamp: Date.now(),
                     token_address: wpokt,
-                    tvl_usd: Number(response.totalLiquidityUsd),
+                    tvl_usd: parseFloat(response.totalLiquidityUsd),
                     volume_usd: response.totalVolume['24h'],
                   }));
               }

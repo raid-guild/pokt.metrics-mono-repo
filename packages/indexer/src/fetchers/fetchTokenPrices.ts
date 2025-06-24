@@ -1,10 +1,11 @@
+import { TokenPriceRow } from '../types';
 import { ADDRESSES_BY_CHAIN, MachineType } from '../utils/chains';
 import { moralisClient } from '../utils/moralisClient';
 import { retry } from '../utils/retry';
 
 export const fetchTokenPrices = async () => {
   try {
-    const prices = await Promise.all(
+    const prices: TokenPriceRow[] = await Promise.all(
       Object.entries(ADDRESSES_BY_CHAIN).map(
         async ([chain, { chainId, exchange, machineType, wpokt }]) => {
           return retry(
@@ -16,7 +17,7 @@ export const fetchTokenPrices = async () => {
                     chain_id: chainId,
                     exchange,
                     machine_type: machineType,
-                    price: response.usdPrice,
+                    price: parseFloat(response.usdPrice),
                     timestamp: Date.now(),
                     token_address: wpokt,
                   }));

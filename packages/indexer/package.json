@@ -14,6 +14,7 @@
   "license": "ISC",
   "devDependencies": {
     "@types/node": "^24.0.3",
+    "@types/pg": "^8.15.4",
     "eslint-plugin-simple-import-sort": "^12.1.1",
     "tsx": "^4.20.3",
     "typescript": "^5.8.3"
@@ -21,6 +22,7 @@
   "dependencies": {
     "dotenv": "^16.5.0",
     "moralis": "^2.27.2",
+    "pg": "^8.16.2",
     "viem": "^2.31.3"
   }
 }
