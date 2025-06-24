@@ -1,5 +1,5 @@
 scrollback: 10000
 procs:
   indexer:
-    cwd: packages/indexer
+    cwd: packages/api
     shell: pnpm run dev
