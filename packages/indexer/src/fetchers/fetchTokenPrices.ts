@@ -1,6 +1,6 @@
 import { TokenPriceRow } from '../types';
 import { ADDRESSES_BY_CHAIN, MachineType } from '../utils/chains';
-import { moralisClient } from '../utils/moralisClient';
+import { moralisClient } from './moralisClient';
 import { retry } from '../utils/retry';
 
 export const fetchTokenPrices = async () => {
