@@ -6,7 +6,7 @@ WORKDIR /app
 
 ENV CI=true
 
-COPY ../../pnpm-lock.yaml ../../package.json ./
+COPY pnpm-lock.yaml package.json ./
 
 COPY . .
 

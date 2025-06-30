@@ -11,7 +11,7 @@ interface PoolArgs {
 interface HistoryArgs {
   tokenAddress?: string;
   poolAddress?: string;
-  chainId?: string;
+  chainId: string;
   interval: string;
 }
 
