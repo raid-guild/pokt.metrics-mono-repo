@@ -49,6 +49,8 @@ pnpm dev:indexer
 cp packages/api/.env.example packages/api/.env
 ```
 
+- Make sure to set missing envs
+
 ### 5. Start API server (GraphQL) and frontend (coming soon)
 
 ```bash
@@ -56,6 +58,38 @@ pnpm dev
 ```
 
 GraphQL API: [http://localhost:4000/graphql](http://localhost:4000/graphql)
+
+---
+
+## Alternative Docker Setup
+
+### 1. Set up root environment
+
+```bash
+cp .env.example .env
+```
+
+### 2. Set up indexer environment
+
+```bash
+cp packages/indexer/.env.example packages/indexer/.env
+```
+
+### 3. Set up API environment
+
+```bash
+cp packages/api/.env.example packages/api/.env
+```
+
+- Make sure to set missing envs
+
+### 4. Run Docker Compose
+
+```bash
+docker-compose up --build
+```
+
+GraphQL API: http://localhost:4000/graphql
 
 ---
 
