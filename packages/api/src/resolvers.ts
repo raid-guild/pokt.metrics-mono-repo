@@ -11,27 +11,27 @@ interface PoolArgs {
 interface HistoryArgs {
   tokenAddress?: string;
   poolAddress?: string;
-  chainId: string;
+  chainId?: string;
   interval: string;
 }
 
 export const resolvers = {
   Query: {
-    tokenPrices: async (args: TokenPricesArgs, { limit = 10 }) => {
+    tokenPrices: async (_: unknown, { limit = 10 }: TokenPricesArgs) => {
       const { rows } = await db.query(
         `SELECT * FROM token_prices ORDER BY timestamp DESC LIMIT $1`,
         [limit]
       );
       return rows;
     },
-    poolTVLs: async (args: PoolArgs, { limit = 10 }) => {
+    poolTVLs: async (_: unknown, { limit = 10 }: PoolArgs) => {
       const { rows } = await db.query(
         `SELECT * FROM tvl_snapshots ORDER BY timestamp DESC LIMIT $1`,
         [limit]
       );
       return rows;
     },
-    poolVolumes: async (args: PoolArgs, { limit = 10 }) => {
+    poolVolumes: async (_: unknown, { limit = 10 }: PoolArgs) => {
       const { rows } = await db.query(
         `SELECT * FROM tx_volume_snapshots ORDER BY timestamp DESC LIMIT $1`,
         [limit]
@@ -40,7 +40,7 @@ export const resolvers = {
     },
 
     // Time-series data resolvers
-    tokenPriceHistory: async ({ tokenAddress, chainId, interval }: HistoryArgs) => {
+    tokenPriceHistory: async (_: unknown, { tokenAddress, chainId, interval }: HistoryArgs) => {
       const { rows } = await db.query(
         `
         SELECT
@@ -50,7 +50,7 @@ export const resolvers = {
         WHERE token_address = $1 AND chain_id = $2
           AND to_timestamp(timestamp / 1000.0) >= now() - interval '1 day'
         GROUP BY bucket
-        ORDER BY bucket ASC
+        ORDER BY bucket DESC
         `,
         [tokenAddress, chainId, interval]
       );
@@ -70,7 +70,7 @@ export const resolvers = {
         WHERE pool_address = $1 AND chain_id = $2
           AND to_timestamp(timestamp / 1000.0) >= now() - interval '2 days'
         GROUP BY bucket
-        ORDER BY bucket ASC
+        ORDER BY bucket DESC
         `,
         [poolAddress, chainId, interval]
       );
