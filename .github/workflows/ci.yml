@@ -22,7 +22,7 @@ jobs:
       - name: 📦 Enable Corepack + Install PNPM
         run: |
           corepack enable
-          corepack prepare pnpm@8.15.4 --activate
+          corepack prepare pnpm@9.15.9 --activate
           pnpm --version
 
       - name: 📦 Install dependencies
