@@ -28,7 +28,7 @@ pnpm install
 ### 2. Set up indexer environment (optional)
 
 ```bash
-cp packages/indexer/.env.example packages/indexer/.env
+cp packages/indexer/.env.sample packages/indexer/.env
 ```
 
 ### 2.1 Set database schemas (optional)
@@ -46,7 +46,7 @@ pnpm dev:indexer
 ### 4. Set up API environment
 
 ```bash
-cp packages/api/.env.example packages/api/.env
+cp packages/api/.env.sample packages/api/.env
 ```
 
 - Make sure to set missing envs
@@ -66,19 +66,19 @@ GraphQL API: [http://localhost:4000/graphql](http://localhost:4000/graphql)
 ### 1. Set up root environment
 
 ```bash
-cp .env.example .env
+cp .env.sample .env
 ```
 
 ### 2. Set up indexer environment
 
 ```bash
-cp packages/indexer/.env.example packages/indexer/.env
+cp packages/indexer/.env.sample packages/indexer/.env
 ```
 
 ### 3. Set up API environment
 
 ```bash
-cp packages/api/.env.example packages/api/.env
+cp packages/api/.env.sample packages/api/.env
 ```
 
 - Make sure to set missing envs
