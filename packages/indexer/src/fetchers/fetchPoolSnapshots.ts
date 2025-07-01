@@ -1,6 +1,6 @@
 import { ADDRESSES_BY_CHAIN, MachineType } from '../utils/chains';
-import { moralisClient } from './moralisClient';
 import { retry } from '../utils/retry';
+import { moralisClient } from './moralisClient';
 
 export const fetchPoolSnapshots = async () => {
   try {

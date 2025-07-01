@@ -18,7 +18,6 @@ module.exports = {
   },
   ignorePatterns: ['dist', 'node_modules'],
   rules: {
-    'import/order': ['warn', { 'newlines-between': 'always' }],
     'no-console': 'error',
     'simple-import-sort/imports': 'error',
     'simple-import-sort/exports': 'error',
