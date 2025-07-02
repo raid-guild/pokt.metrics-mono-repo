@@ -8,9 +8,13 @@ const config = {
   host: process.env.DATABASE_HOST,
   port: process.env.DATABASE_PORT ? parseInt(process.env.DATABASE_PORT, 10) : 5432,
   database: process.env.DATABASE_NAME,
-  ssl: {
-    rejectUnauthorized: true,
-    ca: `-----BEGIN CERTIFICATE-----
+};
+
+if (process.env.DATABASE_SSL_ENABLED === 'true') {
+  Object.assign(config, {
+    ssl: {
+      rejectUnauthorized: true,
+      ca: `-----BEGIN CERTIFICATE-----
 MIIEUDCCArigAwIBAgIUE4UmOj76hZ1eHUpZkyP90Wqq1KAwDQYJKoZIhvcNAQEM
 BQAwQDE+MDwGA1UEAww1MjMzZjQ2MjgtYTQ1MC00MWI1LWI2NjktODYxODkzZTQ5
 NjgyIEdFTiAxIFByb2plY3QgQ0EwHhcNMjUwNzAxMDQyNTQyWhcNMzUwNjI5MDQy
@@ -36,7 +40,8 @@ PV3xiUh79na1UqHXZCH2Hh/M4YMsHfQ1Jv5i0GGlwoouxSQoXVf2XgAFyh9XFad/
 HcGwaq2tKzfgvZ/CUaz6s7AteXCJc6j4uVNYn4/N4Ak/vByYJ550iaZJFvxR2Iav
 5L0RmQ==
 -----END CERTIFICATE-----`,
-  },
-};
+    },
+  });
+}
 
 export const db = new Pool(config);
