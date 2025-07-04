@@ -32,3 +32,15 @@ services:
       - '5432:5432'
     volumes:
       - ./packages/indexer/scripts:/docker-entrypoint-initdb.d
+
+  client:
+    build:
+      context: .
+      dockerfile: packages/client/Dockerfile
+    ports:
+      - '3000:3000'
+    volumes:
+      - .:/usr/src/app
+      - /usr/src/app/node_modules # Exclude node_modules from host volume
+    environment:
+      - NODE_ENV=production # Or development for hot-reloading

@@ -81,12 +81,18 @@ cp packages/indexer/.env.sample packages/indexer/.env
 cp packages/api/.env.sample packages/api/.env
 ```
 
-- Make sure to set missing envs
-
-### 4. Run Docker Compose
+### 4. Set up client environment
 
 ```bash
-docker-compose up --build
+cp packages/client/.env.sample packages/client/.env
+```
+
+- Make sure to set missing envs
+
+### 5. Run Docker Compose
+
+```bash
+docker compose up --build
 ```
 
 GraphQL API: http://localhost:4000/graphql
