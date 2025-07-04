@@ -93,6 +93,9 @@ importers:
       clsx:
         specifier: ^2.1.1
         version: 2.1.1
+      gql.tada:
+        specifier: ^1.8.11
+        version: 1.8.11(graphql@16.11.0)(typescript@5.8.3)
       lucide-react:
         specifier: ^0.525.0
         version: 0.525.0(react@19.1.0)
@@ -111,6 +114,9 @@ importers:
       tailwind-merge:
         specifier: ^3.3.1
         version: 3.3.1
+      urql:
+        specifier: ^4.2.2
+        version: 4.2.2(@urql/core@5.2.0(graphql@16.11.0))(react@19.1.0)
     devDependencies:
       '@eslint/eslintrc':
         specifier: ^3
@@ -224,6 +230,20 @@ importers:
         version: 5.8.3
 
 packages:
+
+  '@0no-co/graphql.web@1.1.2':
+    resolution: {integrity: sha512-N2NGsU5FLBhT8NZ+3l2YrzZSHITjNXNuDhC4iDiikv0IujaJ0Xc6xIxQZ/Ek3Cb+rgPjnLHYyJm11tInuJn+cw==}
+    peerDependencies:
+      graphql: ^14.0.0 || ^15.0.0 || ^16.0.0
+    peerDependenciesMeta:
+      graphql:
+        optional: true
+
+  '@0no-co/graphqlsp@1.13.0':
+    resolution: {integrity: sha512-I8HVJ19PeF0QMKCcxUXjsmbI6L26bmAuDHUFdLD8xjhaOi7XG2ZhlkhqTYNxzYJN58yvv0IfKfn8yVrVvPUmVw==}
+    peerDependencies:
+      graphql: ^15.5.0 || ^16.0.0 || ^17.0.0
+      typescript: ^5.0.0
 
   '@adraffy/ens-normalize@1.11.0':
     resolution: {integrity: sha512-/3DDPKHqqIqxUULp8yP4zODUY1i+2xvVWsv8A79xGWdCAG+8sb0hRh0Rk2QyOJUnnbyPUAZYcpBuRe3nS2OIUg==}
@@ -572,6 +592,26 @@ packages:
 
   '@ethersproject/web@5.8.0':
     resolution: {integrity: sha512-j7+Ksi/9KfGviws6Qtf9Q7KCqRhpwrYKQPs+JBA/rKVFF/yaWLHJEH3zfVP2plVu+eys0d2DlFmhoQJayFewcw==}
+
+  '@gql.tada/cli-utils@1.6.3':
+    resolution: {integrity: sha512-jFFSY8OxYeBxdKi58UzeMXG1tdm4FVjXa8WHIi66Gzu9JWtCE6mqom3a8xkmSw+mVaybFW5EN2WXf1WztJVNyQ==}
+    peerDependencies:
+      '@0no-co/graphqlsp': ^1.12.13
+      '@gql.tada/svelte-support': 1.0.1
+      '@gql.tada/vue-support': 1.0.1
+      graphql: ^15.5.0 || ^16.0.0 || ^17.0.0
+      typescript: ^5.0.0
+    peerDependenciesMeta:
+      '@gql.tada/svelte-support':
+        optional: true
+      '@gql.tada/vue-support':
+        optional: true
+
+  '@gql.tada/internal@1.0.8':
+    resolution: {integrity: sha512-XYdxJhtHC5WtZfdDqtKjcQ4d7R1s0d1rnlSs3OcBEUbYiPoJJfZU7tWsVXuv047Z6msvmr4ompJ7eLSK5Km57g==}
+    peerDependencies:
+      graphql: ^15.5.0 || ^16.0.0 || ^17.0.0
+      typescript: ^5.0.0
 
   '@graphql-tools/merge@8.3.1':
     resolution: {integrity: sha512-BMm99mqdNZbEYeTPK3it9r9S6rsZsQKtlqJsSBknAclXq2pGEfOxjcIZi+kBSkHZKPKCRrYDd5vY0+rUmIHVLg==}
@@ -1411,6 +1451,9 @@ packages:
     resolution: {integrity: sha512-2v3erKKmmCyIVvvhI2nF15qEbdBpISTq44m9pyd5gfIJB1PN94oePTLWEd82XUbIbvKhv76xTSeUQSCOGesLeg==}
     cpu: [x64]
     os: [win32]
+
+  '@urql/core@5.2.0':
+    resolution: {integrity: sha512-/n0ieD0mvvDnVAXEQgX/7qJiVcvYvNkOHeBvkwtylfjydar123caCXcl58PXFY11oU1oquJocVXHxLAbtv4x1A==}
 
   abitype@1.0.8:
     resolution: {integrity: sha512-ZeiI6h3GnW06uYDLx0etQtX/p8E24UaHHBj57RSjK7YBFe7iuVn07EDpOeP451D06sF27VOz9JJPlIKJmXgkEg==}
@@ -2285,6 +2328,12 @@ packages:
   gopd@1.2.0:
     resolution: {integrity: sha512-ZUKRh6/kUFoAiTAtTYPZJ3hw9wNxx+BIBOijnlG9PnrJsCcSjs1wyyD6vJpaYtgnzDrKYRSqf3OO6Rfa93xsRg==}
     engines: {node: '>= 0.4'}
+
+  gql.tada@1.8.11:
+    resolution: {integrity: sha512-b94SV2ki1yZWm/MGzWIaWxuPJUMAYjlQllwoD9b8/GCVXKax1HS9xPfLq/p47UmAnUY3X8qDF0JdMEIr0EKmOA==}
+    hasBin: true
+    peerDependencies:
+      typescript: ^5.0.0
 
   graceful-fs@4.2.11:
     resolution: {integrity: sha512-RbJ5/jmFcNNCcDV5o9eTnBLJ/HszWV0P73bc+Ff4nS/rJj+YaS6IGyiOL0VoBYX+l1Wrl3k63h/KrH+nhJ0XvQ==}
@@ -3463,6 +3512,12 @@ packages:
   uri-js@4.4.1:
     resolution: {integrity: sha512-7rKUyy33Q1yc98pQ1DAmLtwX109F7TIfWlW1Ydo8Wl1ii1SeHieeh0HHfPeL2fMXK6z0s8ecKs9frCuLJvndBg==}
 
+  urql@4.2.2:
+    resolution: {integrity: sha512-3GgqNa6iF7bC4hY/ImJKN4REQILcSU9VKcKL8gfELZM8mM5BnLH1BsCc8kBdnVGD1LIFOs4W3O2idNHhON1r0w==}
+    peerDependencies:
+      '@urql/core': ^5.0.0
+      react: '>= 16.8.0'
+
   use-sync-external-store@1.5.0:
     resolution: {integrity: sha512-Rb46I4cGGVBmjamjphe8L/UnvJD+uPPtTkNvX5mZgqdbavhI4EbgIWJiIHXJ8bc/i9EQGPRh4DwEURJ552Do0A==}
     peerDependencies:
@@ -3544,6 +3599,9 @@ packages:
     engines: {node: '>= 8'}
     hasBin: true
 
+  wonka@6.3.5:
+    resolution: {integrity: sha512-SSil+ecw6B4/Dm7Pf2sAshKQ5hWFvfyGlfPbEd6A14dOH6VDjrmbY86u6nZvy9omGwwIPFR8V41+of1EezgoUw==}
+
   word-wrap@1.2.5:
     resolution: {integrity: sha512-BN22B5eaMMI9UMtjrGd5g5eCYPpCPDUy0FJXbYsaT5zYxjFOckS53SQDE3pWkVoWpHXVb3BrYcEN4Twa55B5cA==}
     engines: {node: '>=0.10.0'}
@@ -3584,6 +3642,16 @@ packages:
     engines: {node: '>=10'}
 
 snapshots:
+
+  '@0no-co/graphql.web@1.1.2(graphql@16.11.0)':
+    optionalDependencies:
+      graphql: 16.11.0
+
+  '@0no-co/graphqlsp@1.13.0(graphql@16.11.0)(typescript@5.8.3)':
+    dependencies:
+      '@gql.tada/internal': 1.0.8(graphql@16.11.0)(typescript@5.8.3)
+      graphql: 16.11.0
+      typescript: 5.8.3
 
   '@adraffy/ens-normalize@1.11.0': {}
 
@@ -3971,6 +4039,19 @@ snapshots:
       '@ethersproject/logger': 5.8.0
       '@ethersproject/properties': 5.8.0
       '@ethersproject/strings': 5.8.0
+
+  '@gql.tada/cli-utils@1.6.3(@0no-co/graphqlsp@1.13.0(graphql@16.11.0)(typescript@5.8.3))(graphql@16.11.0)(typescript@5.8.3)':
+    dependencies:
+      '@0no-co/graphqlsp': 1.13.0(graphql@16.11.0)(typescript@5.8.3)
+      '@gql.tada/internal': 1.0.8(graphql@16.11.0)(typescript@5.8.3)
+      graphql: 16.11.0
+      typescript: 5.8.3
+
+  '@gql.tada/internal@1.0.8(graphql@16.11.0)(typescript@5.8.3)':
+    dependencies:
+      '@0no-co/graphql.web': 1.1.2(graphql@16.11.0)
+      graphql: 16.11.0
+      typescript: 5.8.3
 
   '@graphql-tools/merge@8.3.1(graphql@16.11.0)':
     dependencies:
@@ -4860,6 +4941,13 @@ snapshots:
 
   '@unrs/resolver-binding-win32-x64-msvc@1.10.1':
     optional: true
+
+  '@urql/core@5.2.0(graphql@16.11.0)':
+    dependencies:
+      '@0no-co/graphql.web': 1.1.2(graphql@16.11.0)
+      wonka: 6.3.5
+    transitivePeerDependencies:
+      - graphql
 
   abitype@1.0.8(typescript@5.8.3):
     optionalDependencies:
@@ -6125,6 +6213,18 @@ snapshots:
 
   gopd@1.2.0: {}
 
+  gql.tada@1.8.11(graphql@16.11.0)(typescript@5.8.3):
+    dependencies:
+      '@0no-co/graphql.web': 1.1.2(graphql@16.11.0)
+      '@0no-co/graphqlsp': 1.13.0(graphql@16.11.0)(typescript@5.8.3)
+      '@gql.tada/cli-utils': 1.6.3(@0no-co/graphqlsp@1.13.0(graphql@16.11.0)(typescript@5.8.3))(graphql@16.11.0)(typescript@5.8.3)
+      '@gql.tada/internal': 1.0.8(graphql@16.11.0)(typescript@5.8.3)
+      typescript: 5.8.3
+    transitivePeerDependencies:
+      - '@gql.tada/svelte-support'
+      - '@gql.tada/vue-support'
+      - graphql
+
   graceful-fs@4.2.11: {}
 
   graphemer@1.4.0: {}
@@ -7388,6 +7488,12 @@ snapshots:
     dependencies:
       punycode: 2.3.1
 
+  urql@4.2.2(@urql/core@5.2.0(graphql@16.11.0))(react@19.1.0):
+    dependencies:
+      '@urql/core': 5.2.0(graphql@16.11.0)
+      react: 19.1.0
+      wonka: 6.3.5
+
   use-sync-external-store@1.5.0(react@19.1.0):
     dependencies:
       react: 19.1.0
@@ -7509,6 +7615,8 @@ snapshots:
   which@2.0.2:
     dependencies:
       isexe: 2.0.0
+
+  wonka@6.3.5: {}
 
   word-wrap@1.2.5: {}
 
