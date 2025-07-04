@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "generate": "gql.tada generate-output --tsconfig ./tsconfig.json --output ./src/graphql-env.d.ts",
     "start": "next start",
     "lint": "next lint"
   },
@@ -13,12 +14,14 @@
     "@tanstack/react-query-devtools": "^5.81.5",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "gql.tada": "^1.8.11",
     "lucide-react": "^0.525.0",
     "next": "15.3.4",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "recharts": "^3.0.2",
-    "tailwind-merge": "^3.3.1"
+    "tailwind-merge": "^3.3.1",
+    "urql": "^4.2.2"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
