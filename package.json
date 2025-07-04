@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "mprocs",
     "dev:indexer": "pnpm --filter indexer dev",
+    "dev:client": "pnpm --filter client dev",
     "setup:db": "pnpm --filter indexer setup:db",
     "lint": "eslint \"packages/**/*.{ts,tsx}\"",
     "lint:fix": "eslint \"packages/**/*.{ts,tsx}\" --fix",
