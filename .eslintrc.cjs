@@ -22,4 +22,16 @@ module.exports = {
     'simple-import-sort/imports': 'error',
     'simple-import-sort/exports': 'error',
   },
+  settings: {
+    'import/resolver': {
+      typescript: {
+        project: [
+          'packages/client/tsconfig.json',
+          'packages/indexer/tsconfig.json',
+          'packages/api/tsconfig.json',
+        ],
+      },
+      node: {},
+    },
+  },
 };
