@@ -1,16 +1,16 @@
 import { base, mainnet } from 'viem/chains';
 
-import { TokenPriceRow } from '../types';
+import { PoolSnapshotRow } from '../types';
 import { ADDRESSES_BY_CHAIN } from '../utils/chains';
 import { retry } from '../utils/retry';
 import { theGraphClient } from './theGraphClient';
 
-export const fetchTokenPrice = async (
+export const fetchPoolSnapshot = async (
   chain: 'Base' | 'Ethereum' | 'Solana',
   blockNumber: number
 ) => {
   try {
-    const price: TokenPriceRow = await retry(
+    const poolSnapshot: PoolSnapshotRow = await retry(
       async () => {
         const { chainId, exchange, machineType, poolAddress, wpokt } = ADDRESSES_BY_CHAIN[chain];
         if (!chainId || !exchange || !machineType || !poolAddress || !wpokt) {
@@ -19,8 +19,8 @@ export const fetchTokenPrice = async (
 
         if (chain === mainnet.name) {
           return theGraphClient[chain.toLowerCase() as 'ethereum']
-            .getTokenPrice({ poolAddress, blockNumber })
-            .then(({ reserveETH, reserveUSD, token1Price }) => {
+            .getPoolStats({ poolAddress, blockNumber })
+            .then(({ reserveETH, reserveUSD, token1Price, volumeUSD }) => {
               const ethPrice = parseFloat(reserveUSD) / parseFloat(reserveETH);
               const wPoktPrice = parseFloat(token1Price) * ethPrice;
 
@@ -28,16 +28,19 @@ export const fetchTokenPrice = async (
                 chain_id: chainId,
                 exchange,
                 machine_type: machineType,
+                pool_address: poolAddress,
                 price: wPoktPrice,
                 timestamp: Date.now(),
                 token_address: wpokt,
+                tvl_usd: parseFloat(reserveUSD),
+                volume_usd: parseFloat(volumeUSD),
               };
             });
         }
         if (chain === base.name) {
           return theGraphClient[chain.toLowerCase() as 'base']
-            .getTokenPrice({ poolAddress, blockNumber })
-            .then(({ totalValueLockedETH, totalValueLockedUSD, token0Price }) => {
+            .getPoolStats({ poolAddress, blockNumber })
+            .then(({ totalValueLockedETH, totalValueLockedUSD, token0Price, volumeUSD }) => {
               const ethPrice = parseFloat(totalValueLockedUSD) / parseFloat(totalValueLockedETH);
               const wPoktPrice = parseFloat(token0Price) * ethPrice;
 
@@ -45,9 +48,12 @@ export const fetchTokenPrice = async (
                 chain_id: chainId,
                 exchange,
                 machine_type: machineType,
+                pool_address: poolAddress,
                 price: wPoktPrice,
                 timestamp: Date.now(),
                 token_address: wpokt,
+                tvl_usd: parseFloat(totalValueLockedUSD),
+                volume_usd: parseFloat(volumeUSD),
               };
             });
         }
@@ -56,9 +62,12 @@ export const fetchTokenPrice = async (
             chain_id: chainId,
             exchange,
             machine_type: machineType,
+            pool_address: poolAddress,
             price: 0.01, // Placeholder price
             timestamp: Date.now(),
             token_address: wpokt,
+            tvl_usd: 1,
+            volume_usd: 1,
           };
         }
         throw new Error(`Unsupported chain: ${chain}`);
@@ -70,9 +79,9 @@ export const fetchTokenPrice = async (
           console.warn(`Retrying ${chain} (attempt ${attempt}):`, err.message),
       }
     );
-    return price;
+    return poolSnapshot;
   } catch (error) {
     // eslint-disable-next-line no-console
-    console.error('Error fetching token price:', error);
+    console.error('Error fetching pool snapshot:', error);
   }
 };

@@ -36,15 +36,16 @@ class TheGraphEthereumClient extends TheGraphGenericClient {
     );
   }
 
-  async getTokenPrice({ poolAddress, blockNumber }: { poolAddress: string; blockNumber: number }) {
+  async getPoolStats({ poolAddress, blockNumber }: { poolAddress: string; blockNumber: number }) {
     const data = (await this.fetch(
       this.endpoint,
       gql`
-        query GetPrice($poolAddress: String!, $blockNumber: Int!) {
+        query GetStats($poolAddress: String!, $blockNumber: Int!) {
           pair(id: $poolAddress, block: { number: $blockNumber }) {
             reserveETH
             reserveUSD
             token1Price
+            volumeUSD
           }
         }
       `,
@@ -57,6 +58,7 @@ class TheGraphEthereumClient extends TheGraphGenericClient {
         reserveETH: string;
         reserveUSD: string;
         token1Price: string;
+        volumeUSD: string;
       };
     };
 
@@ -72,15 +74,16 @@ class TheGraphBaseClient extends TheGraphGenericClient {
     );
   }
 
-  async getTokenPrice({ poolAddress, blockNumber }: { poolAddress: string; blockNumber: number }) {
+  async getPoolStats({ poolAddress, blockNumber }: { poolAddress: string; blockNumber: number }) {
     const data = (await this.fetch(
       this.endpoint,
       gql`
-        query GetPrice($poolAddress: String!, $blockNumber: Int!) {
+        query GetStats($poolAddress: String!, $blockNumber: Int!) {
           pool(id: $poolAddress, block: { number: $blockNumber }) {
             token0Price
             totalValueLockedETH
             totalValueLockedUSD
+            volumeUSD
           }
         }
       `,
@@ -93,6 +96,7 @@ class TheGraphBaseClient extends TheGraphGenericClient {
         token0Price: string;
         totalValueLockedETH: string;
         totalValueLockedUSD: string;
+        volumeUSD: string;
       };
     };
 
