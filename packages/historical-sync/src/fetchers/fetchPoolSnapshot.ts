@@ -21,7 +21,11 @@ export const fetchPoolSnapshot = async (
           return theGraphClient[chain.toLowerCase() as 'ethereum']
             .getPoolStats({ poolAddress, blockNumber })
             .then(({ reserveETH, reserveUSD, token1Price, volumeUSD }) => {
-              const ethPrice = parseFloat(reserveUSD) / parseFloat(reserveETH);
+              const reserveETHValue = parseFloat(reserveETH);
+              if (reserveETHValue === 0) {
+                throw new Error('reserveETH cannot be zero');
+              }
+              const ethPrice = parseFloat(reserveUSD) / reserveETHValue;
               const wPoktPrice = parseFloat(token1Price) * ethPrice;
 
               return {
@@ -41,7 +45,11 @@ export const fetchPoolSnapshot = async (
           return theGraphClient[chain.toLowerCase() as 'base']
             .getPoolStats({ poolAddress, blockNumber })
             .then(({ totalValueLockedETH, totalValueLockedUSD, token0Price, volumeUSD }) => {
-              const ethPrice = parseFloat(totalValueLockedUSD) / parseFloat(totalValueLockedETH);
+              const totalValueLockedETHValue = parseFloat(totalValueLockedETH);
+              if (totalValueLockedETHValue === 0) {
+                throw new Error('totalValueLockedETH cannot be zero');
+              }
+              const ethPrice = parseFloat(totalValueLockedUSD) / totalValueLockedETHValue;
               const wPoktPrice = parseFloat(token0Price) * ethPrice;
 
               return {

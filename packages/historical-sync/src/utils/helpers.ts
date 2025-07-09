@@ -3,6 +3,10 @@ import 'dotenv/config';
 import { createPublicClient, http } from 'viem';
 import { mainnet } from 'viem/chains';
 
+if (!process.env.INFURA_API_KEY) {
+  throw new Error('INFURA_API_KEY environment variable is required');
+}
+
 const client = createPublicClient({
   chain: mainnet,
   transport: http(`https://mainnet.infura.io/v3/${process.env.INFURA_API_KEY}`),
@@ -21,8 +25,12 @@ export const isSignificantlyDifferent = (a: number, b: number, epsilon = 0.00000
  * @returns The timestamp of the block in seconds.
  */
 const getBlockTimestamp = async (blockNumber: bigint): Promise<number> => {
-  const block = await client.getBlock({ blockNumber });
-  return Number(block.timestamp);
+  try {
+    const block = await client.getBlock({ blockNumber });
+    return Number(block.timestamp);
+  } catch (error) {
+    throw new Error(`Failed to fetch block ${blockNumber}: ${error}`);
+  }
 };
 
 /**

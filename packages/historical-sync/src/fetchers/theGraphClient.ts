@@ -9,8 +9,8 @@ class TheGraphGenericClient {
     protected readonly apiKey: string,
     protected readonly endpoint: string
   ) {
-    if (!THE_GRAPH_API_KEY) {
-      throw new Error('THE_GRAPH_API_KEY is required');
+    if (!apiKey) {
+      throw new Error('API key is required');
     }
   }
 
