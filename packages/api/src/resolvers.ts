@@ -26,14 +26,14 @@ export const resolvers = {
     },
     poolTVLs: async (_: unknown, { limit = 10 }: PoolArgs) => {
       const { rows } = await db.query(
-        `SELECT * FROM tvl_snapshots ORDER BY timestamp DESC LIMIT $1`,
+        `SELECT * FROM pool_snapshots ORDER BY timestamp DESC LIMIT $1`,
         [limit]
       );
       return rows;
     },
     poolVolumes: async (_: unknown, { limit = 10 }: PoolArgs) => {
       const { rows } = await db.query(
-        `SELECT * FROM tx_volume_snapshots ORDER BY timestamp DESC LIMIT $1`,
+        `SELECT * FROM pool_snapshots ORDER BY timestamp DESC LIMIT $1`,
         [limit]
       );
       return rows;

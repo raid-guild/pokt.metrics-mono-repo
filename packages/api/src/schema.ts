@@ -8,7 +8,7 @@ export const typeDefs = gql`
 
   type PoolTVLHistoryPoint {
     timestamp: String!
-    tvl: Float!
+    tvl_usd: Float!
   }
 
   type TokenPrice {
@@ -18,24 +18,18 @@ export const typeDefs = gql`
     timestamp: String!
   }
 
-  type PoolTVL {
+  type PoolSnapshot {
     pool_address: String!
     chain_id: Int!
-    tvl: Float!
     timestamp: String!
-  }
-
-  type PoolVolume {
-    pool_address: String!
-    chain_id: String!
-    volume: Float!
-    timestamp: String!
+    tvl_usd: Float!
+    volume_usd: Float!
   }
 
   type Query {
     tokenPrices(limit: Int): [TokenPrice!]!
-    poolTVLs(limit: Int): [PoolTVL!]!
-    poolVolumes(limit: Int): [PoolVolume!]!
+    poolTVLs(limit: Int): [PoolSnapshot!]!
+    poolVolumes(limit: Int): [PoolSnapshot!]!
     tokenPriceHistory(
       tokenAddress: String!
       chainId: String!
