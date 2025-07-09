@@ -8,7 +8,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 async function run() {
-  if (!process.env.DATABASE_URL?.includes('localhost')) {
+  if (process.env.DATABASE_HOST !== 'localhost') {
     throw new Error('Refusing to run setup on a non-local database');
   }
 

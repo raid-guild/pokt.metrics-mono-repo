@@ -1,15 +1,32 @@
 import { fetchPoolSnapshot } from './fetchers';
+import { storePoolSnapshots } from './services';
+import { PoolSnapshotRow } from './types';
+import { getHourlyBlocks } from './utils/helpers';
 
 const main = async () => {
   // eslint-disable-next-line no-console
   console.log('Historical sync is running...');
+  // TODO: this range is temporary for testing
+  const startBlock = BigInt(22561622);
+  const endBlock = BigInt(22563622);
 
-  const ethereumPoolSnapshot = await fetchPoolSnapshot('Ethereum', 22571622);
-  // eslint-disable-next-line no-console
-  console.log(ethereumPoolSnapshot);
-  const basePoolSnapshot = await fetchPoolSnapshot('Base', 30764668);
-  // eslint-disable-next-line no-console
-  console.log(basePoolSnapshot);
+  const blocks = await getHourlyBlocks(startBlock, endBlock);
+  const blockNumbers = blocks.map((b) => Number(b));
+
+  const poolSnapshots: PoolSnapshotRow[] = [];
+
+  for (const blockNumber of blockNumbers) {
+    const snapshot = await fetchPoolSnapshot('Ethereum', blockNumber);
+    if (snapshot) poolSnapshots.push(snapshot);
+  }
+
+  const validSnapshots = poolSnapshots.filter((snapshot) => snapshot !== undefined);
+  if (validSnapshots.length > 0) {
+    await storePoolSnapshots(validSnapshots);
+  } else {
+    // eslint-disable-next-line no-console
+    console.log('No valid snapshots found.');
+  }
 
   // eslint-disable-next-line no-console
   console.log('Historical sync finished.');
