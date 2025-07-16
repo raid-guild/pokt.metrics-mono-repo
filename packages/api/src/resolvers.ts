@@ -1,9 +1,5 @@
 import { db } from './db';
 
-interface TokenPricesArgs {
-  limit?: number;
-}
-
 interface PoolArgs {
   limit?: number;
 }
@@ -17,21 +13,7 @@ interface HistoryArgs {
 
 export const resolvers = {
   Query: {
-    tokenPrices: async (_: unknown, { limit = 10 }: TokenPricesArgs) => {
-      const { rows } = await db.query(
-        `SELECT * FROM token_prices ORDER BY timestamp DESC LIMIT $1`,
-        [limit]
-      );
-      return rows;
-    },
-    poolTVLs: async (_: unknown, { limit = 10 }: PoolArgs) => {
-      const { rows } = await db.query(
-        `SELECT * FROM pool_snapshots ORDER BY timestamp DESC LIMIT $1`,
-        [limit]
-      );
-      return rows;
-    },
-    poolVolumes: async (_: unknown, { limit = 10 }: PoolArgs) => {
+    poolSnapshots: async (_: unknown, { limit = 10 }: PoolArgs) => {
       const { rows } = await db.query(
         `SELECT * FROM pool_snapshots ORDER BY timestamp DESC LIMIT $1`,
         [limit]
@@ -46,7 +28,7 @@ export const resolvers = {
         SELECT
           time_bucket($3::interval, to_timestamp(timestamp / 1000.0)) AS bucket,
           AVG(price) AS avg_price
-        FROM token_prices
+        FROM pool_snapshots
         WHERE token_address = $1 AND chain_id = $2
           AND to_timestamp(timestamp / 1000.0) >= now() - interval '1 day'
         GROUP BY bucket

@@ -1,9 +1,14 @@
 import { gql } from 'apollo-server-express';
 
 export const typeDefs = gql`
-  type TokenPriceHistoryPoint {
+  type PoolSnapshot {
+    chain_id: Int!
+    pool_address: String!
+    price: Float!
     timestamp: String!
-    avgPrice: Float!
+    token_address: String!
+    tvl_usd: Float!
+    volume_usd: Float!
   }
 
   type PoolTVLHistoryPoint {
@@ -11,25 +16,13 @@ export const typeDefs = gql`
     tvl_usd: Float!
   }
 
-  type TokenPrice {
-    token_address: String!
-    chain_id: String!
-    price: Float!
+  type TokenPriceHistoryPoint {
     timestamp: String!
-  }
-
-  type PoolSnapshot {
-    pool_address: String!
-    chain_id: Int!
-    timestamp: String!
-    tvl_usd: Float!
-    volume_usd: Float!
+    avgPrice: Float!
   }
 
   type Query {
-    tokenPrices(limit: Int): [TokenPrice!]!
-    poolTVLs(limit: Int): [PoolSnapshot!]!
-    poolVolumes(limit: Int): [PoolSnapshot!]!
+    poolSnapshots(limit: Int): [PoolSnapshot!]!
     tokenPriceHistory(
       tokenAddress: String!
       chainId: String!
