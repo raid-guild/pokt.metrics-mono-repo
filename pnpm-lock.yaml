@@ -115,6 +115,12 @@ importers:
       dotenv:
         specifier: ^16.5.0
         version: 16.5.0
+      graphql:
+        specifier: ^16.11.0
+        version: 16.11.0
+      graphql-request:
+        specifier: ^7.2.0
+        version: 7.2.0(graphql@16.11.0)
       ioredis:
         specifier: ^5.6.1
         version: 5.6.1
