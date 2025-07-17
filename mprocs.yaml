@@ -3,3 +3,6 @@ procs:
   api:
     cwd: packages/api
     shell: pnpm run dev
+  client:
+    cwd: packages/client
+    shell: pnpm run dev
