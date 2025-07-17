@@ -3,7 +3,9 @@ import { cacheExchange, Client, fetchExchange } from 'urql';
 export const GRAPHQL_ENDPOINT = process.env.NEXT_PUBLIC_GRAPHQL_ENDPOINT;
 
 if (!GRAPHQL_ENDPOINT) {
-  throw new Error('NEXT_PUBLIC_GRAPHQL_ENDPOINT is not set');
+  /* eslint-disable-next-line no-console */
+  console.error('⛔  Missing NEXT_PUBLIC_GRAPHQL_ENDPOINT – aborting build');
+  process.exit(1);
 }
 
 export const client = new Client({

@@ -4,6 +4,7 @@
   "version": "1.0.0",
   "description": "",
   "scripts": {
+    "build:client": "pnpm --filter client build",
     "dev": "mprocs",
     "dev:indexer": "pnpm --filter indexer dev",
     "dev:client": "pnpm --filter client dev",
