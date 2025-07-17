@@ -1,6 +1,7 @@
 import { MachineType } from './utils/chains';
 
 export type PoolSnapshotRow = {
+  block_number: bigint;
   chain_id: string;
   exchange: string;
   machine_type: MachineType;

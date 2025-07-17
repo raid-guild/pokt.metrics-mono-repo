@@ -27,6 +27,7 @@ export const storePoolSnapshots = async (pools: PoolSnapshotRow[]): Promise<void
   `;
 
   const values = pools.flatMap((p) => [
+    p.block_number,
     p.chain_id,
     p.exchange,
     p.machine_type,
