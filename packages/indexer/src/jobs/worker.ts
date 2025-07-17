@@ -1,7 +1,8 @@
 import { Worker } from 'bullmq';
 
-import { fetchPoolSnapshots, fetchTokenPrices } from '../fetchers';
-import { storePoolSnapshots, storeTokenPrices } from '../services';
+import { fetchPoolSnapshot } from '../fetchers';
+import { storePoolSnapshots } from '../services';
+import { ethereumClient } from '../utils/helpers';
 import { connection } from './queue';
 
 export const indexerWorker = new Worker(
@@ -11,18 +12,15 @@ export const indexerWorker = new Worker(
     console.log('▶️ Running indexer job...');
 
     try {
-      const tokenPrices = await fetchTokenPrices();
-      if (tokenPrices) {
-        await storeTokenPrices(tokenPrices);
-        // eslint-disable-next-line no-console
-        console.log(`💰 Stored ${Object.keys(tokenPrices).length} token prices`);
-      } else {
-        // eslint-disable-next-line no-console
-        console.warn('⚠️ No token prices fetched');
+      const poolSnapshots = [];
+      const currentEthereumBlock = await ethereumClient.getBlockNumber();
+      const ethereumPoolSnapshot = await fetchPoolSnapshot('Ethereum', currentEthereumBlock);
+
+      if (ethereumPoolSnapshot) {
+        poolSnapshots.push(ethereumPoolSnapshot);
       }
 
-      const poolSnapshots = await fetchPoolSnapshots();
-      if (poolSnapshots) {
+      if (poolSnapshots.length > 0) {
         await storePoolSnapshots(poolSnapshots);
         // eslint-disable-next-line no-console
         console.log(`🏊 Stored ${poolSnapshots.length || 'unknown'} pool snapshots`);
