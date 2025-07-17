@@ -5,6 +5,7 @@ export async function scheduleRecurringJob() {
     'run-indexer',
     {},
     {
+      jobId: 'run-indexer-repeat',
       repeat: {
         // TODO: go back to every 15 minutes for production
         // pattern: '*/15 * * * *', // every 15 minutes
@@ -13,7 +14,6 @@ export async function scheduleRecurringJob() {
         // limit: 96, // (optional) max 96 runs per day
         limit: 24, // (optional) max 24 runs per day (hourly)
         offset: 0, // (optional) no delay after boot
-        key: 'indexer-cron', // (optional) custom key to prevent duplicates
       },
       removeOnComplete: true,
       removeOnFail: true,

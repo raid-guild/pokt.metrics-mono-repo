@@ -37,6 +37,8 @@ export const indexerWorker = new Worker(
         console.warn('⚠️ No pool snapshots fetched');
       }
 
+      await connection.set('indexer:lastRun', Date.now());
+
       // eslint-disable-next-line no-console
       console.log('✅ Indexer job complete');
     } catch (error) {
