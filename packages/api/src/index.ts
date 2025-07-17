@@ -57,7 +57,7 @@ async function startServer() {
     } catch (err) {
       // eslint-disable-next-line no-console
       console.error('Health check error:', err);
-      return res.status(200).send('ok'); // never fail hard
+      return res.status(500).json({ status: 'error', message: 'Health check failed' });
     }
   });
 
