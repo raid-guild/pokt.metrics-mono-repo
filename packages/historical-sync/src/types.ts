@@ -1,12 +1,13 @@
 import { MachineType } from './utils/chains';
 
 export type PoolSnapshotRow = {
+  block_number: bigint;
   chain_id: string;
   exchange: string;
   machine_type: MachineType;
   pool_address: string;
   price: number;
-  timestamp: number;
+  timestamp: bigint;
   token_address: string;
   tvl_usd: number;
   volume_usd: number;

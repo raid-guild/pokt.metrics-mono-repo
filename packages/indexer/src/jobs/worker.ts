@@ -13,8 +13,16 @@ export const indexerWorker = new Worker(
 
     try {
       const poolSnapshots = [];
-      const currentEthereumBlock = await ethereumClient.getBlockNumber();
-      const ethereumPoolSnapshot = await fetchPoolSnapshot('Ethereum', currentEthereumBlock);
+      const currentEthereumBlock = (await ethereumClient.getBlockNumber()) - BigInt(5); // Slight delay to ensure data availability
+      const currentEthereumTimestamp =
+        (await ethereumClient
+          .getBlock({ blockNumber: currentEthereumBlock })
+          .then((b) => b.timestamp)) * BigInt(1000); // Convert to ms
+      const ethereumPoolSnapshot = await fetchPoolSnapshot(
+        'Ethereum',
+        currentEthereumBlock,
+        currentEthereumTimestamp
+      );
 
       if (ethereumPoolSnapshot) {
         poolSnapshots.push(ethereumPoolSnapshot);

@@ -63,18 +63,21 @@ export const getHourlyBlocks = async (
   startBlock: bigint,
   endBlock: bigint,
   intervalSec = 3600 // Default to hourly intervals. TODO: switch to 15 minute intervals
-): Promise<bigint[]> => {
+): Promise<{ blockNumber: bigint; blockTimestamp: bigint }[]> => {
   const startTime = await getBlockTimestamp(startBlock);
   const endTime = await getBlockTimestamp(endBlock);
 
-  const result: bigint[] = [];
+  const result: { blockNumber: bigint; blockTimestamp: bigint }[] = [];
   let currentTime = startTime;
 
   while (currentTime <= endTime) {
     // Estimate based on 12s block time
     const estimate = startBlock + BigInt((currentTime - startTime) / 12);
-    const block = await findClosestBlock(currentTime, estimate - 150n, estimate + 150n);
-    result.push(block);
+    const blockNumber = await findClosestBlock(currentTime, estimate - 150n, estimate + 150n);
+    const blockTimestamp =
+      (await client.getBlock({ blockNumber }).then((b) => b.timestamp)) * BigInt(1000); // Convert to ms
+
+    result.push({ blockNumber, blockTimestamp });
     currentTime += intervalSec;
   }
 

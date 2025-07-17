@@ -6,6 +6,7 @@ CREATE EXTENSION IF NOT EXISTS timescaledb;
 
 -- pool_snapshots table
 CREATE TABLE IF NOT EXISTS pool_snapshots (
+  block_number BIGINT NOT NULL,
   chain_id TEXT NOT NULL,
   exchange TEXT NOT NULL,
   machine_type TEXT NOT NULL,
