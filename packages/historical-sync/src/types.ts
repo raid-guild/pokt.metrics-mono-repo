@@ -6,7 +6,7 @@ export type PoolSnapshotRow = {
   machine_type: MachineType;
   pool_address: string;
   price: number;
-  timestamp: number;
+  timestamp: bigint;
   token_address: string;
   tvl_usd: number;
   volume_usd: number;

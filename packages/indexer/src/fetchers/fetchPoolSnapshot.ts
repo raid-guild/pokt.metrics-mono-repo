@@ -7,7 +7,8 @@ import { theGraphClient } from './theGraphClient';
 
 export const fetchPoolSnapshot = async (
   chain: 'Base' | 'Ethereum' | 'Solana',
-  blockNumber: bigint
+  blockNumber: bigint,
+  timestamp: bigint
 ) => {
   try {
     const poolSnapshot: PoolSnapshotRow = await retry(
@@ -29,12 +30,13 @@ export const fetchPoolSnapshot = async (
               const wPoktPrice = parseFloat(token1Price) * ethPrice;
 
               return {
+                block_number: blockNumber,
                 chain_id: chainId,
                 exchange,
                 machine_type: machineType,
                 pool_address: poolAddress,
                 price: wPoktPrice,
-                timestamp: Date.now(),
+                timestamp,
                 token_address: wpokt,
                 tvl_usd: parseFloat(reserveUSD),
                 volume_usd: parseFloat(volumeUSD),
@@ -53,12 +55,13 @@ export const fetchPoolSnapshot = async (
               const wPoktPrice = parseFloat(token0Price) * ethPrice;
 
               return {
+                block_number: blockNumber,
                 chain_id: chainId,
                 exchange,
                 machine_type: machineType,
                 pool_address: poolAddress,
                 price: wPoktPrice,
-                timestamp: Date.now(),
+                timestamp,
                 token_address: wpokt,
                 tvl_usd: parseFloat(totalValueLockedUSD),
                 volume_usd: parseFloat(volumeUSD),
@@ -67,12 +70,13 @@ export const fetchPoolSnapshot = async (
         }
         if (chain === 'Solana') {
           return {
+            block_number: blockNumber,
             chain_id: chainId,
             exchange,
             machine_type: machineType,
             pool_address: poolAddress,
             price: 0.01, // Placeholder price
-            timestamp: Date.now(),
+            timestamp,
             token_address: wpokt,
             tvl_usd: 1,
             volume_usd: 1,

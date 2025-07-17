@@ -12,12 +12,11 @@ const main = async () => {
     const endBlock = BigInt(22563622);
 
     const blocks = await getHourlyBlocks(startBlock, endBlock);
-    const blockNumbers = blocks.map((b) => Number(b));
 
     const poolSnapshots: PoolSnapshotRow[] = [];
 
-    for (const blockNumber of blockNumbers) {
-      const snapshot = await fetchPoolSnapshot('Ethereum', blockNumber);
+    for (const block of blocks) {
+      const snapshot = await fetchPoolSnapshot('Ethereum', block.blockNumber, block.blockTimestamp);
       if (snapshot) poolSnapshots.push(snapshot);
     }
 

@@ -2,7 +2,10 @@ import { gql } from 'apollo-server-express';
 
 export const typeDefs = gql`
   type PoolSnapshot {
+    block_number: Int!
     chain_id: Int!
+    exchange: String!
+    machine_type: String!
     pool_address: String!
     price: Float!
     timestamp: String!

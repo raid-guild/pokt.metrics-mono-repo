@@ -36,7 +36,7 @@ class TheGraphEthereumClient extends TheGraphGenericClient {
     );
   }
 
-  async getPoolStats({ poolAddress, blockNumber }: { poolAddress: string; blockNumber: number }) {
+  async getPoolStats({ poolAddress, blockNumber }: { poolAddress: string; blockNumber: bigint }) {
     const data = (await this.fetch(
       this.endpoint,
       gql`
@@ -51,7 +51,7 @@ class TheGraphEthereumClient extends TheGraphGenericClient {
       `,
       {
         poolAddress: poolAddress.toLowerCase(),
-        blockNumber: blockNumber,
+        blockNumber: blockNumber.toString(),
       }
     )) as {
       pair: {
@@ -74,7 +74,7 @@ class TheGraphBaseClient extends TheGraphGenericClient {
     );
   }
 
-  async getPoolStats({ poolAddress, blockNumber }: { poolAddress: string; blockNumber: number }) {
+  async getPoolStats({ poolAddress, blockNumber }: { poolAddress: string; blockNumber: bigint }) {
     const data = (await this.fetch(
       this.endpoint,
       gql`
@@ -89,7 +89,7 @@ class TheGraphBaseClient extends TheGraphGenericClient {
       `,
       {
         poolAddress: poolAddress.toLowerCase(),
-        blockNumber: blockNumber,
+        blockNumber: blockNumber.toString(),
       }
     )) as {
       pool: {
