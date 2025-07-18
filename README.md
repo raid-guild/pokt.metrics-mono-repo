@@ -108,13 +108,13 @@ GraphQL API: http://localhost:4000/graphql
 pnpm install
 ```
 
-### 2. Set up indexer environment
+### 2. Set up historical sync environment
 
 ```bash
-cp packages/indexer/.env.sample packages/indexer/.env
+cp packages/historical-sync/.env.sample packages/historical-sync/.env
 ```
 
-### 3 Run historical sync
+### 3. Run historical sync
 
 ```bash
 pnpm start:historical-sync
