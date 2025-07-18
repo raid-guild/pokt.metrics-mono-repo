@@ -1,7 +1,7 @@
-import { fetchPoolSnapshot } from './fetchers';
-import { storePoolSnapshots } from './services';
-import { PoolSnapshotRow } from './types';
-import { getHourlyBlocks } from './utils/helpers';
+import { fetchPoolSnapshot } from '@pokt.metrics/indexer/dist/fetchers';
+import { storePoolSnapshots } from '@pokt.metrics/indexer/dist/services';
+import { PoolSnapshotRow } from '@pokt.metrics/indexer/dist/types';
+import { getHourlyBlocks } from '@pokt.metrics/indexer/dist/utils/helpers';
 
 const main = async () => {
   try {

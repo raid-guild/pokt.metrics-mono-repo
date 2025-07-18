@@ -154,6 +154,9 @@ importers:
 
   packages/historical-sync:
     dependencies:
+      '@pokt.metrics/indexer':
+        specifier: workspace:*
+        version: link:../indexer
       dotenv:
         specifier: ^16.5.0
         version: 16.5.0
