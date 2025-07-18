@@ -1,6 +1,6 @@
 import { fetchPoolSnapshot } from './fetchers';
 import { storePoolSnapshots } from './services';
-import { ethereumClient } from './utils/helpers';
+import { baseClient, ethereumClient } from './utils/helpers';
 
 const main = async () => {
   // eslint-disable-next-line no-console
@@ -20,6 +20,16 @@ const main = async () => {
 
   if (ethereumPoolSnapshot) {
     poolSnapshots.push(ethereumPoolSnapshot);
+  }
+
+  const currentBaseBlock = (await baseClient.getBlockNumber()) - BigInt(5); // Slight delay to ensure data availability
+  const currentBaseTimestamp =
+    (await baseClient.getBlock({ blockNumber: currentBaseBlock }).then((b) => b.timestamp)) *
+    BigInt(1000); // Convert to ms
+  const basePoolSnapshot = await fetchPoolSnapshot('Base', currentBaseBlock, currentBaseTimestamp);
+
+  if (basePoolSnapshot) {
+    poolSnapshots.push(basePoolSnapshot);
   }
 
   if (poolSnapshots.length > 0) {
