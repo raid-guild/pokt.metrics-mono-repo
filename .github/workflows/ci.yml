@@ -31,5 +31,8 @@ jobs:
       - name: 🧹 Run linter
         run: pnpm lint
 
+      - name: 🏗️ Build indexer package
+        run: pnpm --filter indexer build
+
       - name: 🧪 Run tests
         run: pnpm test
