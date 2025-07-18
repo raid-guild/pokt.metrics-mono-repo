@@ -1,6 +1,8 @@
 {
-  "name": "indexer",
+  "name": "@pokt.metrics/indexer",
   "version": "0.0.0",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "description": "",
   "scripts": {
     "dev": "tsx watch src/index.ts",
