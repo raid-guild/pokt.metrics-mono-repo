@@ -10,9 +10,10 @@ Cross-chain DeFi dashboard for tracking POKT prices, pool TVLs, and transaction 
 
 ```
 /packages
-├── indexer       # Fetch + normalize data from Moralis APIs into TimescaleDB
-├── api-server    # Express + Apollo GraphQL API exposing time-series data
-├── frontend      # (coming soon)
+├── indexer             # Fetch + normalize current data from The Graph + Moralis APIs into TimescaleDB
+├── historical-sync     # Fetch + normalize historical data
+├── api                 # Express + Apollo GraphQL API exposing time-series data
+├── client              # Frontend application
 ```
 
 ---
@@ -51,7 +52,7 @@ cp packages/api/.env.sample packages/api/.env
 
 - Make sure to set missing envs
 
-### 5. Start API server (GraphQL) and frontend (coming soon)
+### 5. Start API server (GraphQL) and frontend
 
 ```bash
 pnpm dev
@@ -96,6 +97,28 @@ docker compose up --build
 ```
 
 GraphQL API: http://localhost:4000/graphql
+
+---
+
+## Historical Sync Server
+
+### 1. Install dependencies
+
+```bash
+pnpm install
+```
+
+### 2. Set up indexer environment
+
+```bash
+cp packages/indexer/.env.sample packages/indexer/.env
+```
+
+### 3 Run historical sync
+
+```bash
+pnpm start:historical-sync
+```
 
 ---
 
