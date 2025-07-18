@@ -11,6 +11,10 @@ const config = {
 };
 
 if (process.env.DATABASE_SSL_ENABLED === 'true') {
+  if (!process.env.DATABASE_CA) {
+    throw new Error('DATABASE_CA environment variable is required when SSL is enabled');
+  }
+
   Object.assign(config, {
     ssl: {
       rejectUnauthorized: true,
