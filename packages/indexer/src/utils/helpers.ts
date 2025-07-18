@@ -3,13 +3,13 @@ import 'dotenv/config';
 import { createPublicClient, http } from 'viem';
 import { mainnet } from 'viem/chains';
 
-if (!process.env.INFURA_API_KEY) {
-  throw new Error('INFURA_API_KEY environment variable is required');
+if (!process.env.ETHEREUM_RPC_URL) {
+  throw new Error('ETHEREUM_RPC_URL environment variable is required');
 }
 
 export const ethereumClient = createPublicClient({
   chain: mainnet,
-  transport: http(`https://mainnet.infura.io/v3/${process.env.INFURA_API_KEY}`),
+  transport: http(process.env.ETHEREUM_RPC_URL),
 });
 
 /**
