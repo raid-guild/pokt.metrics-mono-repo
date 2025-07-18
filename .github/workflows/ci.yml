@@ -28,9 +28,6 @@ jobs:
       - name: 📦 Install dependencies
         run: pnpm install
 
-      - name: 🏗️ Build indexer package
-        run: pnpm --filter indexer build
-
       - name: 🧹 Run linter
         run: pnpm lint
 

@@ -9,10 +9,10 @@
     "dev:indexer": "pnpm --filter indexer dev",
     "dev:client": "pnpm --filter client dev",
     "setup:db": "pnpm --filter indexer setup:db",
-    "lint": "eslint \"packages/**/*.{ts,tsx}\"",
+    "lint": "pnpm --filter indexer build && eslint \"packages/**/*.{ts,tsx}\"",
     "lint:fix": "eslint \"packages/**/*.{ts,tsx}\" --fix",
     "format": "prettier --write \"packages/**/*.{ts,tsx,js,jsx,json,md}\"",
-    "test": "pnpm recursive run test",
+    "test": "pnpm --filter indexer build && pnpm recursive run test",
     "prepare": "husky install"
   },
   "keywords": [],
