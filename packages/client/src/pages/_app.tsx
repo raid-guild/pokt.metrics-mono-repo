@@ -10,6 +10,7 @@ import type { AppProps } from "next/app";
 import { useState } from "react";
 import { Provider as UrqlProvider } from "urql";
 
+import { Footer } from "@/components/footer";
 import Header from "@/components/header";
 import { client } from "@/config/api";
 
@@ -21,6 +22,7 @@ export default function App({ Component, pageProps }: AppProps) {
         <HydrationBoundary state={pageProps.dehydratedState}>
           <Header />
           <Component {...pageProps} />
+          <Footer />
           <ReactQueryDevtools initialIsOpen={false} />
         </HydrationBoundary>
       </QueryClientProvider>
