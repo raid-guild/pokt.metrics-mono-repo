@@ -13,6 +13,17 @@ export type PoolSnapshotRow = {
   volume_usd: number;
 };
 
+export type PriceSnapshotRow = {
+  block_number: bigint;
+  chain_id: string;
+  exchange: string;
+  machine_type: MachineType;
+  pool_address: string;
+  price: number;
+  timestamp: bigint;
+  token_address: string;
+};
+
 export type TokenPriceRow = {
   chain_id: string;
   exchange: string;
