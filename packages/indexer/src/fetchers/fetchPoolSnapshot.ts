@@ -38,7 +38,7 @@ export const fetchPoolSnapshot = async (
                 price: wPoktPrice,
                 timestamp,
                 token_address: wpokt,
-                tvl_usd: parseFloat(reserveUSD),
+                tvl_usd: parseFloat(reserveUSD) * 2,
                 volume_usd: parseFloat(volumeUSD),
               };
             });
