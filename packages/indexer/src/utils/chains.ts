@@ -5,7 +5,7 @@ export enum Chain {
 }
 
 enum Exchange {
-  AERODOME = 'aerodrome',
+  AERODROME = 'aerodrome',
   UNISWAP_V2 = 'uniswap_v2',
   ORCA_WHIRLPOOL = 'orca_whirlpool',
 }
@@ -20,7 +20,7 @@ type AddressMap = {
 export const ADDRESSES_BY_CHAIN: Record<Chain, AddressMap> = {
   [Chain.BASE]: {
     chain: Chain.BASE,
-    exchange: Exchange.AERODOME,
+    exchange: Exchange.AERODROME,
     poolAddress: '0x32bb4ad5fed77f7abf97d1435f8d6aaae59aa64e',
     wpokt: '0x764a726d9ced0433a8d7643335919deb03a9a935',
   },

@@ -20,12 +20,7 @@ export const fetchPriceSnapshot = async (
         if (chain === Chain.ETHEREUM) {
           return theGraphClient[chain.toLowerCase() as 'ethereum']
             .getPoolStats({ poolAddress, blockNumber })
-            .then(({ reserveETH, token1Price }): PriceSnapshotRow => {
-              const reserveETHValue = parseFloat(reserveETH);
-              if (reserveETHValue === 0) {
-                throw new Error('reserveETH cannot be zero');
-              }
-
+            .then(({ token1Price }): PriceSnapshotRow => {
               const wPoktPrice = parseFloat(token1Price) * nativeTokenPrice;
 
               return {
@@ -42,11 +37,7 @@ export const fetchPriceSnapshot = async (
         if (chain === Chain.BASE) {
           return theGraphClient[chain.toLowerCase() as 'base']
             .getPoolStats({ poolAddress, blockNumber })
-            .then(({ totalValueLockedETH, token0Price }): PriceSnapshotRow => {
-              const totalValueLockedETHValue = parseFloat(totalValueLockedETH);
-              if (totalValueLockedETHValue === 0) {
-                throw new Error('totalValueLockedETH cannot be zero');
-              }
+            .then(({ token0Price }): PriceSnapshotRow => {
               const wPoktPrice = parseFloat(token0Price) * nativeTokenPrice;
 
               return {
@@ -97,6 +88,6 @@ export const fetchPriceSnapshot = async (
     return priceSnapshot;
   } catch (error) {
     // eslint-disable-next-line no-console
-    console.error('Error fetching pool snapshot:', error);
+    console.error('Error fetching price snapshot:', error);
   }
 };
