@@ -1,10 +1,9 @@
-import { MachineType } from './utils/chains';
+import { Chain } from './utils/chains';
 
 export type PoolSnapshotRow = {
   block_number: bigint;
-  chain_id: string;
+  chain: Chain;
   exchange: string;
-  machine_type: MachineType;
   pool_address: string;
   price: number;
   timestamp: bigint;
@@ -15,9 +14,8 @@ export type PoolSnapshotRow = {
 
 export type PriceSnapshotRow = {
   block_number: bigint;
-  chain_id: string;
+  chain: Chain;
   exchange: string;
-  machine_type: MachineType;
   pool_address: string;
   price: number;
   timestamp: bigint;
@@ -27,7 +25,6 @@ export type PriceSnapshotRow = {
 export type TokenPriceRow = {
   chain_id: string;
   exchange: string;
-  machine_type: MachineType;
   price: number;
   timestamp: number;
   token_address: string;

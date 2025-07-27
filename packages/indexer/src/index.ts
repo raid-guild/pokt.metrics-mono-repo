@@ -1,5 +1,6 @@
 import { fetchPriceSnapshot } from './fetchers';
 import { storePriceSnapshots } from './services';
+import { Chain } from './utils/chains';
 import { baseClient, ethereumClient, solanaClient } from './utils/helpers';
 
 const main = async () => {
@@ -42,7 +43,7 @@ const main = async () => {
         .getBlock({ blockNumber: currentEthereumBlock })
         .then((b) => b.timestamp)) * BigInt(1000); // Convert to ms
     const ethereumPriceSnapshot = await fetchPriceSnapshot(
-      'Ethereum',
+      Chain.ETHEREUM,
       ethPrice,
       currentEthereumBlock,
       currentEthereumTimestamp
@@ -57,7 +58,7 @@ const main = async () => {
       (await baseClient.getBlock({ blockNumber: currentBaseBlock }).then((b) => b.timestamp)) *
       BigInt(1000); // Convert to ms
     const basePriceSnapshot = await fetchPriceSnapshot(
-      'Base',
+      Chain.BASE,
       ethPrice,
       currentBaseBlock,
       currentBaseTimestamp
@@ -74,7 +75,7 @@ const main = async () => {
     }
 
     const solanaPriceSnapshot = await fetchPriceSnapshot(
-      'Solana',
+      Chain.SOLANA,
       solanaPrice,
       BigInt(currentSolanaSlot),
       BigInt(currentSolanaTimestamp * 1000) // Convert to ms

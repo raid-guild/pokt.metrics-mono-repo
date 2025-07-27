@@ -7,9 +7,8 @@ export const storePriceSnapshots = async (prices: PriceSnapshotRow[]): Promise<v
   const query = `
     INSERT INTO price_snapshots (
       block_number,
-      chain_id,
+      chain,
       exchange,
-      machine_type,
       pool_address,
       price,
       timestamp,
@@ -18,17 +17,16 @@ export const storePriceSnapshots = async (prices: PriceSnapshotRow[]): Promise<v
     VALUES ${prices
       .map(
         (_, i) =>
-          `($${i * 8 + 1}, $${i * 8 + 2}, $${i * 8 + 3}, $${i * 8 + 4}, $${i * 8 + 5},
-             $${i * 8 + 6}, $${i * 8 + 7}, $${i * 8 + 8})`
+          `($${i * 7 + 1}, $${i * 7 + 2}, $${i * 7 + 3}, $${i * 7 + 4}, $${i * 7 + 5},
+             $${i * 7 + 6}, $${i * 7 + 7})`
       )
       .join(', ')}
   `;
 
   const values = prices.flatMap((p) => [
     p.block_number,
-    p.chain_id,
+    p.chain,
     p.exchange,
-    p.machine_type,
     p.pool_address,
     p.price,
     p.timestamp,

@@ -1,12 +1,10 @@
-import { base, mainnet } from 'viem/chains';
-
 import { PriceSnapshotRow } from '../types';
-import { ADDRESSES_BY_CHAIN } from '../utils/chains';
+import { ADDRESSES_BY_CHAIN, Chain } from '../utils/chains';
 import { retry } from '../utils/retry';
 import { theGraphClient } from './theGraphClient';
 
 export const fetchPriceSnapshot = async (
-  chain: 'Base' | 'Ethereum' | 'Solana',
+  chain: Chain,
   nativeTokenPrice: number,
   blockNumber: bigint,
   timestamp: bigint
@@ -14,12 +12,12 @@ export const fetchPriceSnapshot = async (
   try {
     const priceSnapshot = await retry(
       async () => {
-        const { chainId, exchange, machineType, poolAddress, wpokt } = ADDRESSES_BY_CHAIN[chain];
-        if (!chainId || !exchange || !machineType || !poolAddress || !wpokt) {
+        const { exchange, poolAddress, wpokt } = ADDRESSES_BY_CHAIN[chain];
+        if (!chain || !exchange || !poolAddress || !wpokt) {
           throw new Error(`Missing data for chain: ${chain}`);
         }
 
-        if (chain === mainnet.name) {
+        if (chain === Chain.ETHEREUM) {
           return theGraphClient[chain.toLowerCase() as 'ethereum']
             .getPoolStats({ poolAddress, blockNumber })
             .then(({ reserveETH, token1Price }): PriceSnapshotRow => {
@@ -32,9 +30,8 @@ export const fetchPriceSnapshot = async (
 
               return {
                 block_number: blockNumber,
-                chain_id: chainId,
+                chain,
                 exchange,
-                machine_type: machineType,
                 pool_address: poolAddress,
                 price: wPoktPrice,
                 timestamp,
@@ -42,7 +39,7 @@ export const fetchPriceSnapshot = async (
               };
             });
         }
-        if (chain === base.name) {
+        if (chain === Chain.BASE) {
           return theGraphClient[chain.toLowerCase() as 'base']
             .getPoolStats({ poolAddress, blockNumber })
             .then(({ totalValueLockedETH, token0Price }): PriceSnapshotRow => {
@@ -54,9 +51,8 @@ export const fetchPriceSnapshot = async (
 
               return {
                 block_number: blockNumber,
-                chain_id: chainId,
+                chain,
                 exchange,
-                machine_type: machineType,
                 pool_address: poolAddress,
                 price: wPoktPrice,
                 timestamp,
@@ -64,7 +60,7 @@ export const fetchPriceSnapshot = async (
               };
             });
         }
-        if (chain === 'Solana') {
+        if (chain === Chain.SOLANA) {
           return fetch(`https://api.orca.so/v2/solana/pools/${poolAddress}`, {
             method: 'GET',
           })
@@ -80,9 +76,8 @@ export const fetchPriceSnapshot = async (
 
               return {
                 block_number: blockNumber,
-                chain_id: chainId,
+                chain,
                 exchange,
-                machine_type: machineType,
                 pool_address: poolAddress,
                 price: wPoktPrice,
                 timestamp,

@@ -2,6 +2,7 @@ import { Worker } from 'bullmq';
 
 import { fetchPriceSnapshot } from '../fetchers';
 import { storePriceSnapshots } from '../services';
+import { Chain } from '../utils/chains';
 import { baseClient, ethereumClient, solanaClient } from '../utils/helpers';
 import { connection } from './queue';
 
@@ -47,7 +48,7 @@ export const indexerWorker = new Worker(
           .getBlock({ blockNumber: currentEthereumBlock })
           .then((b) => b.timestamp)) * BigInt(1000); // Convert to ms
       const ethereumPriceSnapshot = await fetchPriceSnapshot(
-        'Ethereum',
+        Chain.ETHEREUM,
         ethPrice,
         currentEthereumBlock,
         currentEthereumTimestamp
@@ -62,7 +63,7 @@ export const indexerWorker = new Worker(
         (await baseClient.getBlock({ blockNumber: currentBaseBlock }).then((b) => b.timestamp)) *
         BigInt(1000); // Convert to ms
       const basePriceSnapshot = await fetchPriceSnapshot(
-        'Base',
+        Chain.BASE,
         ethPrice,
         currentBaseBlock,
         currentBaseTimestamp
@@ -79,7 +80,7 @@ export const indexerWorker = new Worker(
       }
 
       const solanaPriceSnapshot = await fetchPriceSnapshot(
-        'Solana',
+        Chain.SOLANA,
         solanaPrice,
         BigInt(currentSolanaSlot),
         BigInt(currentSolanaTimestamp * 1000) // Convert to ms

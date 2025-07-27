@@ -7,9 +7,8 @@ CREATE EXTENSION IF NOT EXISTS timescaledb;
 -- price_snapshots table
 CREATE TABLE IF NOT EXISTS price_snapshots (
   block_number BIGINT NOT NULL,
-  chain_id TEXT NOT NULL,
+  chain TEXT NOT NULL,
   exchange TEXT NOT NULL,
-  machine_type TEXT NOT NULL,
   pool_address TEXT NOT NULL,
   price NUMERIC(30, 12) NOT NULL,
   timestamp BIGINT NOT NULL,
