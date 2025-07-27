@@ -1,40 +1,95 @@
-import { fetchPoolSnapshot } from '@pokt.metrics/indexer/dist/fetchers';
-import { storePoolSnapshots } from '@pokt.metrics/indexer/dist/services';
-import { PoolSnapshotRow } from '@pokt.metrics/indexer/dist/types';
-import { getHourlyBlocks } from '@pokt.metrics/indexer/dist/utils/helpers';
+import { fetchPriceSnapshot } from '@pokt.metrics/indexer/dist/fetchers';
+import { storePriceSnapshots } from '@pokt.metrics/indexer/dist/services';
+import { Chain } from '@pokt.metrics/indexer/dist/utils/chains';
+import { baseClient, ethereumClient, solanaClient } from '@pokt.metrics/indexer/dist/utils/helpers';
 
 const main = async () => {
   try {
     // eslint-disable-next-line no-console
     console.log('Historical sync is running...');
 
-    if (!process.env.CHAIN_NAME) throw new Error('CHAIN_NAME env var is required');
-    const chainName = process.env.CHAIN_NAME.toString();
-    if (chainName !== 'Ethereum' && chainName !== 'Base' && chainName !== 'Solana') {
-      throw new Error('CHAIN_NAME must be one of Ethereum, Base, or Solana');
+    let response = await fetch(
+      `https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=usd`,
+      {
+        method: 'GET',
+      }
+    );
+    let data = await response.json();
+
+    if (!data || !data.ethereum || !data.ethereum.usd) {
+      throw new Error('Failed to fetch Ethereum price from CoinGecko');
     }
 
-    if (!process.env.START_BLOCK || !process.env.END_BLOCK) {
-      throw new Error('START_BLOCK and END_BLOCK env vars are required');
+    const ethPrice = parseFloat(data.ethereum.usd);
+
+    response = await fetch(
+      `https://api.coingecko.com/api/v3/simple/price?ids=solana&vs_currencies=usd`,
+      {
+        method: 'GET',
+      }
+    );
+    data = await response.json();
+
+    if (!data || !data.solana || !data.solana.usd) {
+      throw new Error('Failed to fetch Solana price from CoinGecko');
     }
-    const startBlock = BigInt(process.env.START_BLOCK);
-    const endBlock = BigInt(process.env.END_BLOCK);
 
-    const blocks = await getHourlyBlocks(chainName, startBlock, endBlock);
+    const solanaPrice = parseFloat(data.solana.usd);
 
-    const poolSnapshots: PoolSnapshotRow[] = [];
+    const priceSnapshots = [];
+    const currentEthereumBlock = (await ethereumClient.getBlockNumber()) - BigInt(1); // Slight delay to ensure data availability
+    const currentEthereumTimestamp =
+      (await ethereumClient
+        .getBlock({ blockNumber: currentEthereumBlock })
+        .then((b) => b.timestamp)) * BigInt(1000); // Convert to ms
+    const ethereumPriceSnapshot = await fetchPriceSnapshot(
+      Chain.ETHEREUM,
+      ethPrice,
+      currentEthereumBlock,
+      currentEthereumTimestamp
+    );
 
-    for (const block of blocks) {
-      const snapshot = await fetchPoolSnapshot(chainName, block.blockNumber, block.blockTimestamp);
-      if (snapshot) poolSnapshots.push(snapshot);
+    if (ethereumPriceSnapshot) {
+      priceSnapshots.push(ethereumPriceSnapshot);
     }
 
-    const validSnapshots = poolSnapshots.filter((snapshot) => snapshot !== undefined);
-    if (validSnapshots.length > 0) {
-      await storePoolSnapshots(validSnapshots);
+    const currentBaseBlock = (await baseClient.getBlockNumber()) - BigInt(2); // Slight delay to ensure data availability
+    const currentBaseTimestamp =
+      (await baseClient.getBlock({ blockNumber: currentBaseBlock }).then((b) => b.timestamp)) *
+      BigInt(1000); // Convert to ms
+    const basePriceSnapshot = await fetchPriceSnapshot(
+      Chain.BASE,
+      ethPrice,
+      currentBaseBlock,
+      currentBaseTimestamp
+    );
+
+    if (basePriceSnapshot) {
+      priceSnapshots.push(basePriceSnapshot);
+    }
+
+    const currentSolanaSlot = await solanaClient.getSlot();
+    const currentSolanaTimestamp = await solanaClient.getBlockTime(currentSolanaSlot);
+    if (currentSolanaTimestamp === null) {
+      throw new Error('Failed to fetch Solana block time');
+    }
+
+    const solanaPriceSnapshot = await fetchPriceSnapshot(
+      Chain.SOLANA,
+      solanaPrice,
+      BigInt(currentSolanaSlot),
+      BigInt(currentSolanaTimestamp * 1000) // Convert to ms
+    );
+
+    if (solanaPriceSnapshot) {
+      priceSnapshots.push(solanaPriceSnapshot);
+    }
+
+    if (priceSnapshots.length > 0) {
+      await storePriceSnapshots(priceSnapshots);
     } else {
       // eslint-disable-next-line no-console
-      console.log('No valid snapshots found.');
+      console.warn('⚠️ No price snapshots fetched');
     }
 
     // eslint-disable-next-line no-console

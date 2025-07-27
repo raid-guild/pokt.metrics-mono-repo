@@ -1,64 +1,77 @@
 import { db } from './db';
 
+export enum Chain {
+  BASE = 'base',
+  ETHEREUM = 'ethereum',
+  SOLANA = 'solana',
+}
+
 interface PoolArgs {
   limit?: number;
 }
 
-interface HistoryArgs {
-  tokenAddress?: string;
-  poolAddress?: string;
-  chainId: string;
-  interval: string;
-}
+export const POKT_BY_CHAIN: Record<Chain, string> = {
+  [Chain.BASE]: '0x764a726d9ced0433a8d7643335919deb03a9a935',
+  [Chain.ETHEREUM]: '0x67f4c72a50f8df6487720261e188f2abe83f57d7',
+  [Chain.SOLANA]: '6CAsXfiCXZfP8APCG6Vma2DFMindopxiqYQN4LSQfhoC',
+};
+
+const PRICE_SNAPSHOTS_QUERY = `
+  SELECT
+    time_bucket($2, to_timestamp(timestamp / 1000.0)) AS bucket,
+    AVG(price) AS price,
+    MIN(timestamp) AS timestamp,
+    token_address,
+    pool_address,
+    chain,
+    exchange,
+    block_number
+  FROM price_snapshots
+  WHERE token_address = $1
+  GROUP BY bucket, token_address, pool_address, chain, exchange, block_number
+  ORDER BY bucket DESC
+  LIMIT $3
+`;
 
 export const resolvers = {
   Query: {
-    poolSnapshots: async (_: unknown, { limit = 10 }: PoolArgs) => {
-      const { rows } = await db.query(
-        `SELECT * FROM pool_snapshots ORDER BY timestamp DESC LIMIT $1`,
-        [limit]
-      );
-      return rows;
-    },
+    priceSnapshotsBase: async (
+      _: unknown,
+      { interval, limit = 192 }: PoolArgs & { interval: '_15m' | '_30m' | '_1h' }
+    ) => {
+      const params = [POKT_BY_CHAIN.base, interval, limit];
+      const { rows } = await db.query(PRICE_SNAPSHOTS_QUERY, params);
 
-    // Time-series data resolvers
-    tokenPriceHistory: async (_: unknown, { tokenAddress, chainId, interval }: HistoryArgs) => {
-      const { rows } = await db.query(
-        `
-        SELECT
-          time_bucket($3::interval, to_timestamp(timestamp / 1000.0)) AS bucket,
-          AVG(price) AS avg_price
-        FROM pool_snapshots
-        WHERE token_address = $1 AND chain_id = $2
-          AND to_timestamp(timestamp / 1000.0) >= now() - interval '1 day'
-        GROUP BY bucket
-        ORDER BY bucket DESC
-        `,
-        [tokenAddress, chainId, interval]
-      );
       return rows.map((row) => ({
-        timestamp: row.bucket.toISOString(),
-        avgPrice: parseFloat(row.avg_price),
+        ...row,
+        // Floor timestamp to the nearest minute
+        timestamp: new Date(Math.floor(Number(row.timestamp) / 60000) * 60000).toISOString(),
       }));
     },
+    priceSnapshotsEthereum: async (
+      _: unknown,
+      { interval, limit = 192 }: PoolArgs & { interval: '_15m' | '_30m' | '_1h' }
+    ) => {
+      const params = [POKT_BY_CHAIN.ethereum, interval, limit];
+      const { rows } = await db.query(PRICE_SNAPSHOTS_QUERY, params);
 
-    poolTVLHistory: async ({ poolAddress, chainId, interval }: HistoryArgs) => {
-      const { rows } = await db.query(
-        `
-        SELECT
-          time_bucket($3::interval, to_timestamp(timestamp / 1000.0)) AS bucket,
-          LAST(tvl_usd, to_timestamp(timestamp / 1000.0)) AS tvl
-        FROM pool_snapshots
-        WHERE pool_address = $1 AND chain_id = $2
-          AND to_timestamp(timestamp / 1000.0) >= now() - interval '2 days'
-        GROUP BY bucket
-        ORDER BY bucket DESC
-        `,
-        [poolAddress, chainId, interval]
-      );
       return rows.map((row) => ({
-        timestamp: row.bucket.toISOString(),
-        tvl: parseFloat(row.tvl),
+        ...row,
+        // Floor timestamp to the nearest minute
+        timestamp: new Date(Math.floor(Number(row.timestamp) / 60000) * 60000).toISOString(),
+      }));
+    },
+    priceSnapshotsSolana: async (
+      _: unknown,
+      { interval, limit = 192 }: PoolArgs & { interval: '_15m' | '_30m' | '_1h' }
+    ) => {
+      const params = [POKT_BY_CHAIN.solana, interval, limit];
+      const { rows } = await db.query(PRICE_SNAPSHOTS_QUERY, params);
+
+      return rows.map((row) => ({
+        ...row,
+        // Floor timestamp to the nearest minute
+        timestamp: new Date(Math.floor(Number(row.timestamp) / 60000) * 60000).toISOString(),
       }));
     },
   },

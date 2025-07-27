@@ -1,5 +1,6 @@
 import 'dotenv/config';
 
+import { Connection } from '@solana/web3.js';
 import { createPublicClient, http } from 'viem';
 import { base, mainnet } from 'viem/chains';
 
@@ -9,6 +10,10 @@ if (!process.env.ETHEREUM_RPC_URL) {
 
 if (!process.env.BASE_RPC_URL) {
   throw new Error('BASE_RPC_URL environment variable is required');
+}
+
+if (!process.env.SOLANA_RPC_URL) {
+  throw new Error('SOLANA_RPC_URL environment variable is required');
 }
 
 export const ethereumClient = createPublicClient({
@@ -21,9 +26,12 @@ export const baseClient = createPublicClient({
   transport: http(process.env.BASE_RPC_URL),
 });
 
+export const solanaClient = new Connection(process.env.SOLANA_RPC_URL, 'confirmed');
+
 const clients = {
   Base: baseClient,
   Ethereum: ethereumClient,
+  Solana: solanaClient,
 };
 
 /**

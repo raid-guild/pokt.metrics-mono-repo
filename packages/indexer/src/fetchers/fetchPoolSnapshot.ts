@@ -1,24 +1,18 @@
-import { base, mainnet } from 'viem/chains';
-
 import { PoolSnapshotRow } from '../types';
-import { ADDRESSES_BY_CHAIN } from '../utils/chains';
+import { ADDRESSES_BY_CHAIN, Chain } from '../utils/chains';
 import { retry } from '../utils/retry';
 import { theGraphClient } from './theGraphClient';
 
-export const fetchPoolSnapshot = async (
-  chain: 'Base' | 'Ethereum' | 'Solana',
-  blockNumber: bigint,
-  timestamp: bigint
-) => {
+export const fetchPoolSnapshot = async (chain: Chain, blockNumber: bigint, timestamp: bigint) => {
   try {
     const poolSnapshot: PoolSnapshotRow = await retry(
       async () => {
-        const { chainId, exchange, machineType, poolAddress, wpokt } = ADDRESSES_BY_CHAIN[chain];
-        if (!chainId || !exchange || !machineType || !poolAddress || !wpokt) {
+        const { exchange, poolAddress, wpokt } = ADDRESSES_BY_CHAIN[chain];
+        if (!exchange || !poolAddress || !wpokt) {
           throw new Error(`Missing data for chain: ${chain}`);
         }
 
-        if (chain === mainnet.name) {
+        if (chain === Chain.ETHEREUM) {
           return theGraphClient[chain.toLowerCase() as 'ethereum']
             .getPoolStats({ poolAddress, blockNumber })
             .then(({ reserveETH, reserveUSD, token1Price, volumeUSD }) => {
@@ -31,19 +25,18 @@ export const fetchPoolSnapshot = async (
 
               return {
                 block_number: blockNumber,
-                chain_id: chainId,
+                chain,
                 exchange,
-                machine_type: machineType,
                 pool_address: poolAddress,
                 price: wPoktPrice,
                 timestamp,
                 token_address: wpokt,
-                tvl_usd: parseFloat(reserveUSD),
+                tvl_usd: parseFloat(reserveUSD) * 2,
                 volume_usd: parseFloat(volumeUSD),
               };
             });
         }
-        if (chain === base.name) {
+        if (chain === Chain.BASE) {
           return theGraphClient[chain.toLowerCase() as 'base']
             .getPoolStats({ poolAddress, blockNumber })
             .then(({ totalValueLockedETH, totalValueLockedUSD, token0Price, volumeUSD }) => {
@@ -56,9 +49,8 @@ export const fetchPoolSnapshot = async (
 
               return {
                 block_number: blockNumber,
-                chain_id: chainId,
+                chain,
                 exchange,
-                machine_type: machineType,
                 pool_address: poolAddress,
                 price: wPoktPrice,
                 timestamp,
@@ -68,12 +60,11 @@ export const fetchPoolSnapshot = async (
               };
             });
         }
-        if (chain === 'Solana') {
+        if (chain === Chain.SOLANA) {
           return {
             block_number: blockNumber,
-            chain_id: chainId,
+            chain,
             exchange,
-            machine_type: machineType,
             pool_address: poolAddress,
             price: 0.01, // Placeholder price
             timestamp,
