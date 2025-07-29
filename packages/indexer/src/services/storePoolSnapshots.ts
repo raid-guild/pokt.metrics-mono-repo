@@ -8,32 +8,39 @@ export const storePoolSnapshots = async (pools: PoolSnapshotRow[]): Promise<void
     INSERT INTO pool_snapshots (
       block_number,
       chain,
+      circulating_supply,
       exchange,
+      holders,
+      market_cap,
       pool_address,
-      price,
       timestamp,
       token_address,
       tvl_usd,
+      volatility,
       volume_usd
     )
     VALUES ${pools
       .map(
         (_, i) =>
-          `($${i * 9 + 1}, $${i * 9 + 2}, $${i * 9 + 3}, $${i * 9 + 4}, $${i * 9 + 5},
-             $${i * 9 + 6}, $${i * 9 + 7}, $${i * 9 + 8}, $${i * 9 + 9})`
+          `($${i * 12 + 1}, $${i * 12 + 2}, $${i * 12 + 3}, $${i * 12 + 4}, $${i * 12 + 5},
+             $${i * 12 + 6}, $${i * 12 + 7}, $${i * 12 + 8}, $${i * 12 + 9}, $${i * 12 + 10},
+             $${i * 12 + 11}, $${i * 12 + 12})`
       )
       .join(', ')}
   `;
 
-  const values = pools.flatMap((p) => [
+  const values = pools.flatMap((p: PoolSnapshotRow) => [
     p.block_number,
     p.chain,
+    p.circulating_supply,
     p.exchange,
+    p.holders,
+    p.market_cap,
     p.pool_address,
-    p.price,
     p.timestamp,
     p.token_address,
     p.tvl_usd,
+    p.volatility,
     p.volume_usd,
   ]);
 

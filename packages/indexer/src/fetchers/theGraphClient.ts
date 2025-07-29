@@ -36,33 +36,51 @@ class TheGraphEthereumClient extends TheGraphGenericClient {
     );
   }
 
-  async getPoolStats({ poolAddress, blockNumber }: { poolAddress: string; blockNumber: bigint }) {
+  async getPoolStats({
+    poolAddress,
+    blockNumber,
+    ltDate,
+  }: {
+    poolAddress: string;
+    blockNumber: bigint;
+    ltDate: number;
+  }) {
     const data = (await this.fetch(
       this.endpoint,
       gql`
-        query GetPoolStats($poolAddress: String!, $blockNumber: Int!) {
+        query GetPoolStats($poolAddress: String!, $blockNumber: Int!, $ltDate: Int!) {
           pair(id: $poolAddress, block: { number: $blockNumber }) {
             reserveETH
             reserveUSD
             token1Price
-            volumeUSD
+          }
+          pairDayDatas(
+            first: 1
+            orderBy: date
+            orderDirection: desc
+            where: { pairAddress: $poolAddress, date_lt: $ltDate }
+          ) {
+            dailyVolumeToken1
           }
         }
       `,
       {
         poolAddress: poolAddress.toLowerCase(),
         blockNumber: Number(blockNumber),
+        ltDate,
       }
     )) as {
       pair: {
         reserveETH: string;
         reserveUSD: string;
         token1Price: string;
-        volumeUSD: string;
       };
+      pairDayDatas: Array<{
+        dailyVolumeToken1: string;
+      }>;
     };
 
-    return data.pair;
+    return { ...data.pair, volumeETH: data.pairDayDatas[0]?.dailyVolumeToken1 ?? '0' };
   }
 }
 
@@ -74,33 +92,51 @@ class TheGraphBaseClient extends TheGraphGenericClient {
     );
   }
 
-  async getPoolStats({ poolAddress, blockNumber }: { poolAddress: string; blockNumber: bigint }) {
+  async getPoolStats({
+    poolAddress,
+    blockNumber,
+    ltDate,
+  }: {
+    poolAddress: string;
+    blockNumber: bigint;
+    ltDate: number;
+  }) {
     const data = (await this.fetch(
       this.endpoint,
       gql`
-        query GetPoolStats($poolAddress: String!, $blockNumber: Int!) {
+        query GetPoolStats($poolAddress: String!, $blockNumber: Int!, $ltDate: Int!) {
           pool(id: $poolAddress, block: { number: $blockNumber }) {
             token0Price
-            totalValueLockedETH
-            totalValueLockedUSD
+            totalValueLockedToken0
             volumeUSD
+          }
+          poolDayDatas(
+            first: 1
+            orderBy: date
+            orderDirection: desc
+            where: { pool: $poolAddress, date_lt: $ltDate }
+          ) {
+            volumeToken0
           }
         }
       `,
       {
         poolAddress: poolAddress.toLowerCase(),
         blockNumber: Number(blockNumber),
+        ltDate,
       }
     )) as {
       pool: {
         token0Price: string;
-        totalValueLockedETH: string;
-        totalValueLockedUSD: string;
+        totalValueLockedToken0: string;
         volumeUSD: string;
       };
+      poolDayDatas: Array<{
+        volumeToken0: string;
+      }>;
     };
 
-    return data.pool;
+    return { ...data.pool, volumeETH: data.poolDayDatas[0]?.volumeToken0 ?? '0' };
   }
 }
 

@@ -3,12 +3,16 @@ import { Chain } from './utils/chains';
 export type PoolSnapshotRow = {
   block_number: bigint;
   chain: Chain;
+  circulating_supply: number;
   exchange: string;
+  holders: number;
+  market_cap: number;
   pool_address: string;
-  price: number;
+  price: number; // This value is not stored in pool_snapshots table
   timestamp: bigint;
   token_address: string;
   tvl_usd: number;
+  volatility: number;
   volume_usd: number;
 };
 
