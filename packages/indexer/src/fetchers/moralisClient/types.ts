@@ -16,6 +16,14 @@ export type TokenPriceEvmResponse = {
   pairTotalLiquidityUsd: string;
 };
 
+export type TokenHoldersEvmResponse = {
+  totalHolders: number;
+};
+
+export type TokenHoldersSolanaResponse = {
+  totalHolders: number;
+};
+
 export type TokenPriceSolanaResponse = {
   nativePrice: {
     value: string;

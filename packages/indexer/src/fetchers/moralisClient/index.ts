@@ -1,6 +1,8 @@
 import 'dotenv/config';
 
 import type {
+  TokenHoldersEvmResponse,
+  TokenHoldersSolanaResponse,
   TokenPairStatsEvmResponse,
   TokenPairStatsSolanaResponse,
   TokenPriceEvmResponse,
@@ -23,6 +25,7 @@ class MoralisBaseClient {
     path: string,
     queryParams?: Record<string, string>
   ): Promise<
+    | TokenHoldersEvmResponse
     | TokenPriceEvmResponse
     | TokenPriceSolanaResponse
     | TokenPairStatsEvmResponse
@@ -59,6 +62,12 @@ class MoralisSolanaClient extends MoralisBaseClient {
     return this.fetch(`/token/mainnet/${tokenAddress}/price`) as Promise<TokenPriceSolanaResponse>;
   }
 
+  async getTokenHolders({ tokenAddress }: { tokenAddress: string }) {
+    return this.fetch(
+      `/token/mainnet/holders/${tokenAddress}`
+    ) as Promise<TokenHoldersSolanaResponse>;
+  }
+
   async getTokenPairStats({ poolAddress }: { poolAddress: string }) {
     return this.fetch(
       `/token/mainnet/pairs/${poolAddress}/stats`
@@ -75,6 +84,12 @@ class MoralisEvmClient extends MoralisBaseClient {
     return this.fetch(`/erc20/${tokenAddress}/price`, {
       chain: chainId,
     }) as Promise<TokenPriceEvmResponse>;
+  }
+
+  async getTokenHolders({ tokenAddress, chainId }: { tokenAddress: string; chainId: string }) {
+    return this.fetch(`/erc20/${tokenAddress}/holders`, {
+      chain: chainId,
+    }) as Promise<TokenHoldersEvmResponse>;
   }
 
   async getTokenPairStats({ poolAddress, chainId }: { poolAddress: string; chainId: string }) {
