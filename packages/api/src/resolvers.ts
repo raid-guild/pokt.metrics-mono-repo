@@ -136,7 +136,7 @@ export const resolvers = {
         solanaRows[0].average_price = averageSolanaPrice;
       }
 
-      return [ethereumRows[0], baseRows[0], solanaRows[0]];
+      return [ethereumRows[0], baseRows[0], solanaRows[0]].filter(Boolean);
     },
   },
 };

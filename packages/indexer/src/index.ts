@@ -7,6 +7,7 @@ import { storePoolSnapshots, storePriceSnapshots } from './services';
 import { PoolSnapshotRow } from './types';
 import { ADDRESSES_BY_CHAIN, Chain } from './utils/chains';
 import { baseClient, ethereumClient, solanaClient } from './utils/helpers';
+import { retry } from './utils/retry';
 
 const erc20Abi = [
   {
@@ -20,10 +21,16 @@ const erc20Abi = [
 
 export const runIndexer = async () => {
   // Get Ethereum and Solana prices from CoinGecko
-  let response = await fetch(
-    `https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=usd`,
+  let response = await retry(
+    () =>
+      fetch(`https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=usd`, {
+        method: 'GET',
+      }),
     {
-      method: 'GET',
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      onRetry: (err: any, attempt) =>
+        // eslint-disable-next-line no-console
+        console.warn(`Retrying ETH price fetch (attempt ${attempt}):`, err.message),
     }
   );
   let data = await response.json();
@@ -34,10 +41,16 @@ export const runIndexer = async () => {
 
   const ethPrice = parseFloat(data.ethereum.usd);
 
-  response = await fetch(
-    `https://api.coingecko.com/api/v3/simple/price?ids=solana&vs_currencies=usd`,
+  response = await retry(
+    () =>
+      fetch(`https://api.coingecko.com/api/v3/simple/price?ids=solana&vs_currencies=usd`, {
+        method: 'GET',
+      }),
     {
-      method: 'GET',
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      onRetry: (err: any, attempt) =>
+        // eslint-disable-next-line no-console
+        console.warn(`Retrying SOL price fetch (attempt ${attempt}):`, err.message),
     }
   );
   data = await response.json();
@@ -125,12 +138,12 @@ export const runIndexer = async () => {
     poolSnapshots.push(solanaPoolSnapshot);
   }
 
-  // Store all fetched pool snapshots as price snapshots
+  // Store all fetched pool snapshots in price_snapshots table
   if (poolSnapshots.length > 0) {
     await storePriceSnapshots(poolSnapshots);
   } else {
     // eslint-disable-next-line no-console
-    console.warn('⚠️ No price snapshots fetched');
+    console.warn('⚠️ No pool snapshots fetched');
   }
 
   // Get most recent pool_snapshot row
