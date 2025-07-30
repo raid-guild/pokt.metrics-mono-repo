@@ -13,6 +13,18 @@ export const typeDefs = gql`
     solana
   }
 
+  type MarketData {
+    all_time_high: Float!
+    all_time_low: Float!
+    circulating_supply: Float!
+    day_high_price: Float!
+    day_low_price: Float!
+    day_volume: Float!
+    market_cap: Float!
+    price: Float!
+    timestamp: String!
+  }
+
   type PriceSnapshot {
     block_number: String!
     chain: Chain!
@@ -40,6 +52,7 @@ export const typeDefs = gql`
   }
 
   type Query {
+    marketData: MarketData!
     priceSnapshotsBase(interval: Interval!, limit: Int): [PriceSnapshot!]!
     priceSnapshotsEthereum(interval: Interval!, limit: Int): [PriceSnapshot!]!
     priceSnapshotsSolana(interval: Interval!, limit: Int): [PriceSnapshot!]!

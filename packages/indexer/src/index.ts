@@ -2,8 +2,8 @@ import { getMint } from '@solana/spl-token';
 import { PublicKey } from '@solana/web3.js';
 
 import { db } from './db/client';
-import { fetchPoolSnapshot } from './fetchers';
-import { storePoolSnapshots, storePriceSnapshots } from './services';
+import { fetchMarketData, fetchPoolSnapshot } from './fetchers';
+import { storeMarketData, storePoolSnapshots, storePriceSnapshots } from './services';
 import { PoolSnapshotRow } from './types';
 import { ADDRESSES_BY_CHAIN, Chain } from './utils/chains';
 import { baseClient, ethereumClient, solanaClient } from './utils/helpers';
@@ -162,6 +162,36 @@ export const runIndexer = async () => {
     // If no snapshots exist, store the current pool snapshots
     await storePoolSnapshots(poolSnapshots);
   }
+
+  response = await retry(
+    () =>
+      fetch(`https://api.coingecko.com/api/v3/simple/price?ids=pocket-network&vs_currencies=usd`, {
+        method: 'GET',
+      }),
+    {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      onRetry: (err: any, attempt) =>
+        // eslint-disable-next-line no-console
+        console.warn(`Retrying POKT price fetch (attempt ${attempt}):`, err.message),
+    }
+  );
+  data = await response.json();
+
+  if (!data || !data['pocket-network'] || !data['pocket-network'].usd) {
+    throw new Error('Failed to fetch POKT price from CoinGecko');
+  }
+
+  const poktPrice = parseFloat(data['pocket-network'].usd);
+  const marketData = await fetchMarketData(poktPrice);
+
+  if (!marketData) {
+    // eslint-disable-next-line no-console
+    console.warn('⚠️ No market data fetched');
+    return;
+  }
+
+  // Store market data
+  await storeMarketData([marketData]);
 };
 
 const main = async () => {
@@ -170,6 +200,7 @@ const main = async () => {
     console.log('Indexer is running...');
 
     await runIndexer();
+    // await fetchMarketData();
 
     // eslint-disable-next-line no-console
     console.log('Indexer finished.');
