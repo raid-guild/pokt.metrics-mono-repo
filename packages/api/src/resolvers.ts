@@ -112,45 +112,6 @@ export const resolvers = {
       };
       return enhancedMarketData;
     },
-    priceSnapshotsBase: async (
-      _: unknown,
-      { interval, limit = 192 }: PoolArgs & { interval: '_15m' | '_30m' | '_1h' }
-    ) => {
-      const params = [POKT_BY_CHAIN.base, interval, limit];
-      const { rows } = await db.query(PRICE_SNAPSHOTS_QUERY, params);
-
-      return rows.map((row) => ({
-        ...row,
-        // Floor timestamp to the nearest minute
-        timestamp: new Date(Math.floor(Number(row.timestamp) / 60000) * 60000).toISOString(),
-      }));
-    },
-    priceSnapshotsEthereum: async (
-      _: unknown,
-      { interval, limit = 192 }: PoolArgs & { interval: '_15m' | '_30m' | '_1h' }
-    ) => {
-      const params = [POKT_BY_CHAIN.ethereum, interval, limit];
-      const { rows } = await db.query(PRICE_SNAPSHOTS_QUERY, params);
-
-      return rows.map((row) => ({
-        ...row,
-        // Floor timestamp to the nearest minute
-        timestamp: new Date(Math.floor(Number(row.timestamp) / 60000) * 60000).toISOString(),
-      }));
-    },
-    priceSnapshotsSolana: async (
-      _: unknown,
-      { interval, limit = 192 }: PoolArgs & { interval: '_15m' | '_30m' | '_1h' }
-    ) => {
-      const params = [POKT_BY_CHAIN.solana, interval, limit];
-      const { rows } = await db.query(PRICE_SNAPSHOTS_QUERY, params);
-
-      return rows.map((row) => ({
-        ...row,
-        // Floor timestamp to the nearest minute
-        timestamp: new Date(Math.floor(Number(row.timestamp) / 60000) * 60000).toISOString(),
-      }));
-    },
     poolSnapshots: async (_: unknown, { limit = 1 }: PoolArgs) => {
       const { rows: ethereumRows } = await db.query(POOL_SNAPSHOTS_QUERY, [
         POKT_BY_CHAIN.ethereum,
@@ -185,7 +146,42 @@ export const resolvers = {
         solanaRows[0].average_price = averageSolanaPrice;
       }
 
-      return [ethereumRows[0], baseRows[0], solanaRows[0]].filter(Boolean);
+      return {
+        base: baseRows[0],
+        ethereum: ethereumRows[0],
+        solana: solanaRows[0],
+      };
+    },
+    priceSnapshots: async (
+      _: unknown,
+      { interval, limit = 192 }: PoolArgs & { interval: '_15m' | '_30m' | '_1h' }
+    ) => {
+      let params = [POKT_BY_CHAIN.base, interval, limit];
+      const { rows: baseRows } = await db.query(PRICE_SNAPSHOTS_QUERY, params);
+
+      params = [POKT_BY_CHAIN.ethereum, interval, limit];
+      const { rows: ethereumRows } = await db.query(PRICE_SNAPSHOTS_QUERY, params);
+
+      params = [POKT_BY_CHAIN.solana, interval, limit];
+      const { rows: solanaRows } = await db.query(PRICE_SNAPSHOTS_QUERY, params);
+
+      return {
+        base: baseRows.map((row) => ({
+          ...row,
+          // Floor timestamp to the nearest minute
+          timestamp: new Date(Math.floor(Number(row.timestamp) / 60000) * 60000).toISOString(),
+        })),
+        ethereum: ethereumRows.map((row) => ({
+          ...row,
+          // Floor timestamp to the nearest minute
+          timestamp: new Date(Math.floor(Number(row.timestamp) / 60000) * 60000).toISOString(),
+        })),
+        solana: solanaRows.map((row) => ({
+          ...row,
+          // Floor timestamp to the nearest minute
+          timestamp: new Date(Math.floor(Number(row.timestamp) / 60000) * 60000).toISOString(),
+        })),
+      };
     },
   },
 };
