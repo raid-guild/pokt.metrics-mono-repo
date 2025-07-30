@@ -13,14 +13,16 @@ export const typeDefs = gql`
     solana
   }
 
-  type PriceSnapshot {
-    block_number: String!
-    chain: Chain!
-    exchange: String!
-    pool_address: String!
+  type MarketData {
+    all_time_high: Float!
+    all_time_low: Float!
+    circulating_supply: Float!
+    day_high_price: Float!
+    day_low_price: Float!
+    day_volume: Float!
+    market_cap: Float!
     price: Float!
     timestamp: String!
-    token_address: String!
   }
 
   type PoolSnapshotRow {
@@ -39,10 +41,31 @@ export const typeDefs = gql`
     volume_usd: Float!
   }
 
+  type PoolSnapshots {
+    base: PoolSnapshotRow!
+    ethereum: PoolSnapshotRow!
+    solana: PoolSnapshotRow!
+  }
+
+  type PriceSnapshot {
+    block_number: String!
+    chain: Chain!
+    exchange: String!
+    pool_address: String!
+    price: Float!
+    timestamp: String!
+    token_address: String!
+  }
+
+  type PriceSnapshots {
+    base: [PriceSnapshot!]!
+    ethereum: [PriceSnapshot!]!
+    solana: [PriceSnapshot!]!
+  }
+
   type Query {
-    priceSnapshotsBase(interval: Interval!, limit: Int): [PriceSnapshot!]!
-    priceSnapshotsEthereum(interval: Interval!, limit: Int): [PriceSnapshot!]!
-    priceSnapshotsSolana(interval: Interval!, limit: Int): [PriceSnapshot!]!
-    poolSnapshots: [PoolSnapshotRow!]!
+    marketData: MarketData!
+    poolSnapshots: PoolSnapshots!
+    priceSnapshots(interval: Interval!, limit: Int): PriceSnapshots!
   }
 `;

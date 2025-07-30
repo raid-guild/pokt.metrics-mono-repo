@@ -61,46 +61,58 @@ const AVERAGE_PRICE_QUERY = `
     AND to_timestamp(timestamp / 1000.0) >= NOW() - INTERVAL '24 hours'
 `;
 
+const DAY_HIGH_PRICE_QUERY = `
+  SELECT
+    MAX(price) AS day_high_price
+  FROM price_snapshots
+  WHERE token_address = $1
+    AND to_timestamp(timestamp / 1000.0) >= NOW() - INTERVAL '24 hours'
+`;
+
+const DAY_LOW_PRICE_QUERY = `
+  SELECT
+    MIN(price) AS day_low_price
+  FROM price_snapshots
+  WHERE token_address = $1
+    AND to_timestamp(timestamp / 1000.0) >= NOW() - INTERVAL '24 hours'
+`;
+
+const DAY_VOLUME_QUERY = `
+  SELECT
+    volume_usd AS day_volume
+  FROM pool_snapshots
+  WHERE to_timestamp(timestamp / 1000.0) >= NOW() - INTERVAL '24 hours'
+  ORDER BY timestamp DESC
+  LIMIT 3
+`;
+
 export const resolvers = {
   Query: {
-    priceSnapshotsBase: async (
-      _: unknown,
-      { interval, limit = 192 }: PoolArgs & { interval: '_15m' | '_30m' | '_1h' }
-    ) => {
-      const params = [POKT_BY_CHAIN.base, interval, limit];
-      const { rows } = await db.query(PRICE_SNAPSHOTS_QUERY, params);
+    marketData: async () => {
+      const { rows: basicMarketData } = await db.query(
+        'SELECT * FROM market_data ORDER BY timestamp DESC LIMIT 1'
+      );
 
-      return rows.map((row) => ({
-        ...row,
-        // Floor timestamp to the nearest minute
-        timestamp: new Date(Math.floor(Number(row.timestamp) / 60000) * 60000).toISOString(),
-      }));
-    },
-    priceSnapshotsEthereum: async (
-      _: unknown,
-      { interval, limit = 192 }: PoolArgs & { interval: '_15m' | '_30m' | '_1h' }
-    ) => {
-      const params = [POKT_BY_CHAIN.ethereum, interval, limit];
-      const { rows } = await db.query(PRICE_SNAPSHOTS_QUERY, params);
+      const { rows: dayHighPriceRows } = await db.query(DAY_HIGH_PRICE_QUERY, [
+        POKT_BY_CHAIN.ethereum,
+      ]);
+      const dayHighPrice = dayHighPriceRows[0]?.day_high_price ?? 0;
 
-      return rows.map((row) => ({
-        ...row,
-        // Floor timestamp to the nearest minute
-        timestamp: new Date(Math.floor(Number(row.timestamp) / 60000) * 60000).toISOString(),
-      }));
-    },
-    priceSnapshotsSolana: async (
-      _: unknown,
-      { interval, limit = 192 }: PoolArgs & { interval: '_15m' | '_30m' | '_1h' }
-    ) => {
-      const params = [POKT_BY_CHAIN.solana, interval, limit];
-      const { rows } = await db.query(PRICE_SNAPSHOTS_QUERY, params);
+      const { rows: dayLowPriceRows } = await db.query(DAY_LOW_PRICE_QUERY, [
+        POKT_BY_CHAIN.ethereum,
+      ]);
+      const dayLowPrice = dayLowPriceRows[0]?.day_low_price ?? 0;
 
-      return rows.map((row) => ({
-        ...row,
-        // Floor timestamp to the nearest minute
-        timestamp: new Date(Math.floor(Number(row.timestamp) / 60000) * 60000).toISOString(),
-      }));
+      const { rows: dayVolumeRows } = await db.query(DAY_VOLUME_QUERY, []);
+      const dayVolume = dayVolumeRows.reduce((total, row) => total + parseFloat(row.day_volume), 0);
+
+      const enhancedMarketData = {
+        ...basicMarketData[0],
+        day_high_price: dayHighPrice,
+        day_low_price: dayLowPrice,
+        day_volume: dayVolume,
+      };
+      return enhancedMarketData;
     },
     poolSnapshots: async (_: unknown, { limit = 1 }: PoolArgs) => {
       const { rows: ethereumRows } = await db.query(POOL_SNAPSHOTS_QUERY, [
@@ -136,7 +148,42 @@ export const resolvers = {
         solanaRows[0].average_price = averageSolanaPrice;
       }
 
-      return [ethereumRows[0], baseRows[0], solanaRows[0]].filter(Boolean);
+      return {
+        base: baseRows[0],
+        ethereum: ethereumRows[0],
+        solana: solanaRows[0],
+      };
+    },
+    priceSnapshots: async (
+      _: unknown,
+      { interval, limit = 192 }: PoolArgs & { interval: '_15m' | '_30m' | '_1h' }
+    ) => {
+      let params = [POKT_BY_CHAIN.base, interval, limit];
+      const { rows: baseRows } = await db.query(PRICE_SNAPSHOTS_QUERY, params);
+
+      params = [POKT_BY_CHAIN.ethereum, interval, limit];
+      const { rows: ethereumRows } = await db.query(PRICE_SNAPSHOTS_QUERY, params);
+
+      params = [POKT_BY_CHAIN.solana, interval, limit];
+      const { rows: solanaRows } = await db.query(PRICE_SNAPSHOTS_QUERY, params);
+
+      return {
+        base: baseRows.map((row) => ({
+          ...row,
+          // Floor timestamp to the nearest minute
+          timestamp: new Date(Math.floor(Number(row.timestamp) / 60000) * 60000).toISOString(),
+        })),
+        ethereum: ethereumRows.map((row) => ({
+          ...row,
+          // Floor timestamp to the nearest minute
+          timestamp: new Date(Math.floor(Number(row.timestamp) / 60000) * 60000).toISOString(),
+        })),
+        solana: solanaRows.map((row) => ({
+          ...row,
+          // Floor timestamp to the nearest minute
+          timestamp: new Date(Math.floor(Number(row.timestamp) / 60000) * 60000).toISOString(),
+        })),
+      };
     },
   },
 };
