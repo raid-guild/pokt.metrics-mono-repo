@@ -89,7 +89,9 @@ const DAY_VOLUME_QUERY = `
 export const resolvers = {
   Query: {
     marketData: async () => {
-      const { rows: basicMarketData } = await db.query('SELECT * FROM market_data LIMIT 1');
+      const { rows: basicMarketData } = await db.query(
+        'SELECT * FROM market_data ORDER BY timestamp DESC LIMIT 1'
+      );
 
       const { rows: dayHighPriceRows } = await db.query(DAY_HIGH_PRICE_QUERY, [
         POKT_BY_CHAIN.ethereum,

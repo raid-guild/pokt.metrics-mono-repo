@@ -5,6 +5,7 @@ import { MarketDataRow } from '../types';
 
 const ORIGINAL_ALL_TIME_HIGH = 3.1;
 const ORIGINAL_ALL_TIME_LOW = 0.008747;
+const POKT_CMC_ID = '11823'; // CoinMarketCap ID for Pokt
 
 export const fetchMarketData = async (poktPrice: number): Promise<MarketDataRow | undefined> => {
   try {
@@ -13,7 +14,7 @@ export const fetchMarketData = async (poktPrice: number): Promise<MarketDataRow 
     }
 
     const response = await fetch(
-      'https://pro-api.coinmarketcap.com/v2/cryptocurrency/quotes/latest?id=11823',
+      `https://pro-api.coinmarketcap.com/v2/cryptocurrency/quotes/latest?id=${POKT_CMC_ID}`,
       {
         headers: {
           'X-CMC_PRO_API_KEY': process.env.COINMARKETCAP_API_KEY,
@@ -24,7 +25,11 @@ export const fetchMarketData = async (poktPrice: number): Promise<MarketDataRow 
       throw new Error(`Failed to fetch market data: ${response.statusText}`);
     }
     const data = await response.json();
-    const { circulating_supply } = data.data['11823'];
+    const { circulating_supply } = data.data[POKT_CMC_ID];
+
+    if (!circulating_supply) {
+      throw new Error('Circulating supply not found in market data');
+    }
 
     // Get most recent market_data row
     const latestMarketData = await db.query<{ all_time_high: number; all_time_low: number }>(
