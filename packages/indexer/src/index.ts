@@ -1,3 +1,5 @@
+import 'dotenv/config';
+
 import { getMint } from '@solana/spl-token';
 import { PublicKey } from '@solana/web3.js';
 
@@ -21,11 +23,17 @@ const erc20Abi = [
 
 export const runIndexer = async () => {
   try {
+    if (!process.env.COINMARKETCAP_API_KEY) {
+      throw new Error('COINMARKETCAP_API_KEY is required');
+    }
+
     // Get Ethereum and Solana prices from CoinGecko
     let response = await retry(
       () =>
-        fetch(`https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=usd`, {
-          method: 'GET',
+        fetch('https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest?symbol=ETH', {
+          headers: {
+            'X-CMC_PRO_API_KEY': process.env.COINMARKETCAP_API_KEY as string,
+          } as HeadersInit,
         }),
       {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -34,21 +42,19 @@ export const runIndexer = async () => {
           console.warn(`Retrying ETH price fetch (attempt ${attempt}):`, err.message),
       }
     );
-    let data = await response.json();
-    // TODO: Remove this console log
-    // eslint-disable-next-line no-console
-    console.log(data);
-
-    if (!data || !data.ethereum || !data.ethereum.usd) {
+    const { data: ethData } = await response.json();
+    if (!ethData['ETH']?.quote['USD']?.price) {
       throw new Error('Failed to fetch Ethereum price from CoinGecko');
     }
 
-    const ethPrice = parseFloat(data.ethereum.usd);
+    const ethPrice = parseFloat(ethData['ETH'].quote['USD'].price);
 
     response = await retry(
       () =>
-        fetch(`https://api.coingecko.com/api/v3/simple/price?ids=solana&vs_currencies=usd`, {
-          method: 'GET',
+        fetch('https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest?symbol=SOL', {
+          headers: {
+            'X-CMC_PRO_API_KEY': process.env.COINMARKETCAP_API_KEY as string,
+          } as HeadersInit,
         }),
       {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -57,13 +63,12 @@ export const runIndexer = async () => {
           console.warn(`Retrying SOL price fetch (attempt ${attempt}):`, err.message),
       }
     );
-    data = await response.json();
-
-    if (!data || !data.solana || !data.solana.usd) {
-      throw new Error('Failed to fetch Solana price from CoinGecko');
+    const { data: solData } = await response.json();
+    if (!solData['SOL']?.quote['USD']?.price) {
+      throw new Error('Failed to fetch Solana price from CoinMarketCap');
     }
 
-    const solanaPrice = parseFloat(data.solana.usd);
+    const solanaPrice = parseFloat(solData['SOL'].quote['USD'].price);
 
     const poolSnapshots: PoolSnapshotRow[] = [];
 
@@ -169,12 +174,11 @@ export const runIndexer = async () => {
 
     response = await retry(
       () =>
-        fetch(
-          `https://api.coingecko.com/api/v3/simple/price?ids=pocket-network&vs_currencies=usd`,
-          {
-            method: 'GET',
-          }
-        ),
+        fetch('https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest?symbol=POKT', {
+          headers: {
+            'X-CMC_PRO_API_KEY': process.env.COINMARKETCAP_API_KEY as string,
+          } as HeadersInit,
+        }),
       {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         onRetry: (err: any, attempt) =>
@@ -182,13 +186,12 @@ export const runIndexer = async () => {
           console.warn(`Retrying POKT price fetch (attempt ${attempt}):`, err.message),
       }
     );
-    data = await response.json();
-
-    if (!data || !data['pocket-network'] || !data['pocket-network'].usd) {
-      throw new Error('Failed to fetch POKT price from CoinGecko');
+    const { data: poktData } = await response.json();
+    if (!poktData['POKT']?.quote['USD']?.price) {
+      throw new Error('Failed to fetch POKT price from CoinMarketCap');
     }
 
-    const poktPrice = parseFloat(data['pocket-network'].usd);
+    const poktPrice = parseFloat(poktData['POKT'].quote['USD'].price);
     const marketData = await fetchMarketData(poktPrice);
 
     if (!marketData) {
