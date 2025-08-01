@@ -2,6 +2,7 @@ import 'dotenv/config';
 
 import { db } from '../db/client';
 import { MarketDataRow } from '../types';
+import { logger } from '../utils/logger';
 
 const ORIGINAL_ALL_TIME_HIGH = 3.1;
 const ORIGINAL_ALL_TIME_LOW = 0.008747;
@@ -54,8 +55,7 @@ export const fetchMarketData = async (poktPrice: number): Promise<MarketDataRow 
       timestamp: BigInt(Date.now()),
     };
   } catch (error) {
-    // eslint-disable-next-line no-console
-    console.error('Error fetching market data:', error);
+    logger.error({ error }, 'Error fetching market data');
     throw error;
   }
 };

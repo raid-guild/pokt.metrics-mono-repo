@@ -1,5 +1,6 @@
 import { db } from '../db/client';
 import { PriceSnapshotRow } from '../types';
+import { logger } from '../utils/logger';
 
 export const storePriceSnapshots = async (prices: PriceSnapshotRow[]): Promise<void> => {
   if (prices.length === 0) return;
@@ -36,7 +37,6 @@ export const storePriceSnapshots = async (prices: PriceSnapshotRow[]): Promise<v
   try {
     await db.query(query, values);
   } catch (error) {
-    // eslint-disable-next-line no-console
-    console.error('Error storing price snapshots:', error);
+    logger.error({ error }, 'Error storing price snapshots');
   }
 };

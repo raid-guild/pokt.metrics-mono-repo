@@ -9,6 +9,7 @@ import { storeMarketData, storePoolSnapshots, storePriceSnapshots } from './serv
 import { PoolSnapshotRow } from './types';
 import { ADDRESSES_BY_CHAIN, Chain } from './utils/chains';
 import { baseClient, ethereumClient, solanaClient } from './utils/helpers';
+import { logger } from './utils/logger';
 import { retry } from './utils/retry';
 
 const erc20Abi = [
@@ -38,8 +39,7 @@ export const runIndexer = async () => {
       {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         onRetry: (err: any, attempt) =>
-          // eslint-disable-next-line no-console
-          console.warn(`Retrying ETH price fetch (attempt ${attempt}):`, err.message),
+          logger.warn({ attempt, error: err }, 'Retrying ETH price fetch'),
       }
     );
     const { data: ethData } = await response.json();
@@ -59,8 +59,7 @@ export const runIndexer = async () => {
       {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         onRetry: (err: any, attempt) =>
-          // eslint-disable-next-line no-console
-          console.warn(`Retrying SOL price fetch (attempt ${attempt}):`, err.message),
+          logger.warn({ attempt, error: err }, 'Retrying SOL price fetch'),
       }
     );
     const { data: solData } = await response.json();
@@ -151,8 +150,7 @@ export const runIndexer = async () => {
     if (poolSnapshots.length > 0) {
       await storePriceSnapshots(poolSnapshots);
     } else {
-      // eslint-disable-next-line no-console
-      console.warn('⚠️ No pool snapshots fetched');
+      logger.warn('⚠️ No pool snapshots fetched');
     }
 
     // Get most recent pool_snapshot row
@@ -182,8 +180,7 @@ export const runIndexer = async () => {
       {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         onRetry: (err: any, attempt) =>
-          // eslint-disable-next-line no-console
-          console.warn(`Retrying POKT price fetch (attempt ${attempt}):`, err.message),
+          logger.warn({ attempt, error: err }, 'Retrying POKT price fetch'),
       }
     );
     const { data: poktData } = await response.json();
@@ -195,33 +192,28 @@ export const runIndexer = async () => {
     const marketData = await fetchMarketData(poktPrice);
 
     if (!marketData) {
-      // eslint-disable-next-line no-console
-      console.warn('⚠️ No market data fetched');
+      logger.error('⚠️ No market data fetched');
       return;
     }
 
     // Store market data
     await storeMarketData([marketData]);
   } catch (error) {
-    // eslint-disable-next-line no-console
-    console.error('Error in runIndexer:', error);
+    logger.error({ error }, 'Error in runIndexer');
     throw error; // Re-throw to be caught in main
   }
 };
 
 const main = async () => {
   try {
-    // eslint-disable-next-line no-console
-    console.log('Indexer is running...');
+    logger.info('Indexer is running...');
 
     await runIndexer();
     // await fetchMarketData();
 
-    // eslint-disable-next-line no-console
-    console.log('Indexer finished.');
+    logger.info('Indexer finished.');
   } catch (error) {
-    // eslint-disable-next-line no-console
-    console.error('Error in indexer:', error);
+    logger.error({ error }, 'Error in indexer');
   }
 };
 

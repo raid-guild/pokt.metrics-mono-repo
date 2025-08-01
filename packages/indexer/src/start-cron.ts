@@ -1,32 +1,28 @@
 import { indexerQueue } from './jobs/queue';
 import { scheduleRecurringJob } from './jobs/schedule';
 import { indexerWorker } from './jobs/worker';
+import { logger } from './utils/logger';
 
 (async () => {
   try {
     const repeatableJobs = await indexerQueue.getJobSchedulers();
     for (const job of repeatableJobs) {
       await indexerQueue.removeJobScheduler(job.key);
-      // eslint-disable-next-line no-console
-      console.log(`🗑️ Removed repeatable job: ${job.key}`);
+      logger.info({ jobKey: job.key }, '🗑️ Removed repeatable job');
     }
 
     await scheduleRecurringJob();
-    // eslint-disable-next-line no-console
-    console.log('⏰ Scheduled recurring indexer job');
+    logger.info('⏰ Scheduled recurring indexer job');
   } catch (error) {
-    // eslint-disable-next-line no-console
-    console.error('❌ Failed to initialize job scheduling:', error);
+    logger.error({ error }, '❌ Failed to initialize job scheduling');
     process.exit(1);
   }
 })();
 
 indexerWorker.on('completed', (job) => {
-  // eslint-disable-next-line no-console
-  console.log(`✅ Job ${job.id} finished at ${new Date().toISOString()}`);
+  logger.info({ jobId: job.id }, '✅ Job finished');
 });
 
 indexerWorker.on('failed', (job, err) => {
-  // eslint-disable-next-line no-console
-  console.error(`❌ Job ${job?.id} failed:`, err);
+  logger.error({ error: err, jobId: job?.id }, '❌ Job failed');
 });

@@ -1,5 +1,6 @@
 import { db } from '../db/client';
 import { MarketDataRow } from '../types';
+import { logger } from '../utils/logger';
 
 export const storeMarketData = async (prices: MarketDataRow[]): Promise<void> => {
   if (prices.length === 0) return;
@@ -34,7 +35,6 @@ export const storeMarketData = async (prices: MarketDataRow[]): Promise<void> =>
   try {
     await db.query(query, values);
   } catch (error) {
-    // eslint-disable-next-line no-console
-    console.error('Error storing market data:', error);
+    logger.error({ error }, 'Error storing market data:');
   }
 };
