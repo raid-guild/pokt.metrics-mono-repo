@@ -28,46 +28,41 @@ export const runIndexer = async () => {
       throw new Error('COINMARKETCAP_API_KEY is required');
     }
 
-    // Get Ethereum and Solana prices from CoinGecko
-    let response = await retry(
+    // Get Ethereum, Solana, and Base price data
+    const response = await retry(
       () =>
-        fetch('https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest?symbol=ETH', {
-          headers: {
-            'X-CMC_PRO_API_KEY': process.env.COINMARKETCAP_API_KEY as string,
-          } as HeadersInit,
-        }),
+        fetch(
+          'https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest?symbol=ETH,SOL,POKT',
+          {
+            headers: {
+              'X-CMC_PRO_API_KEY': process.env.COINMARKETCAP_API_KEY as string,
+            } as HeadersInit,
+          }
+        ),
       {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         onRetry: (err: any, attempt) =>
-          logger.warn({ attempt, error: err }, 'Retrying ETH price fetch'),
+          logger.warn({ attempt, error: err }, 'Retrying ETH, SOL, and POKT price fetch'),
       }
     );
-    const { data: ethData } = await response.json();
-    if (!ethData['ETH']?.quote['USD']?.price) {
-      throw new Error('Failed to fetch Ethereum price from CoinGecko');
+    const { data } = await response.json();
+    if (!data['ETH']?.quote['USD']?.price) {
+      throw new Error('Failed to fetch Ethereum price from CoinMarketCap');
     }
 
-    const ethPrice = parseFloat(ethData['ETH'].quote['USD'].price);
+    const ethPrice = parseFloat(data['ETH'].quote['USD'].price);
 
-    response = await retry(
-      () =>
-        fetch('https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest?symbol=SOL', {
-          headers: {
-            'X-CMC_PRO_API_KEY': process.env.COINMARKETCAP_API_KEY as string,
-          } as HeadersInit,
-        }),
-      {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        onRetry: (err: any, attempt) =>
-          logger.warn({ attempt, error: err }, 'Retrying SOL price fetch'),
-      }
-    );
-    const { data: solData } = await response.json();
-    if (!solData['SOL']?.quote['USD']?.price) {
+    if (!data['SOL']?.quote['USD']?.price) {
       throw new Error('Failed to fetch Solana price from CoinMarketCap');
     }
 
-    const solanaPrice = parseFloat(solData['SOL'].quote['USD'].price);
+    const solanaPrice = parseFloat(data['SOL'].quote['USD'].price);
+
+    if (!data['POKT']?.quote['USD']?.price) {
+      throw new Error('Failed to fetch POKT price from CoinMarketCap');
+    }
+
+    const poktPrice = parseFloat(data['POKT'].quote['USD'].price);
 
     const poolSnapshots: PoolSnapshotRow[] = [];
 
@@ -170,26 +165,15 @@ export const runIndexer = async () => {
       await storePoolSnapshots(poolSnapshots);
     }
 
-    response = await retry(
-      () =>
-        fetch('https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest?symbol=POKT', {
-          headers: {
-            'X-CMC_PRO_API_KEY': process.env.COINMARKETCAP_API_KEY as string,
-          } as HeadersInit,
-        }),
-      {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        onRetry: (err: any, attempt) =>
-          logger.warn({ attempt, error: err }, 'Retrying POKT price fetch'),
-      }
-    );
-    const { data: poktData } = await response.json();
-    if (!poktData['POKT']?.quote['USD']?.price) {
-      throw new Error('Failed to fetch POKT price from CoinMarketCap');
+    if (!data['POKT']?.circulating_supply) {
+      throw new Error('Failed to fetch POKT circulating supply from CoinMarketCap');
     }
-
-    const poktPrice = parseFloat(poktData['POKT'].quote['USD'].price);
-    const marketData = await fetchMarketData(poktPrice);
+    if (!data['POKT']?.quote['USD']?.volume_24h) {
+      throw new Error('Failed to fetch POKT 24h volume from CoinMarketCap');
+    }
+    const circulatingSupply = parseFloat(data['POKT'].circulating_supply);
+    const volume24h = parseFloat(data['POKT'].quote['USD'].volume_24h);
+    const marketData = await fetchMarketData(poktPrice, circulatingSupply, volume24h);
 
     if (!marketData) {
       logger.error('⚠️ No market data fetched');

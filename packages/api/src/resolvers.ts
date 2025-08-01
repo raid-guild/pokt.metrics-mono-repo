@@ -77,15 +77,6 @@ const DAY_LOW_PRICE_QUERY = `
     AND to_timestamp(timestamp / 1000.0) >= NOW() - INTERVAL '24 hours'
 `;
 
-const DAY_VOLUME_QUERY = `
-  SELECT
-    volume_usd AS day_volume
-  FROM pool_snapshots
-  WHERE to_timestamp(timestamp / 1000.0) >= NOW() - INTERVAL '24 hours'
-  ORDER BY timestamp DESC
-  LIMIT 3
-`;
-
 export const resolvers = {
   Query: {
     marketData: async () => {
@@ -103,14 +94,10 @@ export const resolvers = {
       ]);
       const dayLowPrice = dayLowPriceRows[0]?.day_low_price ?? 0;
 
-      const { rows: dayVolumeRows } = await db.query(DAY_VOLUME_QUERY, []);
-      const dayVolume = dayVolumeRows.reduce((total, row) => total + parseFloat(row.day_volume), 0);
-
       const enhancedMarketData = {
         ...basicMarketData[0],
         day_high_price: dayHighPrice,
         day_low_price: dayLowPrice,
-        day_volume: dayVolume,
       };
       return enhancedMarketData;
     },

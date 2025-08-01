@@ -10,6 +10,7 @@ export const storeMarketData = async (prices: MarketDataRow[]): Promise<void> =>
       all_time_high,
       all_time_low,
       circulating_supply,
+      day_volume,
       market_cap,
       price,
       timestamp
@@ -17,8 +18,8 @@ export const storeMarketData = async (prices: MarketDataRow[]): Promise<void> =>
     VALUES ${prices
       .map(
         (_, i) =>
-          `($${i * 6 + 1}, $${i * 6 + 2}, $${i * 6 + 3}, $${i * 6 + 4}, $${i * 6 + 5},
-             $${i * 6 + 6})`
+          `($${i * 7 + 1}, $${i * 7 + 2}, $${i * 7 + 3}, $${i * 7 + 4}, $${i * 7 + 5},
+             $${i * 7 + 6}, $${i * 7 + 7})`
       )
       .join(', ')}
   `;
@@ -27,6 +28,7 @@ export const storeMarketData = async (prices: MarketDataRow[]): Promise<void> =>
     p.all_time_high,
     p.all_time_low,
     p.circulating_supply,
+    p.day_volume,
     p.market_cap,
     p.price,
     p.timestamp,
