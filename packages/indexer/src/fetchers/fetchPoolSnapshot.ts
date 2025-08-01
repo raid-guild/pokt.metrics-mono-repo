@@ -30,9 +30,11 @@ export const fetchPoolSnapshot = async (
             ltDate: dayAgoTimestamp,
           }),
         {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          onRetry: (err: any, attempt) =>
-            logger.warn({ attempt, chain, error: err.message }, 'Retrying getPoolStats'),
+          onRetry: (err: unknown, attempt) =>
+            logger.warn(
+              { attempt, chain, error: (err as Error)?.message },
+              'Retrying getPoolStats'
+            ),
         }
       );
       if (!poolStats) {
@@ -46,9 +48,11 @@ export const fetchPoolSnapshot = async (
             chainId: 'eth',
           }),
         {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          onRetry: (err: any, attempt) =>
-            logger.warn({ attempt, chain, error: err.message }, 'Retrying getTokenHolders'),
+          onRetry: (err: unknown, attempt) =>
+            logger.warn(
+              { attempt, chain, error: (err as Error)?.message },
+              'Retrying getTokenHolders'
+            ),
         }
       );
 
@@ -83,9 +87,11 @@ export const fetchPoolSnapshot = async (
             ltDate: dayAgoTimestamp,
           }),
         {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          onRetry: (err: any, attempt) =>
-            logger.warn({ attempt, chain, error: err.message }, 'Retrying getPoolStats'),
+          onRetry: (err: unknown, attempt) =>
+            logger.warn(
+              { attempt, chain, error: (err as Error)?.message },
+              'Retrying getPoolStats'
+            ),
         }
       );
       if (!poolStats) {
@@ -99,9 +105,11 @@ export const fetchPoolSnapshot = async (
             chainId: 'base',
           }),
         {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          onRetry: (err: any, attempt) =>
-            logger.warn({ attempt, chain, error: err.message }, 'Retrying getTokenHolders'),
+          onRetry: (err: unknown, attempt) =>
+            logger.warn(
+              { attempt, chain, error: (err as Error)?.message },
+              'Retrying getTokenHolders'
+            ),
         }
       );
 
@@ -150,9 +158,11 @@ export const fetchPoolSnapshot = async (
             tokenAddress: wpokt,
           }),
         {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          onRetry: (err: any, attempt) =>
-            logger.warn({ attempt, chain, error: err.message }, 'Retrying getTokenHolders'),
+          onRetry: (err: unknown, attempt) =>
+            logger.warn(
+              { attempt, chain, error: (err as Error)?.message },
+              'Retrying getTokenHolders'
+            ),
         }
       );
 
@@ -180,5 +190,6 @@ export const fetchPoolSnapshot = async (
     throw new Error(`Unsupported chain: ${chain}`);
   } catch (error) {
     logger.error({ error }, 'Error fetching pool snapshot');
+    throw error; // Re-throw to be caught in runIndexer
   }
 };

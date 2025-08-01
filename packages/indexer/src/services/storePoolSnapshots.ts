@@ -49,5 +49,6 @@ export const storePoolSnapshots = async (pools: PoolSnapshotRow[]): Promise<void
     await db.query(query, values);
   } catch (error) {
     logger.error({ error }, 'Error storing pool snapshots');
+    throw error; // Re-throw to be caught in runIndexer
   }
 };

@@ -36,6 +36,6 @@ export const fetchMarketData = async (
     };
   } catch (error) {
     logger.error({ error }, 'Error fetching market data');
-    throw error;
+    throw error; // Re-throw to be caught in runIndexer
   }
 };
