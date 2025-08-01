@@ -4,6 +4,7 @@ export type MarketDataRow = {
   all_time_high: number;
   all_time_low: number;
   circulating_supply: number;
+  day_volume: number;
   market_cap: number;
   price: number;
   timestamp: bigint;

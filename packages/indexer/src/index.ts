@@ -9,6 +9,7 @@ import { storeMarketData, storePoolSnapshots, storePriceSnapshots } from './serv
 import { PoolSnapshotRow } from './types';
 import { ADDRESSES_BY_CHAIN, Chain } from './utils/chains';
 import { baseClient, ethereumClient, solanaClient } from './utils/helpers';
+import { logger } from './utils/logger';
 import { retry } from './utils/retry';
 
 const erc20Abi = [
@@ -27,48 +28,41 @@ export const runIndexer = async () => {
       throw new Error('COINMARKETCAP_API_KEY is required');
     }
 
-    // Get Ethereum and Solana prices from CoinGecko
-    let response = await retry(
+    // Get Ethereum, Solana, and Base price data
+    const response = await retry(
       () =>
-        fetch('https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest?symbol=ETH', {
-          headers: {
-            'X-CMC_PRO_API_KEY': process.env.COINMARKETCAP_API_KEY as string,
-          } as HeadersInit,
-        }),
+        fetch(
+          'https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest?symbol=ETH,SOL,POKT',
+          {
+            headers: {
+              'X-CMC_PRO_API_KEY': process.env.COINMARKETCAP_API_KEY as string,
+            } as HeadersInit,
+          }
+        ),
       {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         onRetry: (err: any, attempt) =>
-          // eslint-disable-next-line no-console
-          console.warn(`Retrying ETH price fetch (attempt ${attempt}):`, err.message),
+          logger.warn({ attempt, error: err }, 'Retrying ETH, SOL, and POKT price fetch'),
       }
     );
-    const { data: ethData } = await response.json();
-    if (!ethData['ETH']?.quote['USD']?.price) {
-      throw new Error('Failed to fetch Ethereum price from CoinGecko');
+    const { data } = await response.json();
+    if (!data['ETH']?.quote['USD']?.price) {
+      throw new Error('Failed to fetch Ethereum price from CoinMarketCap');
     }
 
-    const ethPrice = parseFloat(ethData['ETH'].quote['USD'].price);
+    const ethPrice = parseFloat(data['ETH'].quote['USD'].price);
 
-    response = await retry(
-      () =>
-        fetch('https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest?symbol=SOL', {
-          headers: {
-            'X-CMC_PRO_API_KEY': process.env.COINMARKETCAP_API_KEY as string,
-          } as HeadersInit,
-        }),
-      {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        onRetry: (err: any, attempt) =>
-          // eslint-disable-next-line no-console
-          console.warn(`Retrying SOL price fetch (attempt ${attempt}):`, err.message),
-      }
-    );
-    const { data: solData } = await response.json();
-    if (!solData['SOL']?.quote['USD']?.price) {
+    if (!data['SOL']?.quote['USD']?.price) {
       throw new Error('Failed to fetch Solana price from CoinMarketCap');
     }
 
-    const solanaPrice = parseFloat(solData['SOL'].quote['USD'].price);
+    const solanaPrice = parseFloat(data['SOL'].quote['USD'].price);
+
+    if (!data['POKT']?.quote['USD']?.price) {
+      throw new Error('Failed to fetch POKT price from CoinMarketCap');
+    }
+
+    const poktPrice = parseFloat(data['POKT'].quote['USD'].price);
 
     const poolSnapshots: PoolSnapshotRow[] = [];
 
@@ -151,8 +145,7 @@ export const runIndexer = async () => {
     if (poolSnapshots.length > 0) {
       await storePriceSnapshots(poolSnapshots);
     } else {
-      // eslint-disable-next-line no-console
-      console.warn('⚠️ No pool snapshots fetched');
+      logger.warn('⚠️ No pool snapshots fetched');
     }
 
     // Get most recent pool_snapshot row
@@ -172,56 +165,39 @@ export const runIndexer = async () => {
       await storePoolSnapshots(poolSnapshots);
     }
 
-    response = await retry(
-      () =>
-        fetch('https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest?symbol=POKT', {
-          headers: {
-            'X-CMC_PRO_API_KEY': process.env.COINMARKETCAP_API_KEY as string,
-          } as HeadersInit,
-        }),
-      {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        onRetry: (err: any, attempt) =>
-          // eslint-disable-next-line no-console
-          console.warn(`Retrying POKT price fetch (attempt ${attempt}):`, err.message),
-      }
-    );
-    const { data: poktData } = await response.json();
-    if (!poktData['POKT']?.quote['USD']?.price) {
-      throw new Error('Failed to fetch POKT price from CoinMarketCap');
+    if (!data['POKT']?.circulating_supply) {
+      throw new Error('Failed to fetch POKT circulating supply from CoinMarketCap');
     }
-
-    const poktPrice = parseFloat(poktData['POKT'].quote['USD'].price);
-    const marketData = await fetchMarketData(poktPrice);
+    if (!data['POKT']?.quote['USD']?.volume_24h) {
+      throw new Error('Failed to fetch POKT 24h volume from CoinMarketCap');
+    }
+    const circulatingSupply = parseFloat(data['POKT'].circulating_supply);
+    const volume24h = parseFloat(data['POKT'].quote['USD'].volume_24h);
+    const marketData = await fetchMarketData(poktPrice, circulatingSupply, volume24h);
 
     if (!marketData) {
-      // eslint-disable-next-line no-console
-      console.warn('⚠️ No market data fetched');
+      logger.error('⚠️ No market data fetched');
       return;
     }
 
     // Store market data
     await storeMarketData([marketData]);
   } catch (error) {
-    // eslint-disable-next-line no-console
-    console.error('Error in runIndexer:', error);
+    logger.error({ error }, 'Error in runIndexer');
     throw error; // Re-throw to be caught in main
   }
 };
 
 const main = async () => {
   try {
-    // eslint-disable-next-line no-console
-    console.log('Indexer is running...');
+    logger.info('Indexer is running...');
 
     await runIndexer();
     // await fetchMarketData();
 
-    // eslint-disable-next-line no-console
-    console.log('Indexer finished.');
+    logger.info('Indexer finished.');
   } catch (error) {
-    // eslint-disable-next-line no-console
-    console.error('Error in indexer:', error);
+    logger.error({ error }, 'Error in indexer');
   }
 };
 

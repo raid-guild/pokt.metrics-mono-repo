@@ -38,6 +38,7 @@ CREATE TABLE IF NOT EXISTS market_data (
   all_time_high NUMERIC(30, 12) NOT NULL,
   all_time_low NUMERIC(30, 12) NOT NULL,
   circulating_supply NUMERIC(30, 12) NOT NULL,
+  day_volume NUMERIC(30, 12) NOT NULL,
   market_cap NUMERIC(30, 12) NOT NULL,
   price NUMERIC(30, 12) NOT NULL,
   timestamp BIGINT NOT NULL

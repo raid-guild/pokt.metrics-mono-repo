@@ -1,5 +1,6 @@
 import { db } from '../db/client';
 import { PoolSnapshotRow } from '../types';
+import { logger } from '../utils/logger';
 
 export const storePoolSnapshots = async (pools: PoolSnapshotRow[]): Promise<void> => {
   if (pools.length === 0) return;
@@ -47,7 +48,7 @@ export const storePoolSnapshots = async (pools: PoolSnapshotRow[]): Promise<void
   try {
     await db.query(query, values);
   } catch (error) {
-    // eslint-disable-next-line no-console
-    console.error('Error storing pool snapshots:', error);
+    logger.error({ error }, 'Error storing pool snapshots');
+    throw error; // Re-throw to be caught in runIndexer
   }
 };
