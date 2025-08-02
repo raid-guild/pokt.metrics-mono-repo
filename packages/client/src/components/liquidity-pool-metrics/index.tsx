@@ -1,6 +1,8 @@
 import { useQuery } from "@tanstack/react-query";
 import { base, mainnet } from "viem/chains";
 
+import { TokenPair } from "@/lib/utils";
+
 import { MetricsRow } from "./metrics-row";
 
 // Test data for MetricsRow component
@@ -11,7 +13,6 @@ export const TEST_METRICS_DATA = [
     spread: 0.12,
     marketCap: 12500000,
     liquidity: 850000,
-    poolColor: "#D35400",
     circulatingSupply: 275000000,
     holders: 15420,
     volume24h: 125000,
@@ -23,7 +24,7 @@ export const TEST_METRICS_DATA = [
     poolIconTo: "https://example.com/pokt-icon.png",
     chainId: mainnet.id,
     platformId: "uniswap-v3",
-    pairName: "wPOKT/wETH",
+    pairName: TokenPair.wPOKT_wETH,
   },
   {
     price24h: 0.043,
@@ -31,7 +32,6 @@ export const TEST_METRICS_DATA = [
     spread: 0.08,
     marketCap: 11800000,
     liquidity: 720000,
-    poolColor: "#0E7490",
     circulatingSupply: 275000000,
     holders: 14850,
     volume24h: 98000,
@@ -43,7 +43,7 @@ export const TEST_METRICS_DATA = [
     poolIconTo: "https://example.com/pokt-icon.png",
     chainId: base.id,
     platformId: "aerodrome",
-    pairName: "POKT/wETH",
+    pairName: TokenPair.POKT_wETH,
   },
   {
     price24h: 0.047,
@@ -51,7 +51,6 @@ export const TEST_METRICS_DATA = [
     spread: 0.15,
     marketCap: 13200000,
     liquidity: 920000,
-    poolColor: "#6B46C1",
     circulatingSupply: 275000000,
     holders: 15980,
     volume24h: 145000,
@@ -63,7 +62,7 @@ export const TEST_METRICS_DATA = [
     poolIconTo: "https://example.com/pokt-icon.png",
     chainId: 101,
     platformId: "orca",
-    pairName: "POKT/SOL",
+    pairName: TokenPair.POKT_SOL,
   },
 ];
 
@@ -77,9 +76,6 @@ export const LiquidityPoolMetrics = () => {
   
   return (
     <div className="flex flex-col gap-4 w-full overflow-x-scroll">
-      <div className="flex bg-primary rounded-lg text-white p-4">
-        <h1 className="text-3xl font-bold">Liquidity Pool Metrics</h1>
-      </div>
         {data?.map((metrics, index) => (
           <MetricsRow key={index} {...metrics} />
         ))}

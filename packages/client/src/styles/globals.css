@@ -42,6 +42,7 @@
   --tertiary: oklch(0.15 0 0);
   --font-rubik: "Rubik", sans-serif;
   --font-inter: "Inter", sans-serif;
+  --border-card: #F2F2F2;
 }
 
 @theme inline {
@@ -85,11 +86,12 @@
   --radius-xl: calc(var(--radius) + 4px);
   --font: var(--font-rubik);
   --color-tertiary: var(--tertiary);
+  --color-border-card: var(--border-card);
 }
 
-@media (prefers-color-scheme: dark) {
+@media (prefers-color-scheme: light) {
   :root {
-    --background: #ededed;
+    --background: var(--background);
     --foreground: #0a0a0a;
   }
 }
@@ -100,7 +102,7 @@ body {
   font-family: var(--font-inter);
 }
 
-.dark {
+/* .dark {
   --background: oklch(0.985 0 0);
   --foreground: oklch(0.985 0 0);
   --card: oklch(0.205 0 0);
@@ -133,7 +135,7 @@ body {
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.556 0 0);
   --tertiary: oklch(0.15 0 0);
-}
+} */
 
 @layer base {
   * {

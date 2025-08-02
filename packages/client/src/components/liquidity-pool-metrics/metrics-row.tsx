@@ -1,33 +1,26 @@
 import { CopyIcon } from 'lucide-react';
 import Image from 'next/image';
 
-const formatNumber = (num: number): string => {
-  if (num >= 1000000) {
-    return `${(num / 1000000).toFixed(2)}M`;
-  } else if (num >= 1000) {
-    return `${(num / 1000).toFixed(2)}K`;
-  } else {
-    return num.toFixed(2);
-  }
-};
+import { formatNumber, formatPrice, getTokenPairColor, getTokenPairName, TokenPair } from '@/lib/utils';
+
 
 const getDexInfoByPairName = (pairName: string) => {
   switch (pairName) {
-    case "wPOKT/wETH":
+    case TokenPair.wPOKT_wETH:
       return {
         platformLogo: '/platform_icons/eth-uni.svg',
         dexToolsLink: "ttps://www.dextools.io/app/en/ether/pair-explorer/0xa7fd8ff8f4cada298286d3006ee8f9c11e2ff84e",
         dexScreenerLink: "https://dexscreener.com/ethereum/0xa7fd8ff8f4cada298286d3006ee8f9c11e2ff84e",
         poolAddress: "0xa7fd8ff8f4cada298286d3006ee8f9c11e2ff84e",
       }
-    case "POKT/wETH":
+    case TokenPair.POKT_wETH:
       return {
         platformLogo: '/platform_icons/base-aero.svg',
         dexToolsLink: "https://www.dextools.io/app/en/base/pair-explorer/0x32bb4ad5fed77f7abf97d1435f8d6aaae59aa64e",
         dexScreenerLink: "https://dexscreener.com/base/0x32bb4ad5fed77f7abf97d1435f8d6aaae59aa64e",
         poolAddress: "0x32bb4ad5fed77f7abf97d1435f8d6aaae59aa64e",
       }
-    case "POKT/SOL":
+    case TokenPair.POKT_SOL:
       return {
         platformLogo: '/platform_icons/sol-orca.svg',
         dexToolsLink: "https://www.dextools.io/app/en/solana/pair-explorer/5qJCeYWzvkrKuD1r7bQDus8ffm2vjrunxNUht6NTeise",
@@ -50,7 +43,6 @@ export const MetricsRow = ({
   spread,
   marketCap,
   liquidity,
-  poolColor,
   circulatingSupply,
   holders,
   volume24h,
@@ -63,39 +55,34 @@ export const MetricsRow = ({
   spread: number;
   marketCap: number;
   liquidity: number;
-  poolColor: string;
   circulatingSupply: number;
   holders: number;
   volume24h: number;
   volatility: number;
   circulatingSupplyPercentage: number;
-  pairName: string;
+  pairName: TokenPair;
 }) => {
+  const poolColor = getTokenPairColor(pairName);
   const upColor = 'text-green-500';
   const downColor = 'text-red-500';
 
-  const price24hFormatted = price24h
-    .toFixed(4)
-    .replace(/^0+/, '')
-    .replace(/\.?0+$/, '');
+  const price24hFormatted = formatPrice(price24h);
 
   const priceChangeFormatted = priceChange
     .toFixed(2)
     .replace(/^0+/, '')
     .replace(/\.?0+$/, '');
   const priceChangeColor = priceChange > 0 ? upColor : downColor;
-
   const spreadChangeColor = spread > 0 ? upColor : downColor;
-
   const dexInfo = getDexInfoByPairName(pairName);
 
   return (
     <div className={`grid grid-cols-12 gap-4 h-21 rounded-lg px-8 items-center`} style={{ backgroundColor: poolColor }}>
-      <div className="col-span-12 bg-white px-4 h-full">
+      <div className="col-span-12 bg-white px-4 h-full border-border-card border-1 border-x-0" >
         <div className="grid grid-cols-13 gap-4 items-center h-full">
           {/* Pair Name */}
           <div className="col-span-2">
-            <h3 className="text-lg font-bold">{pairName}</h3>
+            <h3 className="text-lg font-bold">{getTokenPairName(pairName)}</h3>
           </div>
 
           {/* Platform Logo */}
