@@ -42,7 +42,10 @@
   --tertiary: oklch(0.15 0 0);
   --font-rubik: "Rubik", sans-serif;
   --font-inter: "Inter", sans-serif;
-  --border-card: #F2F2F2;
+  --bg-gray: #F2F2F2;
+  --muted-text: #64748B;
+  --positive-green: #60BC29;
+  --negative-red: #E03834;
 }
 
 @theme inline {
@@ -86,7 +89,10 @@
   --radius-xl: calc(var(--radius) + 4px);
   --font: var(--font-rubik);
   --color-tertiary: var(--tertiary);
-  --color-border-card: var(--border-card);
+  --color-bg-gray: var(--bg-gray);
+  --color-muted-text: var(--muted-text);
+  --color-positive-green: var(--positive-green);
+  --color-negative-red: var(--negative-red);
 }
 
 @media (prefers-color-scheme: light) {

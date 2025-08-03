@@ -78,7 +78,7 @@ export const MetricsRow = ({
 
   return (
     <div className={`grid grid-cols-12 gap-4 h-21 rounded-lg px-8 items-center`} style={{ backgroundColor: poolColor }}>
-      <div className="col-span-12 bg-white px-4 h-full border-border-card border-1 border-x-0" >
+      <div className="col-span-12 bg-white px-4 h-full border-bg-gray border-1 border-x-0" >
         <div className="grid grid-cols-13 gap-4 items-center h-full">
           {/* Pair Name */}
           <div className="col-span-2">

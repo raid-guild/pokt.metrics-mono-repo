@@ -86,13 +86,36 @@ export function formatNumber(num: number): string {
   }
 }
 
-export function formatPrice(price: number): string {
-  return price
-    .toFixed(4)
-    .replace(/^0+/, '')
-    .replace(/\.?0+$/, '');
+export function formatNumberWithCommas(num: number): string {
+  // Round to nearest integer
+  const roundedNum = Math.round(num);
+  // Add commas every 3 digits
+  return roundedNum.toLocaleString();
+}
+
+export function formatPrice(price: number, decimals?: number): string {
+  if (price === 0) return '$0.00';
+
+  if (decimals !== undefined) {
+    return `$${price.toFixed(decimals)}`;
+  }
+
+  const formattedPrice =
+    price < 10
+      ? price
+          .toFixed(4)
+          .replace(/^0+/, '')
+          .replace(/\.?0+$/, '')
+      : formatNumberWithCommas(price);
+
+  return `$${formattedPrice}`;
 }
 
 export const formatPercentage = (percentage: number): string => {
   return `${(percentage * 100).toFixed(2)}%`.replace(/\.?0+%$/, '%');
 };
+
+export function calculatePercentageChange(currentPrice: number, athPrice: number): number {
+  if (!athPrice || athPrice === 0) return 0;
+  return (currentPrice - athPrice) / athPrice;
+}
