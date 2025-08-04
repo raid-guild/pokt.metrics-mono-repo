@@ -90,7 +90,7 @@ export const useQueryPoolSnapshots = () => {
     setSortingOrder(sortedResult.map((x) => x.tokenPair));
 
     return sortedResult;
-  }, [fetching, data]);
+  }, [fetching, data, setSortingOrder]);
 
   return { data: sortedData, fetching, error, refetch };
 };
