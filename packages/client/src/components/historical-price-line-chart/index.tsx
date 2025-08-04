@@ -1,5 +1,5 @@
 import Image from 'next/image';
-import { useState } from 'react';
+import { Fragment,useState } from 'react';
 import {
   CartesianGrid,
   Line,
@@ -285,9 +285,8 @@ const CustomTooltip = ({ active, payload, label }: TooltipContentProps<number, s
           {sortingOrder.map((pairName) => {
             const entry = payload.find(x => x.dataKey === pairName)
             return (
-              <>
+              <Fragment key={`item-${entry.name}`}>
                 <div
-                  key={`item-${entry.name}`}
                   className=" col-span-2 text-sm flex items-center"
                   style={{ color: entry.color }}
                 >
@@ -308,7 +307,7 @@ const CustomTooltip = ({ active, payload, label }: TooltipContentProps<number, s
                 <div className="col-span-2 text-right font-medium">
                   ${formatNumber(entry.value)}
                 </div>
-              </>
+              </Fragment>
             );
           })}
         </div>
