@@ -193,7 +193,6 @@ const main = async () => {
     logger.info('Indexer is running...');
 
     await runIndexer();
-    // await fetchMarketData();
 
     logger.info('Indexer finished.');
   } catch (error) {
