@@ -16,6 +16,12 @@ export const POKT_BY_CHAIN: Record<Chain, string> = {
   [Chain.SOLANA]: '6CAsXfiCXZfP8APCG6Vma2DFMindopxiqYQN4LSQfhoC',
 };
 
+const POOL_CREATED_TIMESTAMP: Record<Chain, number> = {
+  [Chain.BASE]: 1724361475,
+  [Chain.ETHEREUM]: 1696841963,
+  [Chain.SOLANA]: 1724398200,
+};
+
 const PRICE_SNAPSHOTS_QUERY = `
   SELECT
     time_bucket($2, to_timestamp(timestamp / 1000.0)) AS bucket,
@@ -112,6 +118,8 @@ export const resolvers = {
       const averageEthereumPrice = averagePriceRows[0]?.average_price ?? 0;
       if (ethereumRows.length > 0) {
         ethereumRows[0].average_price = averageEthereumPrice;
+        ethereumRows[0].pool_age = POOL_CREATED_TIMESTAMP[Chain.ETHEREUM];
+        ethereumRows[0].timestamp = Math.floor(ethereumRows[0].timestamp / 1000);
       }
 
       const { rows: baseRows } = await db.query(POOL_SNAPSHOTS_QUERY, [POKT_BY_CHAIN.base, limit]);
@@ -121,6 +129,8 @@ export const resolvers = {
       const averageBasePrice = averageBasePriceRows[0]?.average_price ?? 0;
       if (baseRows.length > 0) {
         baseRows[0].average_price = averageBasePrice;
+        baseRows[0].pool_age = POOL_CREATED_TIMESTAMP[Chain.BASE];
+        baseRows[0].timestamp = Math.floor(baseRows[0].timestamp / 1000);
       }
 
       const { rows: solanaRows } = await db.query(POOL_SNAPSHOTS_QUERY, [
@@ -133,6 +143,8 @@ export const resolvers = {
       const averageSolanaPrice = averageSolanaPriceRows[0]?.average_price ?? 0;
       if (solanaRows.length > 0) {
         solanaRows[0].average_price = averageSolanaPrice;
+        solanaRows[0].pool_age = POOL_CREATED_TIMESTAMP[Chain.SOLANA];
+        solanaRows[0].timestamp = Math.floor(solanaRows[0].timestamp / 1000);
       }
 
       return {
@@ -157,18 +169,18 @@ export const resolvers = {
       return {
         base: baseRows.map((row) => ({
           ...row,
-          // Floor timestamp to the nearest minute
-          timestamp: new Date(Math.floor(Number(row.timestamp) / 60000) * 60000).toISOString(),
+          // Floor timestamp to the nearest minute in seconds
+          timestamp: Math.floor(Number(row.timestamp) / 60000) * 60,
         })),
         ethereum: ethereumRows.map((row) => ({
           ...row,
-          // Floor timestamp to the nearest minute
-          timestamp: new Date(Math.floor(Number(row.timestamp) / 60000) * 60000).toISOString(),
+          // Floor timestamp to the nearest minute in seconds
+          timestamp: Math.floor(Number(row.timestamp) / 60000) * 60,
         })),
         solana: solanaRows.map((row) => ({
           ...row,
-          // Floor timestamp to the nearest minute
-          timestamp: new Date(Math.floor(Number(row.timestamp) / 60000) * 60000).toISOString(),
+          // Floor timestamp to the nearest minute in seconds
+          timestamp: Math.floor(Number(row.timestamp) / 60000) * 60,
         })),
       };
     },
