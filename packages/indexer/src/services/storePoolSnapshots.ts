@@ -1,5 +1,6 @@
 import { db } from '../db/client';
 import { PoolSnapshotRow } from '../types';
+import { logger } from '../utils/logger';
 
 export const storePoolSnapshots = async (pools: PoolSnapshotRow[]): Promise<void> => {
   if (pools.length === 0) return;
@@ -7,42 +8,47 @@ export const storePoolSnapshots = async (pools: PoolSnapshotRow[]): Promise<void
   const query = `
     INSERT INTO pool_snapshots (
       block_number,
-      chain_id,
+      chain,
+      circulating_supply,
       exchange,
-      machine_type,
+      holders,
+      market_cap,
       pool_address,
-      price,
       timestamp,
       token_address,
       tvl_usd,
+      volatility,
       volume_usd
     )
     VALUES ${pools
       .map(
         (_, i) =>
-          `($${i * 10 + 1}, $${i * 10 + 2}, $${i * 10 + 3}, $${i * 10 + 4}, $${i * 10 + 5},
-             $${i * 10 + 6}, $${i * 10 + 7}, $${i * 10 + 8}, $${i * 10 + 9}, $${i * 10 + 10})`
+          `($${i * 12 + 1}, $${i * 12 + 2}, $${i * 12 + 3}, $${i * 12 + 4}, $${i * 12 + 5},
+             $${i * 12 + 6}, $${i * 12 + 7}, $${i * 12 + 8}, $${i * 12 + 9}, $${i * 12 + 10},
+             $${i * 12 + 11}, $${i * 12 + 12})`
       )
       .join(', ')}
   `;
 
-  const values = pools.flatMap((p) => [
+  const values = pools.flatMap((p: PoolSnapshotRow) => [
     p.block_number,
-    p.chain_id,
+    p.chain,
+    p.circulating_supply,
     p.exchange,
-    p.machine_type,
+    p.holders,
+    p.market_cap,
     p.pool_address,
-    p.price,
     p.timestamp,
     p.token_address,
     p.tvl_usd,
+    p.volatility,
     p.volume_usd,
   ]);
 
   try {
     await db.query(query, values);
   } catch (error) {
-    // eslint-disable-next-line no-console
-    console.error('Error storing pool snapshots:', error);
+    logger.error({ error }, 'Error storing pool snapshots');
+    throw error; // Re-throw to be caught in runIndexer
   }
 };

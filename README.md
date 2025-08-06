@@ -127,7 +127,7 @@ pnpm start:historical-sync
 - **TypeScript** monorepo (`pnpm`)
 - **TimescaleDB** (PostgreSQL 16)
 - **Moralis API** (EVM + Solana)
-- **BullMQ + Redis** for job scheduling
+- **Node Cron** for job scheduling
 - **Apollo Server** (GraphQL over Express)
 
 ---
