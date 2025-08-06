@@ -16,7 +16,7 @@ const getDexInfoByPairName = (pairName: string) => {
       return {
         platformLogo: '/platform_icons/eth-uni.svg',
         dexToolsLink:
-          'ttps://www.dextools.io/app/en/ether/pair-explorer/0xa7fd8ff8f4cada298286d3006ee8f9c11e2ff84e',
+          'https://www.dextools.io/app/en/ether/pair-explorer/0xa7fd8ff8f4cada298286d3006ee8f9c11e2ff84e',
         dexScreenerLink:
           'https://dexscreener.com/ethereum/0xa7fd8ff8f4cada298286d3006ee8f9c11e2ff84e',
         poolAddress: '0xa7fd8ff8f4cada298286d3006ee8f9c11e2ff84e',
@@ -26,7 +26,8 @@ const getDexInfoByPairName = (pairName: string) => {
         platformLogo: '/platform_icons/base-aero.svg',
         dexToolsLink:
           'https://www.dextools.io/app/en/base/pair-explorer/0x32bb4ad5fed77f7abf97d1435f8d6aaae59aa64e',
-        dexScreenerLink: 'https://dexscreener.com/base/0x32bb4ad5fed77f7abf97d1435f8d6aaae59aa64e',
+        dexScreenerLink:
+          'https://dexscreener.com/base/0x32bb4ad5fed77f7abf97d1435f8d6aaae59aa64e',
         poolAddress: '0x32bb4ad5fed77f7abf97d1435f8d6aaae59aa64e',
       };
     case TokenPair.POKT_SOL:

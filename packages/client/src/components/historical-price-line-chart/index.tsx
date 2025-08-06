@@ -148,16 +148,19 @@ export function HistoricalPriceLineChart() {
   }, [data, timestep]);
 
   const domain = useMemo(() => {
-    if (!formattedData) return [0, 0];
-    const allPrices = [
-      ...formattedData.map((item) => item.wPOKT_wETH),
-      ...formattedData.map((item) => item.POKT_wETH),
-      ...formattedData.map((item) => item.POKT_SOL),
-    ];
-    const min = Math.min(...allPrices);
-    const max = Math.max(...allPrices);
-    return [min, max];
-  }, [formattedData]);
+  if (!formattedData) return [0, 0];
+  const allPrices = [
+    ...formattedData.map((item) => item.wPOKT_wETH),
+    ...formattedData.map((item) => item.POKT_wETH),
+    ...formattedData.map((item) => item.POKT_SOL),
+  ].filter((price) => price !== undefined && !isNaN(price));
+
+  if (allPrices.length === 0) return [0, 1]; // Default domain if no valid prices
+
+  const min = Math.min(...allPrices);
+  const max = Math.max(...allPrices);
+  return [min, max];
+}, [formattedData]);
 
   if (error) {
     return (
