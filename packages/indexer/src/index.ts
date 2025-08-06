@@ -6,6 +6,7 @@ import { PublicKey } from '@solana/web3.js';
 import { db } from './db/client';
 import { fetchMarketData, fetchPoolSnapshot } from './fetchers';
 import { storeMarketData, storePoolSnapshots, storePriceSnapshots } from './services';
+import { pruneOldData } from './services/pruneOldData';
 import { PoolSnapshotRow } from './types';
 import { ADDRESSES_BY_CHAIN, Chain } from './utils/chains';
 import { baseClient, ethereumClient, solanaClient } from './utils/helpers';
@@ -182,6 +183,9 @@ export const runIndexer = async () => {
 
     // Store market data
     await storeMarketData([marketData]);
+
+    // Prune old data
+    await pruneOldData();
   } catch (error) {
     logger.error({ error }, 'Error in runIndexer');
     throw error; // Re-throw to be caught in main
