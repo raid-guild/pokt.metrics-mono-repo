@@ -24,7 +24,7 @@ async function startServer() {
   const protocol = process.env.NODE_ENV === 'production' ? 'https' : 'http';
 
   let alreadyAlerted = false;
-  const LAST_RUN_QUERY = 'SELECT timestamp FROM price_snapshots ORDER BY timestamp DESC LIMIT 1';
+  const LAST_RUN_QUERY = 'SELECT MAX(timestamp) as timestamp FROM price_snapshots';
 
   app.get('/healthz', async (_, res) => {
     try {
