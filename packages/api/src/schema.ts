@@ -22,7 +22,7 @@ export const typeDefs = gql`
     day_volume: Float!
     market_cap: Float!
     price: Float!
-    timestamp: String!
+    timestamp: Int!
   }
 
   type PoolSnapshotRow {
@@ -34,7 +34,8 @@ export const typeDefs = gql`
     holders: Float!
     market_cap: Float!
     pool_address: String!
-    timestamp: String!
+    pool_age: Int!
+    timestamp: Int!
     token_address: String!
     tvl_usd: Float!
     volatility: Float!
@@ -53,7 +54,7 @@ export const typeDefs = gql`
     exchange: String!
     pool_address: String!
     price: Float!
-    timestamp: String!
+    timestamp: Int!
     token_address: String!
   }
 
