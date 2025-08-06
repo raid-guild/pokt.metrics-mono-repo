@@ -56,11 +56,11 @@ export const MetricsRow = ({
   holders,
   volume_usd: volume24h,
   tokenPair: pairName,
+  tvl_usd: liquidity,
 }: PoolSnapshot) => {
   // TODO: Get these missing fields from the API
   const spread = 0.15;
   const priceChange = -1.2;
-  const liquidity =720000;
   const circulatingSupplyPercentage = 27.5;
 
   const poolColor = getTokenPairColor(pairName);
@@ -87,7 +87,7 @@ export const MetricsRow = ({
         <div className="grid grid-cols-13 gap-4 items-center h-full">
           {/* Pair Name */}
           <div className="col-span-2">
-            <h3 className="text-lg font-bold">{getTokenPairName(pairName)}</h3>
+            <h3 className="text-lg font-semibold font-rubik">{getTokenPairName(pairName)}</h3>
           </div>
 
           {/* Platform Logo */}
@@ -201,7 +201,7 @@ const MetricsRowItem = ({
 }) => {
   return (
     <div className="flex flex-col items-center text-center min-w-0">
-      <span className="text-xs text-gray-500 truncate max-w-full">{label}</span>
+      <span className="text-xs text-gray-500 truncate max-w-full font-rubik">{label}</span>
       <span className="text-md font-semibold truncate max-w-full">{value}</span>
     </div>
   );

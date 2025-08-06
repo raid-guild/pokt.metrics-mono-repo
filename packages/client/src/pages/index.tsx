@@ -17,17 +17,16 @@ export default function Home() {
             </Card>
           </div>
           <div className="flex flex-col gap-4 w-full">
-          <div className="w-full">
-            <Card title="POKT Cummulative Market Data" separateTitle>
-              <CumulativeMarketData />
-            </Card>
-          </div>
-          <div className="w-full">
-            <Card title="Liquidity TVL Distribution by Pool">
-              <LiquidityTvlDistributionMetrics />
-            </Card>
-          </div>
-
+            <div className="w-full">
+              <Card title="POKT Cummulative Market Data" separateTitle>
+                <CumulativeMarketData />
+              </Card>
+            </div>
+            <div className="w-full">
+              <Card title="Liquidity TVL Distribution by Pool">
+                <LiquidityTvlDistributionMetrics />
+              </Card>
+            </div>
           </div>
         </div>
         <Card title="Price Comparison by Pool">

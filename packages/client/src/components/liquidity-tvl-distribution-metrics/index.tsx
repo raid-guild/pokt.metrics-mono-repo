@@ -98,6 +98,7 @@ export const LiquidityTvlDistributionMetrics = () => {
             textAnchor="middle"
             dominantBaseline="middle"
             fontSize="12px"
+            fontFamily="Rubik"
             fill={grayText}
           >
             Total TVL:
@@ -136,7 +137,7 @@ export const LiquidityTvlDistributionMetrics = () => {
       </div>
       <div className="col-span-1">
         <div className="flex flex-col gap-2 h-full justify-start">
-          <h4 className="text-sm" style={{ color: grayText }}>Liquidity Pool</h4>
+          <h4 className="text-sm font-rubik" style={{ color: grayText }}>Liquidity Pool</h4>
           <div className="grid grid-cols-7 gap-0">
             {sortingOrder.map((pairName) => {
               const entry = dataWithPercentages.find((x) => x.type === pairName);
@@ -144,10 +145,10 @@ export const LiquidityTvlDistributionMetrics = () => {
               return (
                 <React.Fragment key={`item-${entry.type}`}>
                   <div
-                    className="col-span-4 text-sm flex items-center font-medium"
+                    className="col-span-4 text-sm flex items-center font-medium font-rubik"
                   >
                     <div
-                      className="min-h-4 h-4 min-w-4 w-4 mr-2 rounded-xs"
+                      className="min-h-4 h-4 min-w-4 w-4 mr-2 rounded-xs "
                       style={{ backgroundColor: getTokenPairColor(entry.type) }}
                     />
                     {getTokenPairName(entry.type)}

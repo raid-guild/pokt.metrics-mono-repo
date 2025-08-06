@@ -14,6 +14,7 @@ import {
 import { useTokenPairSortingOrder } from '@/hooks/usePoolSortingOrder';
 import { useQueryPriceSnapshots } from '@/hooks/useQueryPriceSnapshots';
 import {
+  cn,
   formatPrice,
   getTokenPairColor,
   getTokenPairName,
@@ -182,6 +183,7 @@ export function HistoricalPriceLineChart() {
             key={option.label}
             onClick={() => setTimestep(option)}
             variant={timestep.value === option.value ? 'default' : 'outline'}
+            className={cn("font-rubik border-primary", timestep.value !== option.value && "hover:text-primary")}
           >
             {option.label}
           </Button>
@@ -245,7 +247,7 @@ const CustomTooltip = ({ active, payload, label }: TooltipContentProps<number, s
             return (
               <Fragment key={`item-${entry.name}`}>
                 <div
-                  className=" col-span-2 text-sm flex items-center"
+                  className=" col-span-2 text-sm flex items-center font-rubik"
                   style={{ color: entry.color }}
                 >
                   <div
