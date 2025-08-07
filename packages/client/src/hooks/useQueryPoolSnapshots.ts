@@ -23,6 +23,7 @@ const query = graphql(`
         token_address
         volatility
         tvl_usd
+        pool_age
       }
       ethereum {
         average_price
@@ -38,6 +39,7 @@ const query = graphql(`
         tvl_usd
         volatility
         volume_usd
+        pool_age
       }
       solana {
         average_price
@@ -53,6 +55,7 @@ const query = graphql(`
         tvl_usd
         volatility
         volume_usd
+        pool_age
       }
     }
   }

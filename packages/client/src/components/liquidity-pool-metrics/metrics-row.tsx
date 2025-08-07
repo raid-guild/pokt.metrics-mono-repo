@@ -4,11 +4,48 @@ import Image from 'next/image';
 import { PoolSnapshot } from '@/hooks/useQueryPoolSnapshots';
 import {
   formatNumber,
+  formatPercentage,
   formatPrice,
   getTokenPairColor,
   getTokenPairName,
   TokenPair,
 } from '@/lib/utils';
+
+/**
+ * Formats time elapsed since a Unix timestamp in the format "1y9m15d"
+ * @param unixTimestamp - Unix timestamp in seconds
+ * @returns Formatted string like "1y9m15d" or "6m2d" or "15d"
+ */
+const formatTimeElapsed = (unixTimestamp: number): string => {
+  const now = Math.floor(Date.now() / 1000); // Current time in seconds
+  const elapsedSeconds = now - unixTimestamp;
+
+  if (elapsedSeconds < 0) {
+    return '0d'; // Handle future timestamps
+  }
+
+  const days = Math.floor(elapsedSeconds / (24 * 60 * 60));
+  const years = Math.floor(days / 365);
+  const remainingDays = days % 365;
+  const months = Math.floor(remainingDays / 30);
+  const finalDays = remainingDays % 30;
+
+  const parts: string[] = [];
+
+  if (years > 0) {
+    parts.push(`${years}y`);
+  }
+
+  if (months > 0) {
+    parts.push(`${months}m`);
+  }
+
+  if (finalDays > 0 || parts.length === 0) {
+    parts.push(`${finalDays}d`);
+  }
+
+  return parts.join('');
+};
 
 const getDexInfoByPairName = (pairName: string) => {
   switch (pairName) {
@@ -26,8 +63,7 @@ const getDexInfoByPairName = (pairName: string) => {
         platformLogo: '/platform_icons/base-aero.svg',
         dexToolsLink:
           'https://www.dextools.io/app/en/base/pair-explorer/0x32bb4ad5fed77f7abf97d1435f8d6aaae59aa64e',
-        dexScreenerLink:
-          'https://dexscreener.com/base/0x32bb4ad5fed77f7abf97d1435f8d6aaae59aa64e',
+        dexScreenerLink: 'https://dexscreener.com/base/0x32bb4ad5fed77f7abf97d1435f8d6aaae59aa64e',
         poolAddress: '0x32bb4ad5fed77f7abf97d1435f8d6aaae59aa64e',
       };
     case TokenPair.POKT_SOL:
@@ -58,11 +94,14 @@ export const MetricsRow = ({
   volume_usd: volume24h,
   tokenPair: pairName,
   tvl_usd: liquidity,
-}: PoolSnapshot) => {
+  pool_age: poolAge,
+  spread,
+}: PoolSnapshot & { spread: number }) => {
   // TODO: Get these missing fields from the API
-  const spread = 0.15;
   const priceChange = -1.2;
-  const circulatingSupplyPercentage = 27.5;
+
+  // Format pool age to the format of 1y9m15d from unix timestamp
+  const poolAgeFormatted = formatTimeElapsed(poolAge);
 
   const poolColor = getTokenPairColor(pairName);
   const upColor = 'text-green-500';
@@ -76,7 +115,7 @@ export const MetricsRow = ({
     .replace(/\.?0+$/, '');
 
   const priceChangeColor = priceChange > 0 ? upColor : downColor;
-  const spreadChangeColor = spread > 0 ? upColor : downColor;
+  const spreadChangeColor = spread === 0 ? 'black' : spread > 0 ? upColor : downColor;
   const dexInfo = getDexInfoByPairName(pairName);
 
   return (
@@ -112,7 +151,11 @@ export const MetricsRow = ({
           <div className="col-span-1">
             <MetricsRowItem
               label="Spread"
-              value={<span className={spreadChangeColor}>spread</span>}
+              value={
+                <span className={spreadChangeColor}>
+                  {spread === 0 ? 'FLOOR' : formatPercentage(spread)}
+                </span>
+              }
             />
           </div>
 
@@ -121,19 +164,14 @@ export const MetricsRow = ({
             <MetricsRowItem label="Market Cap" value={formatNumber(marketCap)} />
           </div>
 
-          {/* Liquidity */}
-          <div className="col-span-1">
-            <MetricsRowItem label="Liquidity" value={formatNumber(liquidity)} />
-          </div>
-
           {/* Circulating Supply */}
           <div className="col-span-1">
             <MetricsRowItem label="Circ Supply" value={formatNumber(circulatingSupply)} />
           </div>
 
-          {/* Holders */}
+          {/* Liquidity */}
           <div className="col-span-1">
-            <MetricsRowItem label="Holders" value={formatNumber(holders)} />
+            <MetricsRowItem label="Liquidity" value={formatNumber(liquidity)} />
           </div>
 
           {/* 24h Volume */}
@@ -148,12 +186,17 @@ export const MetricsRow = ({
 
           {/* Volatility */}
           <div className="col-span-1">
-            <MetricsRowItem label="Volatility" value={`${volatility}%`} />
+            <MetricsRowItem label="Volatility" value={`${volatility.toFixed(4)}`} />
           </div>
 
-          {/* % Circ Supply */}
+          {/* Holders */}
           <div className="col-span-1">
-            <MetricsRowItem label="% Circ Supply" value={`${circulatingSupplyPercentage}%`} />
+            <MetricsRowItem label="Holders" value={formatNumber(holders)} />
+          </div>
+
+          {/* Pool Age */}
+          <div className="col-span-1">
+            <MetricsRowItem label="Pool Age" value={poolAgeFormatted} />
           </div>
 
           {/* DEX Links and Pool Address */}
@@ -201,7 +244,7 @@ const MetricsRowItem = ({
   value: string | React.ReactNode;
 }) => {
   return (
-    <div className="flex flex-col items-center text-center min-w-0">
+    <div className="flex flex-col items-end text-center min-w-0">
       <span className="text-xs text-gray-500 truncate max-w-full font-rubik">{label}</span>
       <span className="text-md font-semibold truncate max-w-full">{value}</span>
     </div>

@@ -1,5 +1,6 @@
 import { ErrorWrapper } from "@/components/error-wrapper";
 import { useQueryPoolSnapshots } from "@/hooks/useQueryPoolSnapshots";
+import { calculatePercentageChange } from "@/lib/utils";
 
 import { MetricsRow, MetricsRowSkeleton } from "./metrics-row";
 
@@ -26,9 +27,13 @@ export const LiquidityPoolMetrics = () => {
   
   return (
     <div className="flex flex-col gap-2 w-full overflow-x-scroll">
-      {poolsnapshots?.map((snapshot) => (
-        <MetricsRow key={snapshot.tokenPair} {...snapshot} />
-      ))}
+      {poolsnapshots?.map((snapshot) => {
+        const basePrice = poolsnapshots[0].average_price;
+        const spread = calculatePercentageChange(snapshot.average_price, basePrice);
+        return (
+          <MetricsRow key={snapshot.tokenPair} {...snapshot} spread={spread} />
+        )
+      })}
     </div>
   );
 };
