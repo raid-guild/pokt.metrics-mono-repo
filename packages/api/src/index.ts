@@ -3,9 +3,10 @@ import 'dotenv/config';
 import { ApolloServer } from 'apollo-server-express';
 import express from 'express';
 
+import { db } from './db';
 import { resolvers } from './resolvers';
 import { typeDefs } from './schema';
-// import { sendIndexerAlertEmail } from './utils/mailer';
+import { sendIndexerAlertEmail } from './utils/mailer';
 
 async function startServer() {
   const app = express();
@@ -22,37 +23,33 @@ async function startServer() {
   const host = process.env.HOST || 'localhost';
   const protocol = process.env.NODE_ENV === 'production' ? 'https' : 'http';
 
-  app.get('/health', async (req, res) => {
+  let alreadyAlerted = false;
+  const LAST_RUN_QUERY = 'SELECT MAX(timestamp) as timestamp FROM price_snapshots';
+
+  app.get('/healthz', async (_, res) => {
     try {
-      // TODO: Add improved health check later
+      const now = Date.now();
+      const { rows } = await db.query(LAST_RUN_QUERY);
+      const lastIndexerRun = rows[0]?.timestamp ? BigInt(rows[0].timestamp) : null;
 
-      // const lastRun = await redis.get('indexer:lastRun');
-      // const alertKey = 'indexer:alertSent';
-      // const now = Date.now();
+      if (!lastIndexerRun) {
+        if (!alreadyAlerted) {
+          await sendIndexerAlertEmail('never');
+          alreadyAlerted = true;
+        }
+        return res.status(200).send('No lastIndexerRun recorded');
+      }
 
-      // if (!lastRun) {
-      //   const alreadyAlerted = await redis.get(alertKey);
-      //   if (!alreadyAlerted) {
-      //     await sendIndexerAlertEmail('never');
-      //     await redis.set(alertKey, '1', 'EX', 3600); // 1-hour cooldown
-      //   }
-      //   return res.status(200).send('No lastRun recorded');
-      // }
+      const diff = now - Number(lastIndexerRun);
+      const threshold = 20 * 60 * 1000; // 20 minutes
 
-      // const diff = now - Number(lastRun);
-      // const threshold = 20 * 60 * 1000; // 20 minutes
-
-      // if (diff > threshold) {
-      //   const alreadyAlerted = await redis.get(alertKey);
-      //   if (!alreadyAlerted) {
-      //     await sendIndexerAlertEmail(new Date(Number(lastRun)).toISOString());
-      //     await redis.set(alertKey, '1', 'EX', 3600); // 1-hour cooldown
-      //   }
-      //   return res.status(200).send(`Stale indexer: last run ${Math.floor(diff / 60000)} min ago`);
-      // }
-
-      // // Reset the alert flag if the indexer is back to normal
-      // await redis.del(alertKey);
+      if (diff > threshold) {
+        if (!alreadyAlerted) {
+          await sendIndexerAlertEmail(new Date(Number(lastIndexerRun)).toISOString());
+          alreadyAlerted = true;
+        }
+        return res.status(200).send(`Stale indexer: last run ${Math.floor(diff / 60000)} min ago`);
+      }
 
       return res.status(200).send('ok');
     } catch (err) {
