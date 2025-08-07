@@ -7,7 +7,7 @@
     "dev": "mprocs",
     "dev:indexer": "pnpm --filter indexer dev",
     "dev:client": "pnpm --filter client dev",
-    "dev:generate": "pnpm --filter client generate",
+    "generate:client": "pnpm --filter client generate",
     "setup:db": "pnpm --filter indexer setup:db",
     "start:historical-sync": "pnpm --filter indexer build && pnpm --filter historical-sync start",
     "build:client": "pnpm --filter client build",
