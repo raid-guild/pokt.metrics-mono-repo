@@ -95,7 +95,7 @@ export const CumulativeMarketData = () => {
             <div className="flex items-center justify-between w-full">
               <div className="flex items-center gap-1">
                 <Image src="/icons/all-time-high.svg" alt="All Time High" width={16} height={16} />
-                All Time High
+                ATH
               </div>
             <div
               className={`${athPercentageDifference >= 0 ? 'text-positive-green' : 'text-negative-red'}`}
@@ -113,7 +113,7 @@ export const CumulativeMarketData = () => {
             <div className="flex items-center justify-between w-full">
               <div className="flex items-center gap-1">
                 <Image src="/icons/all-time-low.svg" alt="All Time Low" width={16} height={16} />
-                All Time Low
+                ATL
               </div>
               <div
                 className={`${atlPercentageDifference >= 0 ? 'text-positive-green' : 'text-negative-red'}`}

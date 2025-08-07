@@ -35,7 +35,7 @@ type FormattedPriceSnapshot = keyof typeof TokenPair | 'timestamp';
 
 // Converts the data in Props to the format expected by recharts (array of { timestamp, wPOKT_wETH, POKT_wETH, POKT_SOL })
 function formatHistoricalDataFromProps(
-  data: Record<TokenPair, { timestamp: string; value: number }[]>
+  data: Record<TokenPair, { timestamp: number; value: number }[]>
 ): Array<{ timestamp: number; wPOKT_wETH: number; POKT_wETH: number; POKT_SOL: number }> {
   // Collect all unique timestamps from all token pairs
   const timestampsSet = new Set<number>();
@@ -128,19 +128,19 @@ export function HistoricalPriceLineChart() {
 
     // If timestep is 15m, get the data for the last 24 hours
     if (timestep.value === '_15m') {
-      const timeStamp24HoursAgo = new Date().getTime() - 24 * 60 * 60 * 1000;
+      const timeStamp24HoursAgo = Math.floor((new Date().getTime() - 24 * 60 * 60 * 1000) / 1000);
       return result.filter((item) => item.timestamp >= timeStamp24HoursAgo);
     }
 
     // If timestep is 30m, get the data for the last 12 hours
     if (timestep.value === '_30m') {
-      const timeStamp12HoursAgo = new Date().getTime() - 12 * 60 * 60 * 1000;
+      const timeStamp12HoursAgo = Math.floor((new Date().getTime() - 12 * 60 * 60 * 1000) / 1000);
       return result.filter((item) => item.timestamp >= timeStamp12HoursAgo);
     }
 
     // If timestep is 1hr, get the data for the last 6 hours
     if (timestep.value === '_1h') {
-      const timeStamp6HoursAgo = new Date().getTime() - 6 * 60 * 60 * 1000;
+      const timeStamp6HoursAgo = (new Date().getTime() - 6 * 60 * 60 * 1000) / 1000;
       return result.filter((item) => item.timestamp >= timeStamp6HoursAgo);
     }
 

@@ -12,7 +12,6 @@ const query = graphql(`
       day_volume
       market_cap
       price
-      timestamp
     }
   }
 `);
