@@ -147,21 +147,6 @@ export function HistoricalPriceLineChart() {
     return [];
   }, [data, timestep]);
 
-  const domain = useMemo(() => {
-  if (!formattedData) return [0, 0];
-  const allPrices = [
-    ...formattedData.map((item) => item.wPOKT_wETH),
-    ...formattedData.map((item) => item.POKT_wETH),
-    ...formattedData.map((item) => item.POKT_SOL),
-  ].filter((price) => price !== undefined && !isNaN(price));
-
-  if (allPrices.length === 0) return [0, 1]; // Default domain if no valid prices
-
-  const min = Math.min(...allPrices);
-  const max = Math.max(...allPrices);
-  return [min, max];
-}, [formattedData]);
-
   if (error) {
     return (
       <ErrorWrapper>
@@ -173,8 +158,6 @@ export function HistoricalPriceLineChart() {
   if (!data && fetching) {
     return <HistoricalPriceLineChartSkeleton />;
   }
-
-  const yPadding = 0;
 
   if (!formattedData) return null;
 
@@ -204,12 +187,12 @@ export function HistoricalPriceLineChart() {
             axisLine={false}
           />
           <YAxis
-            domain={domain}
-            tickFormatter={(value) => `${formatPrice(value, 6)}`}
+            domain={['auto', 'auto']}
+            tickFormatter={(value) => `${formatPrice(value, 4)}`}
             tickLine={false}
             axisLine={false}
             tickCount={5}
-            padding={{ top: yPadding, bottom: yPadding }}
+            fontSize={12}
           />
           <Tooltip content={CustomTooltip} />
           {Object.keys(TokenPair)
