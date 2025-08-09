@@ -3,6 +3,7 @@ import { CumulativeMarketData } from '@/components/cumulative-market-data';
 import { HistoricalPriceLineChart } from '@/components/historical-price-line-chart';
 import { LiquidityPoolMetrics } from '@/components/liquidity-pool-metrics';
 import { LiquidityTvlDistributionMetrics } from '@/components/liquidity-tvl-distribution-metrics';
+import { SwapWidget } from '@/components/swap-widget';
 
 export default function Home() {
   return (
@@ -13,7 +14,7 @@ export default function Home() {
         <div className="flex gap-4 w-full">
           <div className="w-full">
             <Card title="Bridge and Swap">
-              <div className="flex flex-col gap-4">bla</div>
+              <SwapWidget />
             </Card>
           </div>
           <div className="flex flex-col gap-4 w-full">
