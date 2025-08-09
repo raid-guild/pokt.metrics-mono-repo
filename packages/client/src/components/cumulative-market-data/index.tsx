@@ -42,7 +42,7 @@ export const CumulativeMarketData = () => {
 
   return (
     <div className="w-full">
-      <div className="grid grid-cols-4 gap-2">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2">
         <MarketDataTile>
           <MarketDataTileTitle>
             <Image src="/icons/24h-volume.svg" alt="24h Volume" width={16} height={16} />

@@ -128,8 +128,8 @@ export function HistoricalPriceLineChart() {
 
     // If timestep is 15m, get the data for the last 24 hours
     if (timestep.value === '_15m') {
-      const timeStamp24HoursAgo = Math.floor((new Date().getTime() - 24 * 60 * 60 * 1000) / 1000);
-      return result.filter((item) => item.timestamp >= timeStamp24HoursAgo);
+      const timeStamp6HoursAgo = (new Date().getTime() - 6 * 60 * 60 * 1000) / 1000;
+      return result.filter((item) => item.timestamp >= timeStamp6HoursAgo);
     }
 
     // If timestep is 30m, get the data for the last 12 hours
@@ -140,8 +140,8 @@ export function HistoricalPriceLineChart() {
 
     // If timestep is 1hr, get the data for the last 6 hours
     if (timestep.value === '_1h') {
-      const timeStamp6HoursAgo = (new Date().getTime() - 6 * 60 * 60 * 1000) / 1000;
-      return result.filter((item) => item.timestamp >= timeStamp6HoursAgo);
+      const timeStamp24HoursAgo = Math.floor((new Date().getTime() - 24 * 60 * 60 * 1000) / 1000);
+      return result.filter((item) => item.timestamp >= timeStamp24HoursAgo);
     }
 
     return [];
