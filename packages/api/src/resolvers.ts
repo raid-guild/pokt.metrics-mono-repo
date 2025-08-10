@@ -169,18 +169,18 @@ export const resolvers = {
       return {
         base: baseRows.map((row) => ({
           ...row,
-          // Floor timestamp to the nearest minute in seconds
-          timestamp: Math.floor(Number(row.timestamp) / 60000) * 60,
+          // Ceil timestamp to the nearest minute in seconds
+          timestamp: Math.ceil(Number(row.timestamp) / 60000) * 60,
         })),
         ethereum: ethereumRows.map((row) => ({
           ...row,
-          // Floor timestamp to the nearest minute in seconds
-          timestamp: Math.floor(Number(row.timestamp) / 60000) * 60,
+          // Ceil timestamp to the nearest minute in seconds
+          timestamp: Math.ceil(Number(row.timestamp) / 60000) * 60,
         })),
         solana: solanaRows.map((row) => ({
           ...row,
-          // Floor timestamp to the nearest minute in seconds
-          timestamp: Math.floor(Number(row.timestamp) / 60000) * 60,
+          // Ceil timestamp to the nearest minute in seconds
+          timestamp: Math.ceil(Number(row.timestamp) / 60000) * 60,
         })),
       };
     },
