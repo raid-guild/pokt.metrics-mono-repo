@@ -2,7 +2,7 @@ import { Widget } from '@skip-go/widget';
 
 export const SwapWidget = () => {
   return (
-    <div>
+    <div className="h-full">
       <Widget
         theme={{
           brandColor: '#09279F',
@@ -43,10 +43,6 @@ export const SwapWidget = () => {
             text: '#E03834',
           },
         }}
-        defaultRoute={{
-          srcChainId: '8453',
-          srcAssetDenom: 'base-native',
-        }}
         filterOut={{
           source: {},
           destination: {},
@@ -60,15 +56,11 @@ export const SwapWidget = () => {
         }}
         chainIdsToAffiliates={undefined}
       />
-      <div className='font-inter'>
-      Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-      Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
-      Ut enim ad minim veniam, quis nostrud exercitation ullamco.
-      Laboris nisi ut aliquip ex ea commodo consequat.
-      Duis aute irure dolor in reprehenderit in voluptate velit esse.
-      Cillum dolore eu fugiat nulla pariatur excepteur sint occaecat.
-      Cupidatat non proident, sunt in culpa qui officia deserunt.
-      Mollit anim id est laborum sed ut perspiciatis unde omnis.
+      <div className="bg-white rounded-lg shadow-md p-6 border border-gray-200 w-full">
+        <div className="space-y-3 text-sm text-gray-600 leading-relaxed">
+          <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+          <p>Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
+        </div>
       </div>
     </div>
   );

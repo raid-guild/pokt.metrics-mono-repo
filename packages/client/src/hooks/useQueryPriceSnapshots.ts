@@ -8,7 +8,6 @@ const query = graphql(`
     priceSnapshots(interval: $interval) {
       base {
         price
-        block_number
         chain
         exchange
         timestamp
@@ -17,7 +16,6 @@ const query = graphql(`
       }
       ethereum {
         price
-        block_number
         chain
         exchange
         timestamp
@@ -26,7 +24,6 @@ const query = graphql(`
       }
       solana {
         price
-        block_number
         chain
         exchange
         timestamp
