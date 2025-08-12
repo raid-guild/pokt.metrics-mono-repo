@@ -206,7 +206,6 @@ export const runIndexer = async () => {
       } else {
         logger.warn('⚠️ No pool snapshots fetched');
       }
-      await storePoolSnapshots(poolSnapshots);
     }
 
     const latestMarketData = await db.query<MarketDataRow>(

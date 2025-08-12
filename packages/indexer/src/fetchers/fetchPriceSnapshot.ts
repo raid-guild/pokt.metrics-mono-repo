@@ -11,7 +11,7 @@ export const fetchPriceSnapshot = async (
   timestamp: bigint
 ): Promise<PriceSnapshotRow | undefined> => {
   try {
-    const dayAgoTimestamp = Number(timestamp) / 1000 - 86400; // 24 hours ago in seconds
+    const dayAgoTimestamp = Math.floor(Number(timestamp) / 1000) - 86400; // 24 hours ago in seconds
     const { exchange, poolAddress, wpokt } = ADDRESSES_BY_CHAIN[chain];
     if (!chain || !exchange || !poolAddress || !wpokt) {
       throw new Error(`Missing data for chain: ${chain}`);
@@ -38,7 +38,13 @@ export const fetchPriceSnapshot = async (
       }
 
       const { token1Price } = poolStats;
-      const wPoktPrice = parseFloat(token1Price) * nativeTokenPrice;
+      const token1PriceNum = Number(token1Price);
+      if (!Number.isFinite(token1PriceNum) || !Number.isFinite(nativeTokenPrice)) {
+        throw new Error(
+          `Invalid token1Price/nativeTokenPrice for ${chain}: ${token1Price} / ${nativeTokenPrice}`
+        );
+      }
+      const wPoktPrice = token1PriceNum * nativeTokenPrice;
 
       return {
         block_number: blockNumber,
@@ -72,7 +78,13 @@ export const fetchPriceSnapshot = async (
       }
 
       const { token0Price } = poolStats;
-      const wPoktPrice = parseFloat(token0Price) * nativeTokenPrice;
+      const token0PriceNum = Number(token0Price);
+      if (!Number.isFinite(token0PriceNum) || !Number.isFinite(nativeTokenPrice)) {
+        throw new Error(
+          `Invalid token0Price/nativeTokenPrice for ${chain}: ${token0Price} / ${nativeTokenPrice}`
+        );
+      }
+      const wPoktPrice = token0PriceNum * nativeTokenPrice;
 
       return {
         block_number: blockNumber,
@@ -87,22 +99,32 @@ export const fetchPriceSnapshot = async (
 
     if (chain === Chain.SOLANA) {
       const { data: poolStats } = await retry(
-        () =>
-          fetch(`https://api.orca.so/v2/solana/pools/${poolAddress}`, {
+        async () => {
+          const res = await fetch(`https://api.orca.so/v2/solana/pools/${poolAddress}`, {
             method: 'GET',
-          }).then((response) => response.json()),
+          });
+          if (!res.ok) {
+            throw new Error(`Orca API responded with ${res.status}`);
+          }
+          return res.json();
+        },
         {
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           onRetry: (err: any, attempt) =>
             logger.warn({ attempt, chain, error: err.message }, 'Retrying fetch pool stats'),
         }
       );
-      if (!poolStats || !poolStats.price) {
+      if (!poolStats || poolStats.price == null) {
         throw new Error('Failed to fetch price from Solana pool');
       }
 
-      const { price: reciprocalPrice } = poolStats;
-      const wPoktPrice = nativeTokenPrice / parseFloat(reciprocalPrice);
+      const reciprocal = Number(poolStats.price);
+      if (!Number.isFinite(reciprocal) || reciprocal <= 0 || !Number.isFinite(nativeTokenPrice)) {
+        throw new Error(
+          `Invalid Solana reciprocal/native price: ${poolStats.price} / ${nativeTokenPrice}`
+        );
+      }
+      const wPoktPrice = nativeTokenPrice / reciprocal;
 
       return {
         block_number: blockNumber,

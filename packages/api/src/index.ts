@@ -45,7 +45,7 @@ async function startServer() {
       }
 
       const diff = now - Number(lastIndexerRun);
-      const threshold = 20 * 60 * 1000; // 20 minutes
+      const threshold = 10 * 60 * 1000; // 10 minutes
 
       if (diff > threshold) {
         if (!alreadyAlerted) {
