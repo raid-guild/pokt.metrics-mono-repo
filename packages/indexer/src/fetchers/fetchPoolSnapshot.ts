@@ -15,7 +15,7 @@ export const fetchPoolSnapshot = async (
   totalSupply: bigint
 ): Promise<PoolSnapshotRow | undefined> => {
   try {
-    const dayAgoTimestamp = Number(timestamp) / 1000 - 86400; // 24 hours ago in seconds
+    const dayAgoTimestamp = Math.floor(Number(timestamp) / 1000) - 86400; // 24 hours ago in seconds
     const { exchange, poolAddress, wpokt } = ADDRESSES_BY_CHAIN[chain];
     if (!chain || !exchange || !poolAddress || !wpokt) {
       throw new Error(`Missing data for chain: ${chain}`);
