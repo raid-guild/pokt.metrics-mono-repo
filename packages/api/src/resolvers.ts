@@ -30,11 +30,10 @@ const PRICE_SNAPSHOTS_QUERY = `
     token_address,
     pool_address,
     chain,
-    exchange,
-    block_number
+    exchange
   FROM price_snapshots
   WHERE token_address = $1
-  GROUP BY bucket, token_address, pool_address, chain, exchange, block_number
+  GROUP BY bucket, token_address, pool_address, chain, exchange
   ORDER BY bucket DESC
   LIMIT $3
 `;
@@ -82,6 +81,12 @@ const DAY_LOW_PRICE_QUERY = `
   WHERE token_address = $1
     AND to_timestamp(timestamp / 1000.0) >= NOW() - INTERVAL '24 hours'
 `;
+
+const intervalToMultiplier: Record<'_15m' | '_30m' | '_1h', number> = {
+  _15m: 15,
+  _30m: 30,
+  _1h: 60,
+};
 
 export const resolvers = {
   Query: {
@@ -169,18 +174,24 @@ export const resolvers = {
       return {
         base: baseRows.map((row) => ({
           ...row,
-          // Round timestamp to the nearest 15 minute interval in seconds
-          timestamp: Math.round(Number(row.timestamp) / (15 * 60 * 1000)) * (15 * 60),
+          // Round timestamp to the nearest interval in seconds
+          timestamp:
+            Math.round(Number(row.timestamp) / (intervalToMultiplier[interval] * 60 * 1000)) *
+            (intervalToMultiplier[interval] * 60),
         })),
         ethereum: ethereumRows.map((row) => ({
           ...row,
-          // Round timestamp to the nearest 15 minute interval in seconds
-          timestamp: Math.round(Number(row.timestamp) / (15 * 60 * 1000)) * (15 * 60),
+          // Round timestamp to the nearest interval in seconds
+          timestamp:
+            Math.round(Number(row.timestamp) / (intervalToMultiplier[interval] * 60 * 1000)) *
+            (intervalToMultiplier[interval] * 60),
         })),
         solana: solanaRows.map((row) => ({
           ...row,
-          // Round timestamp to the nearest 15 minute interval in seconds
-          timestamp: Math.round(Number(row.timestamp) / (15 * 60 * 1000)) * (15 * 60),
+          // Round timestamp to the nearest interval in seconds
+          timestamp:
+            Math.round(Number(row.timestamp) / (intervalToMultiplier[interval] * 60 * 1000)) *
+            (intervalToMultiplier[interval] * 60),
         })),
       };
     },
