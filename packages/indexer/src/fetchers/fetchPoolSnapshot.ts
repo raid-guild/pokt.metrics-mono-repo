@@ -15,7 +15,7 @@ export const fetchPoolSnapshot = async (
   totalSupply: bigint
 ): Promise<PoolSnapshotRow | undefined> => {
   try {
-    const dayAgoTimestamp = Number(timestamp) / 1000 - 86400; // 24 hours ago in seconds
+    const dayAgoTimestamp = Math.floor(Number(timestamp) / 1000) - 86400; // 24 hours ago in seconds
     const { exchange, poolAddress, wpokt } = ADDRESSES_BY_CHAIN[chain];
     if (!chain || !exchange || !poolAddress || !wpokt) {
       throw new Error(`Missing data for chain: ${chain}`);
@@ -57,7 +57,6 @@ export const fetchPoolSnapshot = async (
       );
 
       const { reserveUSD, token1Price, volumeETH } = poolStats;
-      const wPoktPrice = parseFloat(token1Price) * nativeTokenPrice;
       const volumeUsd = parseFloat(volumeETH) * nativeTokenPrice;
 
       return {
@@ -69,7 +68,6 @@ export const fetchPoolSnapshot = async (
         market_cap:
           parseFloat(token1Price) * nativeTokenPrice * Number(formatUnits(totalSupply, 6)),
         pool_address: poolAddress,
-        price: wPoktPrice,
         timestamp,
         token_address: wpokt,
         tvl_usd: parseFloat(reserveUSD),
@@ -114,7 +112,6 @@ export const fetchPoolSnapshot = async (
       );
 
       const { token0Price, totalValueLockedToken0, volumeETH } = poolStats;
-      const wPoktPrice = parseFloat(token0Price) * nativeTokenPrice;
       const tvlUsd = parseFloat(totalValueLockedToken0) * nativeTokenPrice * 2;
       const volumeUsd = parseFloat(volumeETH) * nativeTokenPrice;
 
@@ -127,7 +124,6 @@ export const fetchPoolSnapshot = async (
         market_cap:
           parseFloat(token0Price) * nativeTokenPrice * Number(formatUnits(totalSupply, 6)),
         pool_address: poolAddress,
-        price: wPoktPrice,
         timestamp,
         token_address: wpokt,
         tvl_usd: tvlUsd,
@@ -179,7 +175,6 @@ export const fetchPoolSnapshot = async (
         holders: totalHolders,
         market_cap: wPoktPrice * Number(formatUnits(totalSupply, 6)),
         pool_address: poolAddress,
-        price: wPoktPrice,
         timestamp,
         token_address: wpokt,
         tvl_usd: parseFloat(tvlUsdc),

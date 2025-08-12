@@ -3,7 +3,7 @@ import { schedule } from 'node-cron';
 import { runIndexer } from '.';
 import { logger } from './utils/logger';
 
-schedule('*/15 * * * *', async () => {
+schedule('*/5 * * * *', async () => {
   logger.info('▶️ Running indexer job...');
   try {
     await runIndexer();
