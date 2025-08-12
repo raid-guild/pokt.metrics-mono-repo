@@ -88,6 +88,13 @@ const intervalToMultiplier: Record<'_15m' | '_30m' | '_1h', number> = {
   _1h: 60,
 };
 
+const roundTimestampToInterval = (timestamp: number, interval: '_15m' | '_30m' | '_1h'): number => {
+  return (
+    Math.round(Number(timestamp) / (intervalToMultiplier[interval] * 60 * 1000)) *
+    (intervalToMultiplier[interval] * 60)
+  );
+};
+
 export const resolvers = {
   Query: {
     marketData: async () => {
@@ -174,24 +181,15 @@ export const resolvers = {
       return {
         base: baseRows.map((row) => ({
           ...row,
-          // Round timestamp to the nearest interval in seconds
-          timestamp:
-            Math.round(Number(row.timestamp) / (intervalToMultiplier[interval] * 60 * 1000)) *
-            (intervalToMultiplier[interval] * 60),
+          timestamp: roundTimestampToInterval(row.timestamp, interval),
         })),
         ethereum: ethereumRows.map((row) => ({
           ...row,
-          // Round timestamp to the nearest interval in seconds
-          timestamp:
-            Math.round(Number(row.timestamp) / (intervalToMultiplier[interval] * 60 * 1000)) *
-            (intervalToMultiplier[interval] * 60),
+          timestamp: roundTimestampToInterval(row.timestamp, interval),
         })),
         solana: solanaRows.map((row) => ({
           ...row,
-          // Round timestamp to the nearest interval in seconds
-          timestamp:
-            Math.round(Number(row.timestamp) / (intervalToMultiplier[interval] * 60 * 1000)) *
-            (intervalToMultiplier[interval] * 60),
+          timestamp: roundTimestampToInterval(row.timestamp, interval),
         })),
       };
     },
