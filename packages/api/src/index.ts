@@ -26,6 +26,10 @@ async function startServer() {
   let alreadyAlerted = false;
   const LAST_RUN_QUERY = 'SELECT MAX(timestamp) as timestamp FROM price_snapshots';
 
+  app.get('/', (_, res) => {
+    res.redirect('/graphql');
+  });
+
   app.get('/healthz', async (_, res) => {
     try {
       const now = Date.now();

@@ -49,7 +49,6 @@ export const typeDefs = gql`
   }
 
   type PriceSnapshot {
-    block_number: String!
     chain: Chain!
     exchange: String!
     pool_address: String!
