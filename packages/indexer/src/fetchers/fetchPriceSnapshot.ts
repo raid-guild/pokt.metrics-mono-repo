@@ -1,19 +1,15 @@
-import { formatUnits } from 'viem';
-
-import { PoolSnapshotRow } from '../types';
+import { PriceSnapshotRow } from '../types';
 import { ADDRESSES_BY_CHAIN, Chain } from '../utils/chains';
 import { logger } from '../utils/logger';
 import { retry } from '../utils/retry';
-import { moralisClient } from './moralisClient';
 import { theGraphClient } from './theGraphClient';
 
-export const fetchPoolSnapshot = async (
+export const fetchPriceSnapshot = async (
   chain: Chain,
   nativeTokenPrice: number,
   blockNumber: bigint,
-  timestamp: bigint,
-  totalSupply: bigint
-): Promise<PoolSnapshotRow | undefined> => {
+  timestamp: bigint
+): Promise<PriceSnapshotRow | undefined> => {
   try {
     const dayAgoTimestamp = Number(timestamp) / 1000 - 86400; // 24 hours ago in seconds
     const { exchange, poolAddress, wpokt } = ADDRESSES_BY_CHAIN[chain];
@@ -41,38 +37,17 @@ export const fetchPoolSnapshot = async (
         throw new Error(`Failed to fetch pool stats for ${chain} at block ${blockNumber}`);
       }
 
-      const { totalHolders } = await retry(
-        async () =>
-          moralisClient.evm.getTokenHolders({
-            tokenAddress: wpokt,
-            chainId: 'eth',
-          }),
-        {
-          onRetry: (err: unknown, attempt) =>
-            logger.warn(
-              { attempt, chain, error: (err as Error)?.message },
-              'Retrying getTokenHolders'
-            ),
-        }
-      );
-
-      const { reserveUSD, token1Price, volumeETH } = poolStats;
-      const volumeUsd = parseFloat(volumeETH) * nativeTokenPrice;
+      const { token1Price } = poolStats;
+      const wPoktPrice = parseFloat(token1Price) * nativeTokenPrice;
 
       return {
         block_number: blockNumber,
         chain,
-        circulating_supply: Number(formatUnits(totalSupply, 6)),
         exchange,
-        holders: totalHolders,
-        market_cap:
-          parseFloat(token1Price) * nativeTokenPrice * Number(formatUnits(totalSupply, 6)),
         pool_address: poolAddress,
+        price: wPoktPrice,
         timestamp,
         token_address: wpokt,
-        tvl_usd: parseFloat(reserveUSD),
-        volatility: volumeUsd / parseFloat(reserveUSD),
-        volume_usd: volumeUsd,
       };
     }
 
@@ -96,39 +71,17 @@ export const fetchPoolSnapshot = async (
         throw new Error(`Failed to fetch pool stats for ${chain} at block ${blockNumber}`);
       }
 
-      const { totalHolders } = await retry(
-        () =>
-          moralisClient.evm.getTokenHolders({
-            tokenAddress: wpokt,
-            chainId: 'base',
-          }),
-        {
-          onRetry: (err: unknown, attempt) =>
-            logger.warn(
-              { attempt, chain, error: (err as Error)?.message },
-              'Retrying getTokenHolders'
-            ),
-        }
-      );
-
-      const { token0Price, totalValueLockedToken0, volumeETH } = poolStats;
-      const tvlUsd = parseFloat(totalValueLockedToken0) * nativeTokenPrice * 2;
-      const volumeUsd = parseFloat(volumeETH) * nativeTokenPrice;
+      const { token0Price } = poolStats;
+      const wPoktPrice = parseFloat(token0Price) * nativeTokenPrice;
 
       return {
         block_number: blockNumber,
         chain,
-        circulating_supply: Number(formatUnits(totalSupply, 6)),
         exchange,
-        holders: totalHolders,
-        market_cap:
-          parseFloat(token0Price) * nativeTokenPrice * Number(formatUnits(totalSupply, 6)),
         pool_address: poolAddress,
+        price: wPoktPrice,
         timestamp,
         token_address: wpokt,
-        tvl_usd: tvlUsd,
-        volatility: volumeUsd / tvlUsd,
-        volume_usd: volumeUsd,
       };
     }
 
@@ -148,43 +101,22 @@ export const fetchPoolSnapshot = async (
         throw new Error('Failed to fetch price from Solana pool');
       }
 
-      const { totalHolders } = await retry(
-        () =>
-          moralisClient.solana.getTokenHolders({
-            tokenAddress: wpokt,
-          }),
-        {
-          onRetry: (err: unknown, attempt) =>
-            logger.warn(
-              { attempt, chain, error: (err as Error)?.message },
-              'Retrying getTokenHolders'
-            ),
-        }
-      );
-
-      const { price: reciprocalPrice, stats, tvlUsdc } = poolStats;
-
+      const { price: reciprocalPrice } = poolStats;
       const wPoktPrice = nativeTokenPrice / parseFloat(reciprocalPrice);
-      const volumeUsd = parseFloat(stats['24h'].volume);
 
       return {
         block_number: blockNumber,
         chain,
-        circulating_supply: Number(formatUnits(totalSupply, 6)),
         exchange,
-        holders: totalHolders,
-        market_cap: wPoktPrice * Number(formatUnits(totalSupply, 6)),
         pool_address: poolAddress,
+        price: wPoktPrice,
         timestamp,
         token_address: wpokt,
-        tvl_usd: parseFloat(tvlUsdc),
-        volatility: volumeUsd / parseFloat(tvlUsdc),
-        volume_usd: volumeUsd,
       };
     }
     throw new Error(`Unsupported chain: ${chain}`);
   } catch (error) {
-    logger.error({ error }, 'Error fetching pool snapshot');
+    logger.error({ error }, 'Error fetching price snapshot');
     throw error; // Re-throw to be caught in runIndexer
   }
 };

@@ -18,7 +18,6 @@ export type PoolSnapshotRow = {
   holders: number;
   market_cap: number;
   pool_address: string;
-  price: number; // This value is not stored in pool_snapshots table
   timestamp: bigint;
   token_address: string;
   tvl_usd: number;
