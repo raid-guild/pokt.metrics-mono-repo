@@ -89,7 +89,7 @@ export const LiquidityTvlDistributionMetrics = () => {
   const grayText = '#64748B';
 
   return (
-    <div className="grid grid-cols-2 gap-4 p-4">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4">
       <div className="col-span-1 flex items-center justify-center">
         <PieChart width={chartWidth} height={chartHeight}>
           <text

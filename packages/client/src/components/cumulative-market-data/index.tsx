@@ -2,7 +2,7 @@ import Image from 'next/image';
 
 import { ErrorWrapper } from '@/components/error-wrapper';
 import { useQueryCumulativeMarketData } from '@/hooks/useQueryCumulativeMarketData';
-import { calculatePercentageChange, formatPercentage,formatPrice } from '@/lib/utils';
+import { calculatePercentageChange, formatPercentage, formatPrice } from '@/lib/utils';
 
 import {
   MarketDataTile,
@@ -19,7 +19,7 @@ export const CumulativeMarketData = () => {
   if (loading) {
     return (
       <div className="w-full">
-        <div className="grid grid-cols-4 gap-2">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2">
           {Array.from({ length: 8 }).map((_, index) => (
             <MarketDataTileSkeleton key={index} />
           ))}
@@ -31,18 +31,18 @@ export const CumulativeMarketData = () => {
   const marketData = data?.marketData;
 
   // Calculate percentage changes
-  const athPercentageDifference = calculatePercentageChange(
-    marketData?.price || 0,
-    marketData?.all_time_high || 0
-  );
-  const atlPercentageDifference = calculatePercentageChange(
-    marketData?.price || 0,
-    marketData?.all_time_low || 0
-  );
+  const athPercentageDifference =
+    marketData?.all_time_high && marketData.all_time_high > 0
+      ? calculatePercentageChange(marketData?.price ?? 0, marketData.all_time_high)
+      : 0;
+  const atlPercentageDifference =
+    marketData?.all_time_low && marketData.all_time_low > 0
+      ? calculatePercentageChange(marketData?.price ?? 0, marketData.all_time_low)
+      : 0;
 
   return (
     <div className="w-full">
-      <div className="grid grid-cols-4 gap-2">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2">
         <MarketDataTile>
           <MarketDataTileTitle>
             <Image src="/icons/24h-volume.svg" alt="24h Volume" width={16} height={16} />
@@ -67,7 +67,11 @@ export const CumulativeMarketData = () => {
             />
             Circulating Supply
           </MarketDataTileTitle>
-          <MarketDataTileValue>{marketData?.circulating_supply?.toFixed(2)}</MarketDataTileValue>
+          <MarketDataTileValue>
+            {marketData?.circulating_supply != null
+              ? marketData.circulating_supply.toFixed(2)
+              : '—'}
+          </MarketDataTileValue>
         </MarketDataTile>
         <MarketDataTile>
           <MarketDataTileTitle>
@@ -97,11 +101,11 @@ export const CumulativeMarketData = () => {
                 <Image src="/icons/all-time-high.svg" alt="All Time High" width={16} height={16} />
                 ATH
               </div>
-            <div
-              className={`${athPercentageDifference >= 0 ? 'text-positive-green' : 'text-negative-red'}`}
-            >
-              ({formatPercentage(athPercentageDifference)})
-            </div>
+              <div
+                className={`${athPercentageDifference >= 0 ? 'text-positive-green' : 'text-negative-red'}`}
+              >
+                ({formatPercentage(athPercentageDifference)})
+              </div>
             </div>
           </MarketDataTileTitle>
           <MarketDataTileValue>
@@ -130,12 +134,25 @@ export const CumulativeMarketData = () => {
           <MarketDataTileTitle>CEX Market Data</MarketDataTileTitle>
           <MarketDataTileValue>
             <div className="flex items-center gap-2">
-            <a href="https://coinmarketcap.com/currencies/pocket-network/" target="_blank" rel="noopener noreferrer">
-              <Image src="/icons/coin-market-cap.svg" alt="CoinMarketCap" width={24} height={24} />
-            </a>
-            <a href="https://tokenterminal.com/explorer/projects/pocket-network/metrics/all" target="_blank" rel="noopener noreferrer">
-              <Image src="/icons/token-terminal.svg" alt="TokenTerminal" width={24} height={24} />
-            </a>
+              <a
+                href="https://coinmarketcap.com/currencies/pocket-network/"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <Image
+                  src="/icons/coin-market-cap.svg"
+                  alt="CoinMarketCap"
+                  width={24}
+                  height={24}
+                />
+              </a>
+              <a
+                href="https://tokenterminal.com/explorer/projects/pocket-network/metrics/all"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <Image src="/icons/token-terminal.svg" alt="TokenTerminal" width={24} height={24} />
+              </a>
             </div>
           </MarketDataTileValue>
         </MarketDataTile>

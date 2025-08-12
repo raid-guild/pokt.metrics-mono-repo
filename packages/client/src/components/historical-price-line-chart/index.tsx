@@ -105,7 +105,7 @@ export function HistoricalPriceLineChart() {
 
   // Use static data if no prop is provided
   // const formattedData = data ? formatHistoricalDataFromProps(data) : historicalData;
-  const [timestep, setTimestep] = useState<(typeof timestepOptions)[number]>(timestepOptions[0]);
+  const [timestep, setTimestep] = useState<(typeof timestepOptions)[number]>(timestepOptions[2]);
   const { data, fetching, error } = useQueryPriceSnapshots({ interval: timestep.value });
 
   const formattedData = useMemo(() => {
@@ -126,41 +126,88 @@ export function HistoricalPriceLineChart() {
       })),
     });
 
-    // If timestep is 15m, get the data for the last 24 hours
+    // If timestep is 15m, get the data for the last 2 days
     if (timestep.value === '_15m') {
-      const timeStamp24HoursAgo = Math.floor((new Date().getTime() - 24 * 60 * 60 * 1000) / 1000);
-      return result.filter((item) => item.timestamp >= timeStamp24HoursAgo);
+      const timeStamp2DaysAgo = (new Date().getTime() - 2 * 24 * 60 * 60 * 1000) / 1000;
+      return result.filter((item) => item.timestamp >= timeStamp2DaysAgo);
     }
 
-    // If timestep is 30m, get the data for the last 12 hours
+    // If timestep is 30m, get the data for the last 4 days
     if (timestep.value === '_30m') {
-      const timeStamp12HoursAgo = Math.floor((new Date().getTime() - 12 * 60 * 60 * 1000) / 1000);
-      return result.filter((item) => item.timestamp >= timeStamp12HoursAgo);
+      const timeStamp4DaysAgo = Math.floor((new Date().getTime() - 4 * 24 * 60 * 60 * 1000) / 1000);
+      return result.filter((item) => item.timestamp >= timeStamp4DaysAgo);
     }
 
-    // If timestep is 1hr, get the data for the last 6 hours
+    // If timestep is 1hr, get the data for the last 8 days
     if (timestep.value === '_1h') {
-      const timeStamp6HoursAgo = (new Date().getTime() - 6 * 60 * 60 * 1000) / 1000;
-      return result.filter((item) => item.timestamp >= timeStamp6HoursAgo);
+      const timeStamp8DaysAgo = Math.floor((new Date().getTime() - 8 * 24 * 60 * 60 * 1000) / 1000);
+      return result.filter((item) => item.timestamp >= timeStamp8DaysAgo);
     }
 
     return [];
   }, [data, timestep]);
 
-  const domain = useMemo(() => {
-  if (!formattedData) return [0, 0];
-  const allPrices = [
-    ...formattedData.map((item) => item.wPOKT_wETH),
-    ...formattedData.map((item) => item.POKT_wETH),
-    ...formattedData.map((item) => item.POKT_SOL),
-  ].filter((price) => price !== undefined && !isNaN(price));
+  const timeStamps = useMemo(() => {
+    const numberOfTicks = 8;
+    if (timestep.value === '_15m') {
+      const now = new Date();
+      const currentHour = now.getHours();
+      
+      // Find the last 6-hour interval (00:00, 06:00, 12:00, 18:00)
+      const lastSixHourInterval = Math.floor(currentHour / 6) * 6;
+      
+      // Create a date object for the last 6-hour interval
+      const lastIntervalDate = new Date(now);
+      lastIntervalDate.setHours(lastSixHourInterval, 0, 0, 0);
+      
+      // Generate 6 timestamps, each 6 hours apart, going backwards from the last interval
+      return Array.from({ length: numberOfTicks }, (_, i) => {
+        const timestamp = new Date(lastIntervalDate);
+        timestamp.setHours(lastIntervalDate.getHours() - (i * 6));
+        return Math.floor(timestamp.getTime() / 1000);
+      });
+    }
 
-  if (allPrices.length === 0) return [0, 1]; // Default domain if no valid prices
+    if (timestep.value === '_30m') {
+      const now = new Date();
+      const currentHour = now.getHours();
+      
+      // Find the last 12-hour interval (00:00, 12:00)
+      const lastTwelveHourInterval = Math.floor(currentHour / 12) * 12;
+      
+      // Create a date object for the last 12-hour interval
+      const lastIntervalDate = new Date(now);
+      lastIntervalDate.setHours(lastTwelveHourInterval, 0, 0, 0);
+      
+      // Generate 12 timestamps, each 12 hours apart, going backwards from the last interval
+      return Array.from({ length: numberOfTicks }, (_, i) => {
+        const timestamp = new Date(lastIntervalDate);
+        timestamp.setHours(lastIntervalDate.getHours() - (i * 12));
+        return Math.floor(timestamp.getTime() / 1000);
+      });
+    }
 
-  const min = Math.min(...allPrices);
-  const max = Math.max(...allPrices);
-  return [min, max];
-}, [formattedData]);
+    if (timestep.value === '_1h') {
+      const now = new Date();
+      const currentHour = now.getHours();
+      
+      // Find the last 24-hour interval (00:00, 12:00)
+      const lastTwentyFourHourInterval = Math.floor(currentHour / 24) * 24;
+      
+      // Create a date object for the last 24-hour interval
+      const lastIntervalDate = new Date(now);
+      lastIntervalDate.setHours(lastTwentyFourHourInterval, 0, 0, 0);
+      
+      // Generate 24 timestamps, each 24 hours apart, going backwards from the last interval
+      return Array.from({ length: numberOfTicks }, (_, i) => {
+        const timestamp = new Date(lastIntervalDate);
+        timestamp.setHours(lastIntervalDate.getHours() - (i * 24));
+        return Math.floor(timestamp.getTime() / 1000);
+      });
+    }
+
+    return [];
+  }, [timestep.value, formattedData]);
 
   if (error) {
     return (
@@ -173,8 +220,6 @@ export function HistoricalPriceLineChart() {
   if (!data && fetching) {
     return <HistoricalPriceLineChartSkeleton />;
   }
-
-  const yPadding = 0;
 
   if (!formattedData) return null;
 
@@ -197,19 +242,23 @@ export function HistoricalPriceLineChart() {
           <CartesianGrid vertical={false} />
           <XAxis
             dataKey="timestamp"
+            type="number"
+            domain={['dataMin', 'dataMax']}
             tick={{ fontSize: 12 }}
-            textAnchor="end"
-            tickLine={false}
-            tickFormatter={formatTimestamp}
+            tickFormatter={(value) => formatTimestamp(value)}
             axisLine={false}
+            tickLine={false}
+            textAnchor="middle"
+            ticks={timeStamps}
+            allowDataOverflow={false}
           />
           <YAxis
-            domain={domain}
-            tickFormatter={(value) => `${formatPrice(value, 6)}`}
+            domain={['auto', 'auto']}
+            tickFormatter={(value) => `${formatPrice(value, 4)}`}
             tickLine={false}
             axisLine={false}
             tickCount={5}
-            padding={{ top: yPadding, bottom: yPadding }}
+            fontSize={12}
           />
           <Tooltip content={CustomTooltip} />
           {Object.keys(TokenPair)
