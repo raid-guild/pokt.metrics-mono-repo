@@ -2,48 +2,67 @@ import { db } from '../db/client';
 import { MarketDataRow } from '../types';
 import { logger } from '../utils/logger';
 
-const validateMarketData = (prices: MarketDataRow[]): boolean => {
-  for (const price of prices) {
+const validateMarketData = (rows: MarketDataRow[]): boolean => {
+  for (const row of rows) {
     if (
-      !price.all_time_high ||
-      !price.all_time_low ||
-      !price.circulating_supply ||
-      !price.day_volume ||
-      !price.market_cap ||
-      !price.price ||
-      !price.timestamp
+      row.all_time_high == null ||
+      row.all_time_low == null ||
+      row.circulating_supply == null ||
+      row.day_volume == null ||
+      row.market_cap == null ||
+      row.price == null ||
+      row.timestamp == null
     ) {
-      logger.error({ price }, 'Invalid market data');
+      logger.error({ row }, 'Invalid market data');
       return false;
     }
 
-    if (typeof price.all_time_high !== 'number' || price.all_time_high < 0) {
-      logger.error({ price }, 'Invalid market data');
+    if (
+      typeof row.all_time_high !== 'number' ||
+      !Number.isFinite(row.all_time_high) ||
+      row.all_time_high < 0
+    ) {
+      logger.error({ row }, 'Invalid market data');
       return false;
     }
-
-    if (typeof price.all_time_low !== 'number' || price.all_time_low < 0) {
-      logger.error({ price }, 'Invalid market data');
+    if (
+      typeof row.all_time_low !== 'number' ||
+      !Number.isFinite(row.all_time_low) ||
+      row.all_time_low < 0
+    ) {
+      logger.error({ row }, 'Invalid market data');
       return false;
     }
-
-    if (typeof price.circulating_supply !== 'number' || price.circulating_supply < 0) {
-      logger.error({ price }, 'Invalid market data');
+    if (
+      typeof row.circulating_supply !== 'number' ||
+      !Number.isFinite(row.circulating_supply) ||
+      row.circulating_supply < 0
+    ) {
+      logger.error({ row }, 'Invalid market data');
       return false;
     }
-
-    if (typeof price.day_volume !== 'number' || price.day_volume < 0) {
-      logger.error({ price }, 'Invalid market data');
+    if (
+      typeof row.day_volume !== 'number' ||
+      !Number.isFinite(row.day_volume) ||
+      row.day_volume < 0
+    ) {
+      logger.error({ row }, 'Invalid market data');
       return false;
     }
-
-    if (typeof price.market_cap !== 'number' || price.market_cap < 0) {
-      logger.error({ price }, 'Invalid market data');
+    if (
+      typeof row.market_cap !== 'number' ||
+      !Number.isFinite(row.market_cap) ||
+      row.market_cap < 0
+    ) {
+      logger.error({ row }, 'Invalid market data');
       return false;
     }
-
-    if (typeof price.price !== 'number' || price.price < 0) {
-      logger.error({ price }, 'Invalid market data');
+    if (typeof row.price !== 'number' || !Number.isFinite(row.price) || row.price < 0) {
+      logger.error({ row }, 'Invalid market data');
+      return false;
+    }
+    if (typeof row.timestamp !== 'bigint') {
+      logger.error({ row }, 'Invalid market data');
       return false;
     }
   }

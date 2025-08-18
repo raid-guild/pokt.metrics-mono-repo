@@ -5,49 +5,80 @@ import { logger } from '../utils/logger';
 const validatePoolSnapshots = (pools: PoolSnapshotRow[]): boolean => {
   for (const pool of pools) {
     if (
-      !pool.block_number ||
-      !pool.chain ||
-      !pool.circulating_supply ||
-      !pool.exchange ||
-      !pool.holders ||
-      !pool.market_cap ||
-      !pool.pool_address ||
-      !pool.timestamp ||
-      !pool.token_address ||
-      !pool.tvl_usd ||
-      !pool.volatility ||
-      !pool.volume_usd
+      pool.block_number == null ||
+      pool.chain == null ||
+      pool.circulating_supply == null ||
+      pool.exchange == null ||
+      pool.holders == null ||
+      pool.market_cap == null ||
+      pool.pool_address == null ||
+      pool.timestamp == null ||
+      pool.token_address == null ||
+      pool.tvl_usd == null ||
+      pool.volatility == null ||
+      pool.volume_usd == null
     ) {
       logger.error({ pool }, 'Invalid pool snapshot');
       return false;
     }
 
-    if (typeof pool.circulating_supply !== 'number' || pool.circulating_supply <= 0) {
+    if (typeof pool.block_number !== 'bigint') {
       logger.error({ pool }, 'Invalid pool snapshot');
       return false;
     }
-
-    if (typeof pool.holders !== 'number' || pool.holders < 0) {
+    if (typeof pool.timestamp !== 'bigint') {
       logger.error({ pool }, 'Invalid pool snapshot');
       return false;
     }
-
-    if (typeof pool.market_cap !== 'number' || pool.market_cap < 0) {
+    if (typeof pool.exchange !== 'string' || pool.exchange.trim() === '') {
       logger.error({ pool }, 'Invalid pool snapshot');
       return false;
     }
-
-    if (typeof pool.tvl_usd !== 'number' || pool.tvl_usd < 0) {
+    if (typeof pool.pool_address !== 'string' || pool.pool_address.trim() === '') {
       logger.error({ pool }, 'Invalid pool snapshot');
       return false;
     }
-
-    if (typeof pool.volatility !== 'number' || pool.volatility < 0) {
+    if (typeof pool.token_address !== 'string' || pool.token_address.trim() === '') {
       logger.error({ pool }, 'Invalid pool snapshot');
       return false;
     }
-
-    if (typeof pool.volume_usd !== 'number' || pool.volume_usd < 0) {
+    if (
+      typeof pool.circulating_supply !== 'number' ||
+      !Number.isFinite(pool.circulating_supply) ||
+      pool.circulating_supply <= 0
+    ) {
+      logger.error({ pool }, 'Invalid pool snapshot');
+      return false;
+    }
+    if (typeof pool.holders !== 'number' || !Number.isFinite(pool.holders) || pool.holders < 0) {
+      logger.error({ pool }, 'Invalid pool snapshot');
+      return false;
+    }
+    if (
+      typeof pool.market_cap !== 'number' ||
+      !Number.isFinite(pool.market_cap) ||
+      pool.market_cap < 0
+    ) {
+      logger.error({ pool }, 'Invalid pool snapshot');
+      return false;
+    }
+    if (typeof pool.tvl_usd !== 'number' || !Number.isFinite(pool.tvl_usd) || pool.tvl_usd < 0) {
+      logger.error({ pool }, 'Invalid pool snapshot');
+      return false;
+    }
+    if (
+      typeof pool.volatility !== 'number' ||
+      !Number.isFinite(pool.volatility) ||
+      pool.volatility < 0
+    ) {
+      logger.error({ pool }, 'Invalid pool snapshot');
+      return false;
+    }
+    if (
+      typeof pool.volume_usd !== 'number' ||
+      !Number.isFinite(pool.volume_usd) ||
+      pool.volume_usd < 0
+    ) {
       logger.error({ pool }, 'Invalid pool snapshot');
       return false;
     }

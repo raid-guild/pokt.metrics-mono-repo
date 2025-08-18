@@ -18,8 +18,10 @@ export const fetchMarketData = async (
     let allTimeHigh = latestMarketData.rows[0]?.all_time_high || ORIGINAL_ALL_TIME_HIGH;
     let allTimeLow = latestMarketData.rows[0]?.all_time_low || ORIGINAL_ALL_TIME_LOW;
 
-    allTimeHigh = Number(allTimeHigh);
-    allTimeLow = Number(allTimeLow);
+    const parsedHigh = Number(allTimeHigh);
+    const parsedLow = Number(allTimeLow);
+    allTimeHigh = Number.isFinite(parsedHigh) ? parsedHigh : ORIGINAL_ALL_TIME_HIGH;
+    allTimeLow = Number.isFinite(parsedLow) ? parsedLow : ORIGINAL_ALL_TIME_LOW;
 
     if (poktPrice > allTimeHigh) {
       allTimeHigh = poktPrice;
