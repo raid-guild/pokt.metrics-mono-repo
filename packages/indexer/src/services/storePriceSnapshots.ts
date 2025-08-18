@@ -2,8 +2,52 @@ import { db } from '../db/client';
 import { PriceSnapshotRow } from '../types';
 import { logger } from '../utils/logger';
 
+const validatePriceSnapshots = (prices: PriceSnapshotRow[]): boolean => {
+  for (const price of prices) {
+    if (
+      price.block_number == null ||
+      price.chain == null ||
+      price.exchange == null ||
+      price.pool_address == null ||
+      price.price == null ||
+      price.timestamp == null ||
+      price.token_address == null
+    ) {
+      logger.error({ price }, 'Invalid price snapshot');
+      return false;
+    }
+
+    if (typeof price.block_number !== 'bigint') {
+      logger.error({ price }, 'Invalid price snapshot');
+      return false;
+    }
+    if (typeof price.timestamp !== 'bigint') {
+      logger.error({ price }, 'Invalid price snapshot');
+      return false;
+    }
+    if (typeof price.price !== 'number' || !Number.isFinite(price.price) || price.price <= 0) {
+      logger.error({ price }, 'Invalid price snapshot');
+      return false;
+    }
+    if (typeof price.exchange !== 'string' || price.exchange.trim() === '') {
+      logger.error({ price }, 'Invalid price snapshot');
+      return false;
+    }
+    if (typeof price.pool_address !== 'string' || price.pool_address.trim() === '') {
+      logger.error({ price }, 'Invalid price snapshot');
+      return false;
+    }
+    if (typeof price.token_address !== 'string' || price.token_address.trim() === '') {
+      logger.error({ price }, 'Invalid price snapshot');
+      return false;
+    }
+  }
+  return true;
+};
+
 export const storePriceSnapshots = async (prices: PriceSnapshotRow[]): Promise<void> => {
   if (prices.length === 0) return;
+  if (!validatePriceSnapshots(prices)) return;
 
   const query = `
     INSERT INTO price_snapshots (
