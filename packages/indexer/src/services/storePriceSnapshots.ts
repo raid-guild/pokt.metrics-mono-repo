@@ -2,8 +2,32 @@ import { db } from '../db/client';
 import { PriceSnapshotRow } from '../types';
 import { logger } from '../utils/logger';
 
+const validatePriceSnapshots = (prices: PriceSnapshotRow[]): boolean => {
+  for (const price of prices) {
+    if (
+      !price.block_number ||
+      !price.chain ||
+      !price.exchange ||
+      !price.pool_address ||
+      !price.price ||
+      !price.timestamp ||
+      !price.token_address
+    ) {
+      logger.error({ price }, 'Invalid price snapshot');
+      return false;
+    }
+
+    if (typeof price.price !== 'number' || price.price <= 0) {
+      logger.error({ price }, 'Invalid price snapshot');
+      return false;
+    }
+  }
+  return true;
+};
+
 export const storePriceSnapshots = async (prices: PriceSnapshotRow[]): Promise<void> => {
   if (prices.length === 0) return;
+  if (!validatePriceSnapshots(prices)) return;
 
   const query = `
     INSERT INTO price_snapshots (

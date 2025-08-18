@@ -2,8 +2,62 @@ import { db } from '../db/client';
 import { PoolSnapshotRow } from '../types';
 import { logger } from '../utils/logger';
 
+const validatePoolSnapshots = (pools: PoolSnapshotRow[]): boolean => {
+  for (const pool of pools) {
+    if (
+      !pool.block_number ||
+      !pool.chain ||
+      !pool.circulating_supply ||
+      !pool.exchange ||
+      !pool.holders ||
+      !pool.market_cap ||
+      !pool.pool_address ||
+      !pool.timestamp ||
+      !pool.token_address ||
+      !pool.tvl_usd ||
+      !pool.volatility ||
+      !pool.volume_usd
+    ) {
+      logger.error({ pool }, 'Invalid pool snapshot');
+      return false;
+    }
+
+    if (typeof pool.circulating_supply !== 'number' || pool.circulating_supply <= 0) {
+      logger.error({ pool }, 'Invalid pool snapshot');
+      return false;
+    }
+
+    if (typeof pool.holders !== 'number' || pool.holders < 0) {
+      logger.error({ pool }, 'Invalid pool snapshot');
+      return false;
+    }
+
+    if (typeof pool.market_cap !== 'number' || pool.market_cap < 0) {
+      logger.error({ pool }, 'Invalid pool snapshot');
+      return false;
+    }
+
+    if (typeof pool.tvl_usd !== 'number' || pool.tvl_usd < 0) {
+      logger.error({ pool }, 'Invalid pool snapshot');
+      return false;
+    }
+
+    if (typeof pool.volatility !== 'number' || pool.volatility < 0) {
+      logger.error({ pool }, 'Invalid pool snapshot');
+      return false;
+    }
+
+    if (typeof pool.volume_usd !== 'number' || pool.volume_usd < 0) {
+      logger.error({ pool }, 'Invalid pool snapshot');
+      return false;
+    }
+  }
+  return true;
+};
+
 export const storePoolSnapshots = async (pools: PoolSnapshotRow[]): Promise<void> => {
   if (pools.length === 0) return;
+  if (!validatePoolSnapshots(pools)) return;
 
   const query = `
     INSERT INTO pool_snapshots (
