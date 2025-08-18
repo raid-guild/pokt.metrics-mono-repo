@@ -22,66 +22,6 @@ const POOL_CREATED_TIMESTAMP: Record<Chain, number> = {
   [Chain.SOLANA]: 1724398200,
 };
 
-const PRICE_SNAPSHOTS_QUERY = `
-  SELECT
-    time_bucket($2, to_timestamp(timestamp / 1000.0)) AS bucket,
-    AVG(price) AS price,
-    MIN(timestamp) AS timestamp,
-    token_address,
-    pool_address,
-    chain,
-    exchange
-  FROM price_snapshots
-  WHERE token_address = $1
-  GROUP BY bucket, token_address, pool_address, chain, exchange
-  ORDER BY bucket DESC
-  LIMIT $3
-`;
-
-const POOL_SNAPSHOTS_QUERY = `
-  SELECT
-    block_number,
-    chain,
-    circulating_supply,
-    exchange,
-    holders,
-    market_cap,
-    pool_address,
-    timestamp,
-    token_address,
-    tvl_usd,
-    volatility,
-    volume_usd
-  FROM pool_snapshots
-  WHERE token_address = $1
-  ORDER BY timestamp DESC
-  LIMIT $2
-`;
-
-const AVERAGE_PRICE_QUERY = `
-  SELECT
-    AVG(price) AS average_price
-  FROM price_snapshots
-  WHERE token_address = $1
-    AND to_timestamp(timestamp / 1000.0) >= NOW() - INTERVAL '24 hours'
-`;
-
-const DAY_HIGH_PRICE_QUERY = `
-  SELECT
-    MAX(price) AS day_high_price
-  FROM price_snapshots
-  WHERE token_address = $1
-    AND to_timestamp(timestamp / 1000.0) >= NOW() - INTERVAL '24 hours'
-`;
-
-const DAY_LOW_PRICE_QUERY = `
-  SELECT
-    MIN(price) AS day_low_price
-  FROM price_snapshots
-  WHERE token_address = $1
-    AND to_timestamp(timestamp / 1000.0) >= NOW() - INTERVAL '24 hours'
-`;
-
 const intervalToMultiplier: Record<'_15m' | '_30m' | '_1h', number> = {
   _15m: 15,
   _30m: 30,
@@ -95,6 +35,66 @@ const roundTimestampToInterval = (timestamp: number, interval: '_15m' | '_30m' |
   );
 };
 
+// Price snapshots: one query for all tokens, time-bounded, then per-token top N buckets
+const COMBINED_PRICE_SNAPSHOTS_SQL = `
+WITH agg AS (
+  SELECT
+    token_address,
+    time_bucket($2::interval, to_timestamp(timestamp / 1000.0)) AS bucket,
+    AVG(price) AS price,
+    MIN(timestamp) AS timestamp,
+    pool_address,
+    chain,
+    exchange
+  FROM price_snapshots
+  WHERE token_address = ANY($1)
+    AND timestamp >= $3
+    AND timestamp <  $4
+  GROUP BY token_address, bucket, pool_address, chain, exchange
+),
+ranked AS (
+  SELECT
+    agg.*,
+    row_number() OVER (PARTITION BY token_address ORDER BY bucket DESC) AS rn
+  FROM agg
+)
+SELECT *
+FROM ranked
+WHERE rn <= $5
+ORDER BY token_address, bucket DESC
+`;
+
+// Pool snapshots: top N most recent rows per token in one query
+const COMBINED_POOL_SNAPSHOTS_SQL = `
+WITH ranked AS (
+  SELECT
+    ps.*,
+    row_number() OVER (
+      PARTITION BY token_address
+      ORDER BY timestamp DESC
+    ) AS rn
+  FROM pool_snapshots ps
+  WHERE token_address = ANY($1)
+)
+SELECT *
+FROM ranked
+WHERE rn <= $2
+ORDER BY token_address, timestamp DESC
+`;
+
+// 24h stats (avg, high, low) per token in one pass
+const STATS_24H_SQL = `
+SELECT
+  token_address,
+  AVG(price) AS avg_24h,
+  MAX(price) AS max_24h,
+  MIN(price) AS min_24h
+FROM price_snapshots
+WHERE timestamp >= $1
+  AND timestamp <  $2
+GROUP BY token_address
+`;
+
 export const resolvers = {
   Query: {
     marketData: async () => {
@@ -102,96 +102,147 @@ export const resolvers = {
         'SELECT * FROM market_data ORDER BY timestamp DESC LIMIT 1'
       );
 
-      const { rows: dayHighPriceRows } = await db.query(DAY_HIGH_PRICE_QUERY, [
-        POKT_BY_CHAIN.ethereum,
-      ]);
-      const dayHighPrice = dayHighPriceRows[0]?.day_high_price ?? 0;
+      const nowMs = Date.now();
+      const from24hMs = nowMs - 24 * 60 * 60 * 1000;
+      const { rows: statsRows } = await db.query(STATS_24H_SQL, [from24hMs, nowMs]);
 
-      const { rows: dayLowPriceRows } = await db.query(DAY_LOW_PRICE_QUERY, [
-        POKT_BY_CHAIN.ethereum,
-      ]);
-      const dayLowPrice = dayLowPriceRows[0]?.day_low_price ?? 0;
+      const byToken: Record<string, { max_24h: number; min_24h: number }> = {};
+      for (const r of statsRows) {
+        byToken[r.token_address] = {
+          max_24h: Number(r.max_24h ?? 0),
+          min_24h: Number(r.min_24h ?? 0),
+        };
+      }
+
+      const averageMax24h =
+        Object.values(byToken).reduce((acc, { max_24h }) => acc + max_24h, 0) /
+        Object.values(byToken).length;
+      const averageMin24h =
+        Object.values(byToken).reduce((acc, { min_24h }) => acc + min_24h, 0) /
+        Object.values(byToken).length;
 
       const enhancedMarketData = {
         ...basicMarketData[0],
-        day_high_price: dayHighPrice,
-        day_low_price: dayLowPrice,
+        day_high_price: averageMax24h,
+        day_low_price: averageMin24h,
+        timestamp: Math.floor(basicMarketData[0].timestamp / 1000),
       };
       return enhancedMarketData;
     },
+
     poolSnapshots: async (_: unknown, { limit = 1 }: PoolArgs) => {
-      const { rows: ethereumRows } = await db.query(POOL_SNAPSHOTS_QUERY, [
-        POKT_BY_CHAIN.ethereum,
-        limit,
+      const tokens = [POKT_BY_CHAIN.base, POKT_BY_CHAIN.ethereum, POKT_BY_CHAIN.solana];
+
+      const [{ rows: poolRows }, { rows: statsRows }] = await Promise.all([
+        db.query(COMBINED_POOL_SNAPSHOTS_SQL, [tokens, limit]),
+        (() => {
+          const nowMs = Date.now();
+          const from24hMs = nowMs - 24 * 60 * 60 * 1000;
+          return db.query(STATS_24H_SQL, [from24hMs, nowMs]);
+        })(),
       ]);
-      const { rows: averagePriceRows } = await db.query(AVERAGE_PRICE_QUERY, [
-        POKT_BY_CHAIN.ethereum,
-      ]);
-      const averageEthereumPrice = averagePriceRows[0]?.average_price ?? 0;
-      if (ethereumRows.length > 0) {
-        ethereumRows[0].average_price = averageEthereumPrice;
-        ethereumRows[0].pool_age = POOL_CREATED_TIMESTAMP[Chain.ETHEREUM];
-        ethereumRows[0].timestamp = Math.floor(ethereumRows[0].timestamp / 1000);
+
+      // Map helpers
+      const latestByToken: Record<
+        string,
+        { average_price: number; pool_age: number; timestamp: number; token_address: string }
+      > = {};
+      for (const r of poolRows) {
+        // rn=1 row will naturally overwrite later ones; we only need the most recent per token
+        if (!latestByToken[r.token_address]) {
+          latestByToken[r.token_address] = { ...r };
+        }
       }
 
-      const { rows: baseRows } = await db.query(POOL_SNAPSHOTS_QUERY, [POKT_BY_CHAIN.base, limit]);
-      const { rows: averageBasePriceRows } = await db.query(AVERAGE_PRICE_QUERY, [
-        POKT_BY_CHAIN.base,
-      ]);
-      const averageBasePrice = averageBasePriceRows[0]?.average_price ?? 0;
-      if (baseRows.length > 0) {
-        baseRows[0].average_price = averageBasePrice;
-        baseRows[0].pool_age = POOL_CREATED_TIMESTAMP[Chain.BASE];
-        baseRows[0].timestamp = Math.floor(baseRows[0].timestamp / 1000);
+      const statsByToken: Record<string, { avg_24h: number; max_24h: number; min_24h: number }> =
+        {};
+      for (const r of statsRows) {
+        statsByToken[r.token_address] = {
+          avg_24h: Number(r.avg_24h ?? 0),
+          max_24h: Number(r.max_24h ?? 0),
+          min_24h: Number(r.min_24h ?? 0),
+        };
       }
 
-      const { rows: solanaRows } = await db.query(POOL_SNAPSHOTS_QUERY, [
-        POKT_BY_CHAIN.solana,
-        limit,
-      ]);
-      const { rows: averageSolanaPriceRows } = await db.query(AVERAGE_PRICE_QUERY, [
-        POKT_BY_CHAIN.solana,
-      ]);
-      const averageSolanaPrice = averageSolanaPriceRows[0]?.average_price ?? 0;
-      if (solanaRows.length > 0) {
-        solanaRows[0].average_price = averageSolanaPrice;
-        solanaRows[0].pool_age = POOL_CREATED_TIMESTAMP[Chain.SOLANA];
-        solanaRows[0].timestamp = Math.floor(solanaRows[0].timestamp / 1000);
+      const baseRow = latestByToken[POKT_BY_CHAIN.base];
+      const ethRow = latestByToken[POKT_BY_CHAIN.ethereum];
+      const solRow = latestByToken[POKT_BY_CHAIN.solana];
+
+      if (baseRow) {
+        baseRow.average_price = statsByToken[POKT_BY_CHAIN.base]?.avg_24h ?? 0;
+        baseRow.pool_age = POOL_CREATED_TIMESTAMP[Chain.BASE];
+        baseRow.timestamp = Math.floor(baseRow.timestamp / 1000);
+      }
+      if (ethRow) {
+        ethRow.average_price = statsByToken[POKT_BY_CHAIN.ethereum]?.avg_24h ?? 0;
+        ethRow.pool_age = POOL_CREATED_TIMESTAMP[Chain.ETHEREUM];
+        ethRow.timestamp = Math.floor(ethRow.timestamp / 1000);
+      }
+      if (solRow) {
+        solRow.average_price = statsByToken[POKT_BY_CHAIN.solana]?.avg_24h ?? 0;
+        solRow.pool_age = POOL_CREATED_TIMESTAMP[Chain.SOLANA];
+        solRow.timestamp = Math.floor(solRow.timestamp / 1000);
       }
 
       return {
-        base: baseRows[0],
-        ethereum: ethereumRows[0],
-        solana: solanaRows[0],
+        base: baseRow,
+        ethereum: ethRow,
+        solana: solRow,
       };
     },
+
     priceSnapshots: async (
       _: unknown,
       { interval, limit = 192 }: PoolArgs & { interval: '_15m' | '_30m' | '_1h' }
     ) => {
-      let params = [POKT_BY_CHAIN.base, interval, limit];
-      const { rows: baseRows } = await db.query(PRICE_SNAPSHOTS_QUERY, params);
+      const tokens = [POKT_BY_CHAIN.base, POKT_BY_CHAIN.ethereum, POKT_BY_CHAIN.solana];
 
-      params = [POKT_BY_CHAIN.ethereum, interval, limit];
-      const { rows: ethereumRows } = await db.query(PRICE_SNAPSHOTS_QUERY, params);
+      // Compute time window in ms for the requested number of buckets
+      const nowMs = Date.now();
+      const windowMinutes = limit * intervalToMultiplier[interval];
+      const fromMs = nowMs - windowMinutes * 60 * 1000;
+      const toMs = nowMs;
 
-      params = [POKT_BY_CHAIN.solana, interval, limit];
-      const { rows: solanaRows } = await db.query(PRICE_SNAPSHOTS_QUERY, params);
+      // Run the heavy bucketed query with parallelism disabled for this statement only
+      const client = await db.connect();
+      try {
+        await client.query('BEGIN');
+        await client.query('SET LOCAL max_parallel_workers_per_gather = 0');
 
-      return {
-        base: baseRows.map((row) => ({
-          ...row,
-          timestamp: roundTimestampToInterval(row.timestamp, interval),
-        })),
-        ethereum: ethereumRows.map((row) => ({
-          ...row,
-          timestamp: roundTimestampToInterval(row.timestamp, interval),
-        })),
-        solana: solanaRows.map((row) => ({
-          ...row,
-          timestamp: roundTimestampToInterval(row.timestamp, interval),
-        })),
-      };
+        const { rows } = await client.query(COMBINED_PRICE_SNAPSHOTS_SQL, [
+          tokens, // $1
+          intervalToMultiplier[interval] + ' minutes', // $2 :: interval
+          fromMs, // $3
+          toMs, // $4
+          limit, // $5
+        ]);
+
+        await client.query('COMMIT');
+
+        // Split rows back into per-chain arrays and adjust timestamp rounding
+        const baseRows = [];
+        const ethRows = [];
+        const solRows = [];
+
+        for (const row of rows) {
+          const roundedTs = roundTimestampToInterval(Number(row.timestamp), interval);
+          const withRounded = { ...row, timestamp: roundedTs };
+          if (row.token_address === POKT_BY_CHAIN.base) baseRows.push(withRounded);
+          else if (row.token_address === POKT_BY_CHAIN.ethereum) ethRows.push(withRounded);
+          else if (row.token_address === POKT_BY_CHAIN.solana) solRows.push(withRounded);
+        }
+
+        return {
+          base: baseRows,
+          ethereum: ethRows,
+          solana: solRows,
+        };
+      } catch (e) {
+        await client.query('ROLLBACK');
+        throw e;
+      } finally {
+        client.release();
+      }
     },
   },
 };
