@@ -1,5 +1,6 @@
 import Image from 'next/image';
-import { Fragment, useMemo, useState } from 'react';
+import { useRouter } from 'next/router';
+import { Fragment, useEffect, useMemo, useState } from 'react';
 import {
   CartesianGrid,
   Line,
@@ -102,11 +103,20 @@ export const HistoricalPriceLineChartSkeleton = () => {
 
 export function HistoricalPriceLineChart() {
   const activeDot = { r: 6 };
+  const router = useRouter();
 
-  // Use static data if no prop is provided
-  // const formattedData = data ? formatHistoricalDataFromProps(data) : historicalData;
-  const [timestep, setTimestep] = useState<(typeof timestepOptions)[number]>(timestepOptions[2]);
+  const [timestep, setTimestep] = useState<(typeof timestepOptions)[number]>(timestepOptions[0]);
   const { data, fetching, error } = useQueryPriceSnapshots({ interval: timestep.value });
+
+  // Get timestep from query params
+  const isClient = typeof window !== 'undefined';
+  useEffect(() => {
+    if (isClient) {
+      const searchParams = new URLSearchParams(window.location.search);
+      const timestepParam = searchParams.get('timestep');
+      setTimestep(timestepOptions.find((option) => option.value === timestepParam) || timestepOptions[0]);
+    }
+  }, [isClient]);
 
   const formattedData = useMemo(() => {
     if (!data) return null;
@@ -152,18 +162,18 @@ export function HistoricalPriceLineChart() {
     if (timestep.value === '_15m') {
       const now = new Date();
       const currentHour = now.getHours();
-      
+
       // Find the last 6-hour interval (00:00, 06:00, 12:00, 18:00)
       const lastSixHourInterval = Math.floor(currentHour / 6) * 6;
-      
+
       // Create a date object for the last 6-hour interval
       const lastIntervalDate = new Date(now);
       lastIntervalDate.setHours(lastSixHourInterval, 0, 0, 0);
-      
+
       // Generate 6 timestamps, each 6 hours apart, going backwards from the last interval
       return Array.from({ length: numberOfTicks }, (_, i) => {
         const timestamp = new Date(lastIntervalDate);
-        timestamp.setHours(lastIntervalDate.getHours() - (i * 6));
+        timestamp.setHours(lastIntervalDate.getHours() - i * 6);
         return Math.floor(timestamp.getTime() / 1000);
       });
     }
@@ -171,18 +181,18 @@ export function HistoricalPriceLineChart() {
     if (timestep.value === '_30m') {
       const now = new Date();
       const currentHour = now.getHours();
-      
+
       // Find the last 12-hour interval (00:00, 12:00)
       const lastTwelveHourInterval = Math.floor(currentHour / 12) * 12;
-      
+
       // Create a date object for the last 12-hour interval
       const lastIntervalDate = new Date(now);
       lastIntervalDate.setHours(lastTwelveHourInterval, 0, 0, 0);
-      
+
       // Generate 12 timestamps, each 12 hours apart, going backwards from the last interval
       return Array.from({ length: numberOfTicks }, (_, i) => {
         const timestamp = new Date(lastIntervalDate);
-        timestamp.setHours(lastIntervalDate.getHours() - (i * 12));
+        timestamp.setHours(lastIntervalDate.getHours() - i * 12);
         return Math.floor(timestamp.getTime() / 1000);
       });
     }
@@ -190,18 +200,18 @@ export function HistoricalPriceLineChart() {
     if (timestep.value === '_1h') {
       const now = new Date();
       const currentHour = now.getHours();
-      
+
       // Find the last 24-hour interval (00:00, 12:00)
       const lastTwentyFourHourInterval = Math.floor(currentHour / 24) * 24;
-      
+
       // Create a date object for the last 24-hour interval
       const lastIntervalDate = new Date(now);
       lastIntervalDate.setHours(lastTwentyFourHourInterval, 0, 0, 0);
-      
+
       // Generate 24 timestamps, each 24 hours apart, going backwards from the last interval
       return Array.from({ length: numberOfTicks }, (_, i) => {
         const timestamp = new Date(lastIntervalDate);
-        timestamp.setHours(lastIntervalDate.getHours() - (i * 24));
+        timestamp.setHours(lastIntervalDate.getHours() - i * 24);
         return Math.floor(timestamp.getTime() / 1000);
       });
     }
@@ -223,15 +233,31 @@ export function HistoricalPriceLineChart() {
 
   if (!formattedData) return null;
 
+  const onClickTimestep = (option: (typeof timestepOptions)[number]) => {
+    // Store in query params using nextjs router without refreshing
+    router.push(
+      {
+        pathname: '/',
+        query: { timestep: option.value },
+      },
+      undefined,
+      { shallow: true }
+    );
+    setTimestep(option);
+  };
+
   return (
     <div className="flex flex-col gap-8">
       <div className="flex flex-row gap-2">
         {timestepOptions.map((option) => (
           <Button
             key={option.label}
-            onClick={() => setTimestep(option)}
+            onClick={() => onClickTimestep(option)}
             variant={timestep.value === option.value ? 'default' : 'outline'}
-            className={cn("font-rubik border-primary", timestep.value !== option.value && "hover:text-primary")}
+            className={cn(
+              'font-rubik border-primary cursor-pointer',
+              timestep.value !== option.value && 'hover:text-primary'
+            )}
           >
             {option.label}
           </Button>
