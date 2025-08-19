@@ -15,6 +15,7 @@
     "lint:fix": "eslint \"packages/**/*.{ts,tsx}\" --fix",
     "format": "prettier --write \"packages/**/*.{ts,tsx,js,jsx,json,md}\"",
     "test": "pnpm --filter indexer build && pnpm recursive run test",
+    "typecheck": "pnpm --filter indexer build && pnpm recursive run typecheck",
     "prepare": "husky install"
   },
   "keywords": [],
