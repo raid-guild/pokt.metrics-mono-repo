@@ -65,13 +65,13 @@ export const Footer = () => {
 
             {/* TODO: Add navigation links at bottom */}
             <div className="flex gap-4 flex-wrap justify-center">
-              <a href="https://forum.pokt.network/">Forum</a>
-              <a href="https://poktscan.com/">Explorer</a>
-              <a href="https://docs.pokt.network/">Docs</a>
-              <a href="https://pocket.network/press-kit/">Press kit</a>
-              <a href="https://github.com/pokt-network/pocket">GitHub</a>
-              <a href="https://wallet.pokt.network/">Wallet</a>
-              <a href="https://coinmarketcap.com/currencies/pocket-network/markets/">Buy</a>
+              <a href="https://forum.pokt.network/" target="_blank" rel="noopener noreferrer">Forum</a>
+              <a href="https://poktscan.com/" target="_blank" rel="noopener noreferrer">Explorer</a>
+              <a href="https://docs.pokt.network/" target="_blank" rel="noopener noreferrer">Docs</a>
+              <a href="https://pocket.network/press-kit/" target="_blank" rel="noopener noreferrer">Press kit</a>
+              <a href="https://github.com/pokt-network/pocket" target="_blank" rel="noopener noreferrer">GitHub</a>
+              <a href="https://wallet.pokt.network/" target="_blank" rel="noopener noreferrer">Wallet</a>
+              <a href="https://coinmarketcap.com/currencies/pocket-network/markets/" target="_blank" rel="noopener noreferrer">Buy</a>
             </div>
           </div>
         </div>
