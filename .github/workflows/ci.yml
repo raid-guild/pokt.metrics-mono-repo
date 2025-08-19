@@ -14,6 +14,9 @@ jobs:
       - name: ⬇️ Checkout code
         uses: actions/checkout@v4
 
+      - name: 🐳 Docker sanity
+        run: docker info
+
       - name: 🟢 Setup Node
         uses: actions/setup-node@v4
         with:
@@ -25,11 +28,17 @@ jobs:
           corepack prepare pnpm@9.15.9 --activate
           pnpm --version
 
-      - name: 📦 Install dependencies
-        run: pnpm install
+      - name: 📦 Install dependencies (workspace)
+        run: pnpm install --frozen-lockfile
+
+      - name: ⬇️ Pre-pull Timescale image
+        run: docker pull timescale/timescaledb:2.14.2-pg16
 
       - name: 🧹 Run linter
         run: pnpm lint
+
+      - name: 📋 Run typecheck
+        run: pnpm typecheck
 
       - name: 🧪 Run tests
         run: pnpm test
