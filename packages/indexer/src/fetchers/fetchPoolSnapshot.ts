@@ -15,6 +15,10 @@ export const fetchPoolSnapshot = async (
   totalSupply: bigint
 ): Promise<PoolSnapshotRow | undefined> => {
   try {
+    if (!ADDRESSES_BY_CHAIN[chain]) {
+      throw new Error(`Unsupported chain: ${chain}`);
+    }
+
     const dayAgoTimestamp = Math.floor(Number(timestamp) / 1000) - 86400; // 24 hours ago in seconds
     const { exchange, poolAddress, wpokt } = ADDRESSES_BY_CHAIN[chain];
     if (!chain || !exchange || !poolAddress || !wpokt) {
@@ -182,7 +186,6 @@ export const fetchPoolSnapshot = async (
         volume_usd: volumeUsd,
       };
     }
-    throw new Error(`Unsupported chain: ${chain}`);
   } catch (error) {
     logger.error({ error }, 'Error fetching pool snapshot');
     throw error; // Re-throw to be caught in runIndexer

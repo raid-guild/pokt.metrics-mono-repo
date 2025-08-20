@@ -108,15 +108,15 @@ export const getHourlyBlocks = async (
   endBlock: bigint,
   intervalSec = 3600 // Default to hourly intervals. TODO: switch to 15 minute intervals
 ): Promise<{ blockNumber: bigint; blockTimestamp: bigint }[]> => {
+  if (clientName === 'Solana') throw new Error('Solana hourly blocks not implemented');
+  const client = clients[clientName];
+  if (!client) throw new Error(`Unsupported client: ${clientName}`);
+
   const startTime = await getBlockTimestamp(clientName, startBlock);
   const endTime = await getBlockTimestamp(clientName, endBlock);
 
   const result: { blockNumber: bigint; blockTimestamp: bigint }[] = [];
   let currentTime = startTime;
-
-  if (clientName === 'Solana') throw new Error('Solana hourly blocks not implemented');
-  const client = clients[clientName];
-  if (!client) throw new Error(`Unsupported client: ${clientName}`);
 
   while (currentTime <= endTime) {
     // Estimate based on block time

@@ -9,6 +9,8 @@
     "start": "tsx src/start-cron.ts",
     "build": "tsc",
     "setup:db": "tsx scripts/setup-db.ts",
+    "test": "pnpm run test:unit",
+    "test:unit": "vitest run -c vitest.unit.config.ts",
     "typecheck": "tsc --noEmit"
   },
   "type": "module",
@@ -19,7 +21,8 @@
     "@types/node": "^24.0.3",
     "@types/pg": "^8.15.4",
     "eslint-plugin-simple-import-sort": "^12.1.1",
-    "typescript": "^5.8.3"
+    "typescript": "^5.8.3",
+    "vitest": "^3.2.4"
   },
   "dependencies": {
     "@logtail/pino": "^0.5.5",
