@@ -10,7 +10,7 @@ Cross-chain DeFi dashboard for tracking POKT prices, pool TVLs, and transaction 
 
 ```
 /packages
-├── indexer             # Fetch + normalize current data from The Graph + Moralis + Orca + CoinMarketCap APIs into TimescaleDB
+├── indexer             # Fetch + normalize current data from The Graph, Moralis, Orca, and CoinMarketCap APIs into TimescaleDB
 ├── api                 # Express + Apollo GraphQL API exposing time-series data
 ├── client              # Frontend application
 ```
