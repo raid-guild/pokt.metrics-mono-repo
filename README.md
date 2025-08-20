@@ -10,8 +10,7 @@ Cross-chain DeFi dashboard for tracking POKT prices, pool TVLs, and transaction 
 
 ```
 /packages
-├── indexer             # Fetch + normalize current data from The Graph + Moralis APIs into TimescaleDB
-├── historical-sync     # Fetch + normalize historical data
+├── indexer             # Fetch + normalize current data from The Graph, Moralis, Orca, and CoinMarketCap APIs into TimescaleDB
 ├── api                 # Express + Apollo GraphQL API exposing time-series data
 ├── client              # Frontend application
 ```
@@ -60,6 +59,11 @@ pnpm dev
 
 GraphQL API: [http://localhost:4000/graphql](http://localhost:4000/graphql)
 
+- For documentation on API schemas, visit the graphql endpoint in the browser
+- You will get redirected to an Apollo frontend that maps out all schemas and resolvers
+
+Client: [http://localhost:3000](http://localhost:3000)
+
 ---
 
 ## Alternative Docker Setup
@@ -100,33 +104,14 @@ GraphQL API: http://localhost:4000/graphql
 
 ---
 
-## Historical Sync Server
-
-### 1. Install dependencies
-
-```bash
-pnpm install
-```
-
-### 2. Set up historical sync environment
-
-```bash
-cp packages/historical-sync/.env.sample packages/historical-sync/.env
-```
-
-### 3. Run historical sync
-
-```bash
-pnpm start:historical-sync
-```
-
----
-
 ## Tech Stack
 
 - **TypeScript** monorepo (`pnpm`)
 - **TimescaleDB** (PostgreSQL 16)
+- **The Graph API** (EVM)
+- **Orca API** (Solana)
 - **Moralis API** (EVM + Solana)
+- **CoinMarketCap API** (EVM + Solana)
 - **Node Cron** for job scheduling
 - **Apollo Server** (GraphQL over Express)
 
@@ -135,5 +120,5 @@ pnpm start:historical-sync
 ## Dev Tips
 
 - Use `psql` or `pgAdmin` to inspect the TimescaleDB
-- All timestamps are stored in **milliseconds**
+- All timestamps are stored in **milliseconds**, but in the API, they are returned as seconds
 - Use `to_timestamp(timestamp / 1000.0)` in raw SQL

@@ -25,7 +25,6 @@
     "@logtail/pino": "^0.5.5",
     "@solana/spl-token": "^0.4.13",
     "@solana/web3.js": "^1.98.2",
-    "bullmq": "^5.56.0",
     "dotenv": "^16.5.0",
     "graphql": "^16.11.0",
     "graphql-request": "^7.2.0",
