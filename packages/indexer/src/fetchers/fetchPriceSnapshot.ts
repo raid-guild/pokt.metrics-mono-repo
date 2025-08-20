@@ -11,6 +11,10 @@ export const fetchPriceSnapshot = async (
   timestamp: bigint
 ): Promise<PriceSnapshotRow | undefined> => {
   try {
+    if (!ADDRESSES_BY_CHAIN[chain]) {
+      throw new Error(`Unsupported chain: ${chain}`);
+    }
+
     const dayAgoTimestamp = Math.floor(Number(timestamp) / 1000) - 86400; // 24 hours ago in seconds
     const { exchange, poolAddress, wpokt } = ADDRESSES_BY_CHAIN[chain];
     if (!chain || !exchange || !poolAddress || !wpokt) {
