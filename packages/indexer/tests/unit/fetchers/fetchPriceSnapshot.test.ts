@@ -43,9 +43,6 @@ vi.mock('../../../src/fetchers/moralisClient', () => ({
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-// Ensure The Graph API key exists BEFORE theGraphClient is imported by the SUT
-process.env.THE_GRAPH_API_KEY ||= 'test-key';
-
 // -------------------- HOISTED MOCKS --------------------
 
 // Chains/config
@@ -94,6 +91,7 @@ function mockOkJsonOnce(body: any, status = 200) {
     text: async () => JSON.stringify(body),
   });
 }
+
 function mockHttpErrorOnce(status = 500, textBody = 'err') {
   fetchSpy.mockResolvedValueOnce({
     ok: false,
