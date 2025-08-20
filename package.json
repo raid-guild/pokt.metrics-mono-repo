@@ -9,7 +9,6 @@
     "dev:client": "pnpm --filter client dev",
     "generate:client": "pnpm --filter client generate",
     "setup:db": "pnpm --filter indexer setup:db",
-    "start:historical-sync": "pnpm --filter indexer build && pnpm --filter historical-sync start",
     "build:client": "pnpm --filter client build",
     "lint": "pnpm --filter indexer build && eslint \"packages/**/*.{ts,tsx}\"",
     "lint:fix": "eslint \"packages/**/*.{ts,tsx}\" --fix",

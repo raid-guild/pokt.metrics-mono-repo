@@ -1,41 +1,41 @@
 @startuml
 !theme cerulean
-
 skinparam componentStyle rectangle
 
 package "API Layer" {
   [Express REST API] as Express
   [Apollo GraphQL API] as Apollo
-  [Swagger Docs] as Swagger
   [Node.js API Server] as APIServer
-  Swagger --> APIServer
+
   Express --> APIServer
   Apollo --> APIServer
 }
 
 package "Ongoing Indexing Layer" {
   [Node.js Worker (Live Indexer)] as LiveWorker
-  [BullMQ Scheduler] as BullMQ
-  [Redis Cache] as Redis
+  [node-cron Scheduler] as Cron
   [PostgreSQL + TimescaleDB] as Postgres
+
   [Moralis API] as Moralis
+  [CoinMarketCap API] as CMC
+  [The Graph API] as TheGraph
+  [Orca API] as Orca
 
-  LiveWorker --> BullMQ
+  [pino (logger)] as Pino
+  [Logtail (collector)] as Logtail
+
+  Cron --> LiveWorker : schedules jobs
   LiveWorker --> Moralis : fetches live data
+  LiveWorker --> CMC : fetches market data
+  LiveWorker --> TheGraph : fetches subgraph data
+  LiveWorker --> Orca : fetches DEX data
   LiveWorker --> Postgres : writes time-series
-  BullMQ --> Redis : queue state
-}
 
-package "Historical Indexing Layer" {
-  [Node.js Worker (Backfill)] as HistoryWorker
-  [Subgraph API] as Subgraph
-
-  HistoryWorker --> Subgraph : fetches historical data
-  HistoryWorker --> Postgres : writes time-series
+  LiveWorker --> Pino : structured logs
+  Pino --> Logtail : ships logs
 }
 
 Postgres --> APIServer : read aggregated data
-Redis --> APIServer : cached data
 
 package "Frontend Layer" {
   [Frontend Client] as FrontendClient
@@ -47,11 +47,13 @@ package "CI/CD + Hosting" {
   [GitHub Actions] as GitHub
   [Docker Containers] as Docker
   [Render.com] as Render
-  [Logtail (optional)] as Logtail
+  [Better Stack (Email Alerts)] as BetterStack
 
   GitHub --> Docker : builds image
   Docker --> Render : deploys container
-  Render --> Logtail : external logs
+
+  ' Show that Logtail sends email alerts via Better Stack
+  Logtail --> BetterStack : email alerts
 }
 
 @enduml
