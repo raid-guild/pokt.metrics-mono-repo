@@ -7,9 +7,9 @@ export const SwapWidget = () => {
         theme={{
           brandColor: '#09279F',
           borderRadius: {
-            main: '25px',
+            main: '10px',
             selectionButton: '10px',
-            ghostButton: '30px',
+            ghostButton: '10px',
             modalContainer: '20px',
             rowItem: '12px',
           },
@@ -59,7 +59,6 @@ export const SwapWidget = () => {
       <div className="bg-white rounded-lg shadow-md p-6 border border-gray-200 w-full">
         <div className="space-y-3 text-sm text-gray-600 leading-relaxed">
           <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
-          <p>Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
         </div>
       </div>
     </div>

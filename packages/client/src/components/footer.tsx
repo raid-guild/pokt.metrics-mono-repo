@@ -63,7 +63,6 @@ export const Footer = () => {
               </a>
             </div>
 
-            {/* TODO: Add navigation links at bottom */}
             <div className="flex gap-4 flex-wrap justify-center">
               <a href="https://forum.pokt.network/" target="_blank" rel="noopener noreferrer">Forum</a>
               <a href="https://poktscan.com/" target="_blank" rel="noopener noreferrer">Explorer</a>
