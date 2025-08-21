@@ -11,16 +11,18 @@ export default function Home() {
       className={`grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 sm:pt-0`}
     >
       <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <div className="flex md:flex-row flex-col gap-4 w-full">
-          <Card title="Bridge and Swap" className="w-full h-full">
+        <div className="flex md:flex-row flex-col gap-4 w-full ">
+          <Card title="Bridge and Swap" className="w-2/5 h-full">
             <SwapWidget />
           </Card>
-          <div className="flex flex-col gap-4 w-full grow">
+          <div className="flex flex-col gap-4 w-3/5 grow">
             <Card title="POKT Cumulative Market Data" separateTitle className="w-full">
               <CumulativeMarketData />
             </Card>
             <Card title="Liquidity TVL Distribution by Pool" className="w-full">
-              <LiquidityTvlDistributionMetrics />
+              <div className="h-full flex items-center justify-center">
+                <LiquidityTvlDistributionMetrics />
+              </div>
             </Card>
           </div>
         </div>

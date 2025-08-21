@@ -17,19 +17,19 @@ import { ErrorWrapper } from '../error-wrapper';
 
 export const LiquidityTvlDistributionMetricsSkeleton = () => {
   return (
-    <div className="grid grid-cols-2 gap-4 p-4">
+    <div className="grid grid-cols-5 md:grid-cols-5 gap-4">
       {/* Chart skeleton */}
-      <div className="col-span-1 flex items-center justify-center">
-        <div className="w-[250px] h-[250px] bg-gray-200 rounded-full animate-pulse flex items-center justify-center">
+      <div className="col-span-2 flex items-center justify-center">
+        <div className="w-[180px] h-[180px] bg-gray-200 rounded-full animate-pulse flex items-center justify-center">
           <div className="text-center">
-            <div className="w-20 h-3 bg-gray-300 rounded animate-pulse mb-2"></div>
-            <div className="w-32 h-6 bg-gray-300 rounded animate-pulse"></div>
+            <div className="w-16 h-3 bg-gray-300 rounded animate-pulse mb-2"></div>
+            <div className="w-24 h-5 bg-gray-300 rounded animate-pulse"></div>
           </div>
         </div>
       </div>
       
       {/* Legend skeleton */}
-      <div className="col-span-1">
+      <div className="col-span-3 pr-4 pt-[5px]">
         <div className="flex flex-col gap-2 h-full justify-start">
           <div className="w-24 h-4 bg-gray-300 rounded animate-pulse mb-2"></div>
           <div className="grid grid-cols-7 gap-0">
@@ -84,13 +84,13 @@ export const LiquidityTvlDistributionMetrics = () => {
     percentage: totalTvl > 0 ? entry.value / totalTvl : 0,
   }));
 
-  const chartWidth = 250;
-  const chartHeight = 250;
+  const chartWidth = 180;
+  const chartHeight = 180;
   const grayText = '#64748B';
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4">
-      <div className="col-span-1 flex items-center justify-center">
+    <div className="grid grid-cols-5 md:grid-cols-5 gap-4">
+      <div className="col-span-2 flex items-center justify-center">
         <PieChart width={chartWidth} height={chartHeight}>
           <text
             x={chartWidth / 2}
@@ -135,7 +135,7 @@ export const LiquidityTvlDistributionMetrics = () => {
           <Tooltip content={CustomTooltip} />
         </PieChart>
       </div>
-      <div className="col-span-1">
+      <div className="col-span-3 pr-4 pt-[5px]">
         <div className="flex flex-col gap-2 h-full justify-start">
           <h4 className="text-sm font-rubik" style={{ color: grayText }}>Liquidity Pool</h4>
           <div className="grid grid-cols-7 gap-0">

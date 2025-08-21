@@ -18,7 +18,7 @@ export const MarketDataTileTitle = ({ children }: React.PropsWithChildren) => {
 
 export const MarketDataTileValue = ({ children, className }: React.PropsWithChildren<{ className?: string }>) => {
   return (
-    <div className={cn("text-xl text-center font-normal flex justify-center items-center h-full", className)}>{children}</div>
+    <div className={cn("text-md text-center font-normal flex justify-center items-center h-full", className)}>{children}</div>
   );
 };
 

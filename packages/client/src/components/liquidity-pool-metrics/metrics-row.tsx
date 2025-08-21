@@ -1,4 +1,5 @@
-import { CopyIcon } from 'lucide-react';
+import { Popover, PopoverContent, PopoverTrigger } from "@radix-ui/react-popover";
+import { CopyIcon, Info } from 'lucide-react';
 import Image from 'next/image';
 
 import { PoolSnapshot } from '@/hooks/useQueryPoolSnapshots';
@@ -123,8 +124,8 @@ export const MetricsRow = ({
       className={`grid grid-cols-12 gap-4 h-21 rounded-lg px-8 items-center`}
       style={{ backgroundColor: poolColor }}
     >
-      <div className="col-span-12 bg-white px-4 h-full border-bg-gray border-1 border-x-0">
-        <div className="grid grid-cols-13 gap-4 items-center h-full">
+      <div className="col-span-12 bg-white px-4 h-full border-bg-gray border-1 border-x-0 flex items-center">
+        <div className="grid grid-cols-12 gap-4 items-center h-full grow">
           {/* Pair Name */}
           <div className="col-span-2">
             <h3 className="text-lg font-semibold font-rubik">{getTokenPairName(pairName)}</h3>
@@ -186,7 +187,7 @@ export const MetricsRow = ({
 
           {/* Volatility */}
           <div className="col-span-1">
-            <MetricsRowItem label="Volatility" value={`${volatility.toFixed(4)}`} />
+            <MetricsRowItem label={<VolatilityLabel />} value={`${volatility.toFixed(4)}`} />
           </div>
 
           {/* Holders */}
@@ -198,11 +199,11 @@ export const MetricsRow = ({
           <div className="col-span-1">
             <MetricsRowItem label="Pool Age" value={poolAgeFormatted} />
           </div>
-
-          {/* DEX Links and Pool Address */}
-          <div className="col-span-1">
+        </div>
+        {/* DEX Links and Pool Address */}
+        <div className="flex justify-end ml-12">
             <div className="flex flex-col gap-2">
-              <div className="flex gap-2 justify-center">
+              <div className="flex gap-2 justify-end">
                 <a href={dexInfo.dexToolsLink} target="_blank" rel="noopener noreferrer">
                   <Image
                     src="/dex_icons/dex_tools.svg"
@@ -222,7 +223,7 @@ export const MetricsRow = ({
               </div>
               <button
                 onClick={() => navigator.clipboard.writeText(dexInfo.poolAddress)}
-                className="text-xs text-gray-500 hover:text-gray-700 cursor-pointer text-center flex items-center justify-center"
+                className="text-xs text-gray-500 hover:text-gray-700 cursor-pointer text-center flex items-center justify-end"
                 title="Click to copy pool ID"
               >
                 {dexInfo.poolAddress.slice(0, 4)}...{dexInfo.poolAddress.slice(-2)}{' '}
@@ -230,11 +231,25 @@ export const MetricsRow = ({
               </button>
             </div>
           </div>
-        </div>
       </div>
     </div>
   );
 };
+
+const VolatilityLabel = () => {
+  return (
+    <Popover>
+      <PopoverTrigger>
+        <div className="flex items-center gap-0.5">Volatility <Info className="w-2.5 h-2.5" transform='translate(0, -2)' /></div>
+      </PopoverTrigger>
+      <PopoverContent side='right' className='-translate-y-4' sideOffset={10} alignOffset={-20}>
+        <div className='bg-white rounded-lg p-2 shadow-md border border-bg-gray'>
+          24h Vol/Liquidity
+        </div>
+      </PopoverContent>
+    </Popover>
+  )
+}
 
 const MetricsRowItem = ({
   label,
