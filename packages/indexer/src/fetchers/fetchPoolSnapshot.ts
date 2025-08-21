@@ -45,6 +45,21 @@ export const fetchPoolSnapshot = async (
         throw new Error(`Failed to fetch pool stats for ${chain} at block ${blockNumber}`);
       }
 
+      const { totalVolume } = await retry(
+        async () =>
+          moralisClient.evm.getTokenPairStats({
+            poolAddress,
+            chainId: 'eth',
+          }),
+        {
+          onRetry: (err: unknown, attempt) =>
+            logger.warn(
+              { attempt, chain, error: (err as Error)?.message },
+              'Retrying getTokenPairStats'
+            ),
+        }
+      );
+
       const { totalHolders } = await retry(
         async () =>
           moralisClient.evm.getTokenHolders({
@@ -60,8 +75,8 @@ export const fetchPoolSnapshot = async (
         }
       );
 
-      const { reserveUSD, token1Price, volumeETH } = poolStats;
-      const volumeUsd = parseFloat(volumeETH) * nativeTokenPrice;
+      const { reserveUSD, token1Price } = poolStats;
+      const volumeUsd = totalVolume['24h'];
 
       return {
         block_number: blockNumber,
@@ -100,6 +115,21 @@ export const fetchPoolSnapshot = async (
         throw new Error(`Failed to fetch pool stats for ${chain} at block ${blockNumber}`);
       }
 
+      const { totalVolume } = await retry(
+        async () =>
+          moralisClient.evm.getTokenPairStats({
+            poolAddress,
+            chainId: 'base',
+          }),
+        {
+          onRetry: (err: unknown, attempt) =>
+            logger.warn(
+              { attempt, chain, error: (err as Error)?.message },
+              'Retrying getTokenPairStats'
+            ),
+        }
+      );
+
       const { totalHolders } = await retry(
         () =>
           moralisClient.evm.getTokenHolders({
@@ -115,9 +145,8 @@ export const fetchPoolSnapshot = async (
         }
       );
 
-      const { token0Price, totalValueLockedToken0, volumeETH } = poolStats;
+      const { token0Price, totalValueLockedToken0 } = poolStats;
       const tvlUsd = parseFloat(totalValueLockedToken0) * nativeTokenPrice * 2;
-      const volumeUsd = parseFloat(volumeETH) * nativeTokenPrice;
 
       return {
         block_number: blockNumber,
@@ -131,8 +160,8 @@ export const fetchPoolSnapshot = async (
         timestamp,
         token_address: wpokt,
         tvl_usd: tvlUsd,
-        volatility: volumeUsd / tvlUsd,
-        volume_usd: volumeUsd,
+        volatility: totalVolume['24h'] / tvlUsd,
+        volume_usd: totalVolume['24h'],
       };
     }
 

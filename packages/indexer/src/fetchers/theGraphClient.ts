@@ -54,14 +54,6 @@ class TheGraphEthereumClient extends TheGraphGenericClient {
             reserveUSD
             token1Price
           }
-          pairDayDatas(
-            first: 1
-            orderBy: date
-            orderDirection: desc
-            where: { pairAddress: $poolAddress, date_lt: $ltDate }
-          ) {
-            dailyVolumeToken1
-          }
         }
       `,
       {
@@ -75,12 +67,9 @@ class TheGraphEthereumClient extends TheGraphGenericClient {
         reserveUSD: string;
         token1Price: string;
       };
-      pairDayDatas: Array<{
-        dailyVolumeToken1: string;
-      }>;
     };
 
-    return { ...data.pair, volumeETH: data.pairDayDatas[0]?.dailyVolumeToken1 ?? '0' };
+    return { ...data.pair };
   }
 }
 
@@ -110,14 +99,6 @@ class TheGraphBaseClient extends TheGraphGenericClient {
             totalValueLockedToken0
             volumeUSD
           }
-          poolDayDatas(
-            first: 1
-            orderBy: date
-            orderDirection: desc
-            where: { pool: $poolAddress, date_lt: $ltDate }
-          ) {
-            volumeToken0
-          }
         }
       `,
       {
@@ -131,12 +112,9 @@ class TheGraphBaseClient extends TheGraphGenericClient {
         totalValueLockedToken0: string;
         volumeUSD: string;
       };
-      poolDayDatas: Array<{
-        volumeToken0: string;
-      }>;
     };
 
-    return { ...data.pool, volumeETH: data.poolDayDatas[0]?.volumeToken0 ?? '0' };
+    return { ...data.pool };
   }
 }
 
