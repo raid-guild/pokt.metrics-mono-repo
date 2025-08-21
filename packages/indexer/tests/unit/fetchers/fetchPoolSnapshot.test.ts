@@ -49,13 +49,18 @@ vi.mock('../../../src/utils/retry', () => ({
   retry: (...args: unknown[]) => retryMock.apply(null, args),
 }));
 
-// Moralis: stub EVM + Solana holders
+// Moralis: stub EVM pool stats + Solana holders
+const moralisEvmGetPairStats = vi.fn();
 const moralisEvmGetTokenHolders = vi.fn();
 const moralisSolGetTokenHolders = vi.fn();
 vi.mock('../../../src/fetchers/moralisClient', () => ({
   moralisClient: {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    evm: { getTokenHolders: (...a: any[]) => moralisEvmGetTokenHolders(...a) },
+    evm: {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      getTokenPairStats: (...a: any[]) => moralisEvmGetPairStats(...a),
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      getTokenHolders: (...a: any[]) => moralisEvmGetTokenHolders(...a),
+    },
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     solana: { getTokenHolders: (...a: any[]) => moralisSolGetTokenHolders(...a) },
   },
@@ -101,9 +106,9 @@ describe('fetchPoolSnapshot – Ethereum', () => {
     ethGetPoolStats.mockResolvedValue({
       reserveUSD: '1000000', // $1,000,000 TVL
       token1Price: '0.00025', // WPOKT per ETH (or pair-derived) -> usd via nativeTokenPrice
-      volumeETH: '50', // 50 ETH 24h
     });
     // Holders via Moralis (EVM/eth)
+    moralisEvmGetPairStats.mockResolvedValue({ totalVolume: { '24h': 100000 } });
     moralisEvmGetTokenHolders.mockResolvedValue({ totalHolders: 1234 });
 
     const nativeTokenPrice = 2000; // ETH → $2000
@@ -126,7 +131,7 @@ describe('fetchPoolSnapshot – Ethereum', () => {
     // tvl_usd = reserveUSD
     expect(out!.tvl_usd).toBeCloseTo(1_000_000, 6);
 
-    // volume_usd = volumeETH * nativePrice = 50 * 2000 = 100,000
+    // volume_usd = totalVolume
     expect(out!.volume_usd).toBeCloseTo(100_000, 6);
 
     // volatility = volume_usd / reserveUSD = 0.1
@@ -157,6 +162,7 @@ describe('fetchPoolSnapshot – Base', () => {
       volumeETH: '20',
     });
     moralisEvmGetTokenHolders.mockResolvedValue({ totalHolders: 222 });
+    moralisEvmGetPairStats.mockResolvedValue({ totalVolume: { '24h': 40000 } });
 
     const nativeTokenPrice = 2000;
     const out = await fetchPoolSnapshot(Chain.BASE, nativeTokenPrice, BLOCK, TS_MS, SUPPLY_6DP);
