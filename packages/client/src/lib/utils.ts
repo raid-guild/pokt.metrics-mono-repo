@@ -83,7 +83,7 @@ export function formatNumber(num?: number): string {
   } else if (num >= 1000) {
     return `${(num / 1000).toFixed(2)}K`;
   } else {
-    return num.toFixed(2);
+    return Math.round(num).toString();
   }
 }
 
@@ -102,12 +102,7 @@ export function formatPrice(price: number, decimals?: number): string {
   }
 
   const formattedPrice =
-    price < 10
-      ? price
-          .toFixed(4)
-          .replace(/^0+/, '')
-          .replace(/\.?0+$/, '')
-      : formatNumberWithCommas(price);
+    price < 10 ? price.toFixed(4).replace(/\.?0+$/, '') : formatNumberWithCommas(price);
 
   return `$${formattedPrice}`;
 }

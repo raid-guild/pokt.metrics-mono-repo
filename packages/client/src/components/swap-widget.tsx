@@ -58,7 +58,8 @@ export const SwapWidget = () => {
       />
       <div className="bg-white rounded-lg shadow-md p-6 border border-gray-200 w-full">
         <div className="space-y-3 text-sm text-gray-600 leading-relaxed">
-          <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+          <p>
+          Move any token to any chain instantly with intelligent multi-hop routing that automatically handles complex bridging and swapping operations.</p>
         </div>
       </div>
     </div>
