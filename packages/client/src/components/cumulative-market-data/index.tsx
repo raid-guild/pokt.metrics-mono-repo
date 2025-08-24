@@ -2,7 +2,7 @@ import Image from 'next/image';
 
 import { ErrorWrapper } from '@/components/error-wrapper';
 import { useQueryCumulativeMarketData } from '@/hooks/useQueryCumulativeMarketData';
-import { calculatePercentageChange, formatPercentage, formatPrice } from '@/lib/utils';
+import { calculatePercentageChange, formatNumberWithCommas, formatPercentage, formatPrice } from '@/lib/utils';
 
 import {
   MarketDataTile,
@@ -69,7 +69,7 @@ export const CumulativeMarketData = () => {
           </MarketDataTileTitle>
           <MarketDataTileValue>
             {marketData?.circulating_supply != null
-              ? marketData.circulating_supply.toFixed(2)
+              ? formatNumberWithCommas(marketData.circulating_supply)
               : '—'}
           </MarketDataTileValue>
         </MarketDataTile>
