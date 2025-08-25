@@ -156,7 +156,7 @@ export const resolvers = {
       for (const r of poolRows) {
         // rn=1 row will naturally overwrite later ones; we only need the most recent per token
         if (!latestByToken[r.token_address]) {
-          latestByToken[r.token_address] = { ...r };
+          latestByToken[r.token_address] = { ...r, avg_price_change_perc: 0 };
         }
       }
 
