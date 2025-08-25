@@ -27,6 +27,7 @@ export const typeDefs = gql`
 
   type PoolSnapshotRow {
     average_price: Float!
+    avg_price_change_perc: Float!
     block_number: String!
     chain: Chain!
     circulating_supply: Float!
