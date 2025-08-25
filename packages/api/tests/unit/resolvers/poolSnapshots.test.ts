@@ -61,6 +61,28 @@ describe('Query.poolSnapshots', () => {
             min_24h: 0,
           },
         ],
+      })
+      .mockResolvedValueOnce({
+        rows: [
+          {
+            token_address: '0x764a726d9ced0433a8d7643335919deb03a9a935',
+            avg_24h: 0.35,
+            max_24h: 0,
+            min_24h: 0,
+          },
+          {
+            token_address: '0x67f4c72a50f8df6487720261e188f2abe83f57d7',
+            avg_24h: 0.38,
+            max_24h: 0,
+            min_24h: 0,
+          },
+          {
+            token_address: '6CAsXfiCXZfP8APCG6Vma2DFMindopxiqYQN4LSQfhoC',
+            avg_24h: 0.37,
+            max_24h: 0,
+            min_24h: 0,
+          },
+        ],
       });
 
     const res = await resolvers.Query.poolSnapshots({}, { limit: 1 });
@@ -68,18 +90,21 @@ describe('Query.poolSnapshots', () => {
     // timestamp should be seconds; pool_age should come from constants in your resolver
     expect(res.base).toMatchObject({
       average_price: 0.41,
+      avg_price_change_perc: 0.17142857142857143,
       pool_address: '0xpoolB',
       timestamp: Math.floor(1_754_998_299_000 / 1000),
       pool_age: 1724361475,
     });
     expect(res.ethereum).toMatchObject({
       average_price: 0.52,
+      avg_price_change_perc: 0.368421052631579,
       pool_address: '0xpoolE',
       timestamp: Math.floor(1_754_998_200_000 / 1000),
       pool_age: 1696841963,
     });
     expect(res.solana).toMatchObject({
       average_price: 0.63,
+      avg_price_change_perc: 0.7027027027027027,
       pool_address: '0xpoolS',
       timestamp: Math.floor(1_754_998_100_000 / 1000),
       pool_age: 1724398200,
