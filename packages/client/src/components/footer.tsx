@@ -11,13 +11,11 @@ export const Footer = () => {
           <div className="flex flex-col justify-between">
             {/* Top row with logo and legal links */}
             <div className="flex justify-between items-start mb-8">
-              {/* TODO: Update to outline logo style when added to component library */}
               <Logo size="lg" color="white" />
               <ul className="text-lg underline font-rubik">
-                {/* TODO: Update to use new privacy statement link when available */}
                 <li className="mb-2">
                   <a
-                    href="https://github.com/pocket-network/pocket-network"
+                    href="https://pocket.network/privacy-policy/"
                     target="_blank"
                     rel="noopener noreferrer"
                   >
@@ -26,7 +24,7 @@ export const Footer = () => {
                 </li>
                 <li>
                   <a
-                    href="https://github.com/pocket-network/pocket-network"
+                    href="https://pocket.network/terms-of-use/"
                     target="_blank"
                     rel="noopener noreferrer"
                   >
