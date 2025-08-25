@@ -97,9 +97,8 @@ export const MetricsRow = ({
   tvl_usd: liquidity,
   pool_age: poolAge,
   spread,
+  avg_price_change_perc: priceChange,
 }: PoolSnapshot & { spread: number }) => {
-  // TODO: Get these missing fields from the API
-  const priceChange = -1.2;
 
   // Format pool age to the format of 1y9m15d from unix timestamp
   const poolAgeFormatted = formatTimeElapsed(poolAge);
@@ -109,11 +108,6 @@ export const MetricsRow = ({
   const downColor = 'text-red-500';
 
   const price24hFormatted = formatPrice(price24h, 4);
-
-  const priceChangeFormatted = priceChange
-    .toFixed(2)
-    .replace(/^0+/, '')
-    .replace(/\.?0+$/, '');
 
   const priceChangeColor = priceChange > 0 ? upColor : downColor;
   const spreadChangeColor = spread === 0 ? 'black' : spread > 0 ? upColor : downColor;
@@ -141,7 +135,7 @@ export const MetricsRow = ({
             <MetricsRowItem
               label={
                 <span>
-                  24h <span className={`${priceChangeColor}`}>({priceChangeFormatted}%)</span>
+                  24h <span className={`${priceChangeColor}`}>({formatPercentage(priceChange)})</span>
                 </span>
               }
               value={price24hFormatted}
