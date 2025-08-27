@@ -1,4 +1,4 @@
-import { Popover, PopoverContent, PopoverTrigger } from "@radix-ui/react-popover";
+import { HoverCard, HoverCardContent, HoverCardTrigger } from "@radix-ui/react-hover-card";
 import { CopyIcon, Info } from 'lucide-react';
 import Image from 'next/image';
 
@@ -97,9 +97,8 @@ export const MetricsRow = ({
   tvl_usd: liquidity,
   pool_age: poolAge,
   spread,
+  avg_price_change_perc: priceChange,
 }: PoolSnapshot & { spread: number }) => {
-  // TODO: Get these missing fields from the API
-  const priceChange = -1.2;
 
   // Format pool age to the format of 1y9m15d from unix timestamp
   const poolAgeFormatted = formatTimeElapsed(poolAge);
@@ -108,12 +107,7 @@ export const MetricsRow = ({
   const upColor = 'text-green-500';
   const downColor = 'text-red-500';
 
-  const price24hFormatted = formatPrice(price24h);
-
-  const priceChangeFormatted = priceChange
-    .toFixed(2)
-    .replace(/^0+/, '')
-    .replace(/\.?0+$/, '');
+  const price24hFormatted = formatPrice(price24h, 4);
 
   const priceChangeColor = priceChange > 0 ? upColor : downColor;
   const spreadChangeColor = spread === 0 ? 'black' : spread > 0 ? upColor : downColor;
@@ -141,7 +135,7 @@ export const MetricsRow = ({
             <MetricsRowItem
               label={
                 <span>
-                  24h <span className={`${priceChangeColor}`}>({priceChangeFormatted}%)</span>
+                  24h <span className={`${priceChangeColor}`}>({formatPercentage(priceChange)})</span>
                 </span>
               }
               value={price24hFormatted}
@@ -162,7 +156,7 @@ export const MetricsRow = ({
 
           {/* Market Cap */}
           <div className="col-span-1">
-            <MetricsRowItem label="Market Cap" value={formatNumber(marketCap)} />
+            <MetricsRowItem label="Market Cap" value={`$${formatNumber(marketCap)}`} />
           </div>
 
           {/* Circulating Supply */}
@@ -172,12 +166,12 @@ export const MetricsRow = ({
 
           {/* Liquidity */}
           <div className="col-span-1">
-            <MetricsRowItem label="Liquidity" value={formatNumber(liquidity)} />
+            <MetricsRowItem label="Liquidity" value={`$${formatNumber(liquidity)}`} />
           </div>
 
           {/* 24h Volume */}
           <div className="col-span-1">
-            <MetricsRowItem label="24h Volume" value={formatNumber(volume24h)} />
+            <MetricsRowItem label="24h Volume" value={`$${formatNumber(volume24h)}`} />
           </div>
 
           {/* Total Supply */}
@@ -238,16 +232,16 @@ export const MetricsRow = ({
 
 const VolatilityLabel = () => {
   return (
-    <Popover>
-      <PopoverTrigger>
+    <HoverCard openDelay={0} closeDelay={0}>
+      <HoverCardTrigger>
         <div className="flex items-center gap-0.5">Volatility <Info className="w-2.5 h-2.5" transform='translate(0, -2)' /></div>
-      </PopoverTrigger>
-      <PopoverContent side='right' className='-translate-y-4' sideOffset={10} alignOffset={-20}>
+      </HoverCardTrigger>
+      <HoverCardContent side='right' className='-translate-y-4' sideOffset={10} alignOffset={-20}>
         <div className='bg-white rounded-lg p-2 shadow-md border border-bg-gray'>
           24h Vol/Liquidity
         </div>
-      </PopoverContent>
-    </Popover>
+      </HoverCardContent>
+    </HoverCard>
   )
 }
 
