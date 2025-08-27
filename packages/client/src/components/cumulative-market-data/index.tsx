@@ -96,7 +96,7 @@ export const CumulativeMarketData = () => {
         </MarketDataTile>
         <MarketDataTile>
           <MarketDataTileTitle>
-            <div className="flex items-center justify-between w-full">
+            <div className="flex items-center justify-center md:justify-between gap-1 w-full">
               <div className="flex items-center gap-1">
                 <Image src="/icons/all-time-high.svg" alt="All Time High" width={16} height={16} />
                 ATH
@@ -114,7 +114,7 @@ export const CumulativeMarketData = () => {
         </MarketDataTile>
         <MarketDataTile>
           <MarketDataTileTitle>
-            <div className="flex items-center justify-between w-full">
+            <div className="flex items-center justify-center md:justify-between gap-1 w-full">
               <div className="flex items-center gap-1">
                 <Image src="/icons/all-time-low.svg" alt="All Time Low" width={16} height={16} />
                 ATL

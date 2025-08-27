@@ -107,7 +107,6 @@ export const MetricsRow = ({
   const upColor = 'text-green-500';
   const downColor = 'text-red-500';
 
-  const price24hFormatted = formatPrice(price24h, 4);
 
   const priceChangeColor = priceChange > 0 ? upColor : downColor;
   const spreadChangeColor = spread === 0 ? 'black' : spread > 0 ? upColor : downColor;
@@ -138,7 +137,7 @@ export const MetricsRow = ({
                   24h <span className={`${priceChangeColor}`}>({formatPercentage(priceChange)})</span>
                 </span>
               }
-              value={price24hFormatted}
+              value={formatPrice(price24h, 5)}
             />
           </div>
 

@@ -12,10 +12,10 @@ export default function Home() {
     >
       <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
         <div className="flex md:flex-row flex-col gap-4 w-full ">
-          <Card title="Bridge and Swap" className="w-2/5 h-full">
+          <Card title="Bridge and Swap" className="w-full md:w-2/5 h-full">
             <SwapWidget />
           </Card>
-          <div className="flex flex-col gap-4 w-3/5 grow">
+          <div className="flex flex-col gap-4 w-full md:w-3/5 grow">
             <Card title="POKT Cumulative Market Data" separateTitle className="w-full">
               <CumulativeMarketData />
             </Card>
