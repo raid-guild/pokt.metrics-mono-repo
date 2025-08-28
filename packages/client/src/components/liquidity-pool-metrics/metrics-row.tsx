@@ -114,18 +114,18 @@ export const MetricsRow = ({
 
   return (
     <div
-      className={`grid grid-cols-12 gap-4 h-21 rounded-lg px-8 items-center`}
+      className={`xl:h-21 rounded-lg px-8 items-center max-w-full`}
       style={{ backgroundColor: poolColor }}
     >
-      <div className="col-span-12 bg-white px-4 h-full border-bg-gray border-1 border-x-0 flex items-center">
-        <div className="grid grid-cols-12 gap-4 items-center h-full grow">
+      <div className=" bg-white px-4 h-full border-bg-gray border-1 border-x-0 flex flex-col lg:flex-row items-center py-4 xl:py-0">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 xl:grid-cols-12 gap-4 items-center h-full grow">
           {/* Pair Name */}
           <div className="col-span-2">
-            <h3 className="text-lg font-semibold font-rubik">{getTokenPairName(pairName)}</h3>
+            <h3 className="text-lg font-semibold font-rubik text-center xl:text-left">{getTokenPairName(pairName)}</h3>
           </div>
 
           {/* Platform Logo */}
-          <div className="col-span-1 flex justify-center">
+          <div className="col-span-1 flex justify-center lg:justify-start">
             <Image src={dexInfo.platformLogo} alt="platform logo" height={32} width={86} />
           </div>
 
@@ -194,7 +194,7 @@ export const MetricsRow = ({
           </div>
         </div>
         {/* DEX Links and Pool Address */}
-        <div className="flex justify-end ml-12">
+        <div className="flex justify-end mt-4 xl:pt-0 lg:ml-12">
             <div className="flex flex-col gap-2">
               <div className="flex gap-2 justify-end">
                 <a href={dexInfo.dexToolsLink} target="_blank" rel="noopener noreferrer">
